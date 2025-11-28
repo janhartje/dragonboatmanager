@@ -1,81 +1,36 @@
-Drachenboot Planer
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
-Dies ist eine moderne Web-App zur Verwaltung von Drachenboot-Teams, Planung von Trainings und Optimierung der Bootsbesetzung.
+## Getting Started
 
-Features
+First, run the development server:
 
-Team-Verwaltung: Kader mit Gewicht und Fähigkeiten (Links, Rechts, Trommel, Steuer).
-
-Termin-Planung: Trainings und Regatten mit Anwesenheitsliste.
-
-Boots-Konfigurator: Interaktives Drag & Drop System.
-
-Smart Auto-Fill: Algorithmus zur automatischen Besetzung basierend auf Balance, Trimm und Skills.
-
-Live-Physik: Echtzeit-Anzeige von Balance (Links/Rechts) und Schwerpunkt (Vorne/Hinten).
-
-Export: Speichern der Aufstellung als Bild.
-
-Offline-Fähig: Alle Daten werden lokal im Browser gespeichert (PWA-ready).
-
-Setup (Lokal & Hosting)
-
-Voraussetzungen
-
-Node.js installiert (für die Entwicklung)
-
-Installation
-
-Projekt erstellen:
-
-npx create-next-app@latest drachenboot-app
-cd drachenboot-app
-
-
-(Wähle bei der Installation: JS, Tailwind CSS, App Router)
-
-Abhängigkeiten installieren:
-
-npm install lucide-react html2canvas
-
-
-Dateien kopieren:
-
-Kopiere den Inhalt von DrachenbootPlaner.jsx nach src/components/DrachenbootPlaner.jsx (erstelle den Ordner components falls nötig).
-
-Öffne src/app/page.js und ersetze den Inhalt mit:
-
-import DrachenbootPlaner from '@/components/DrachenbootPlaner';
-
-export default function Home() {
-  return <DrachenbootPlaner />;
-}
-
-
-Starten:
-
+```bash
 npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
+```
 
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-Öffne http://localhost:3000.
+You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
 
-Deployment (GitHub Pages / Statisch)
+This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-Um die App auf jedem beliebigen Webserver (oder GitHub Pages) zu hosten, musst du sie als statische Seite exportieren.
+## Learn More
 
-Ändere next.config.mjs zu:
+To learn more about Next.js, take a look at the following resources:
 
-/** @type {import('next').NextConfig} */
-const nextConfig = {
-  output: 'export',
-  images: { unoptimized: true }, // Wichtig für statischen Export
-};
-export default nextConfig;
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
-Baue die App:
+## Deploy on Vercel
 
-npm run build
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
-
-Der Inhalt des Ordners out ist deine fertige Webseite. Lade diesen Ordner einfach auf deinen Webspace hoch.
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
