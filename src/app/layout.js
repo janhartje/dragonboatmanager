@@ -4,7 +4,11 @@ import { Analytics } from "@vercel/analytics/next"
 export const metadata = {
   title: "Drachenboot Planer",
   description: "Team Manager & Bootsplaner",
-  manifest: "/manifest.json", // Verknüpfung zum Manifest
+  manifest: "/manifest.json",
+  icons: {
+    icon: '/favicon.svg', // Verweist auf das neue SVG
+    apple: '/icons/logo-192.png', // Für iOS Homescreen (falls vorhanden)
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
@@ -17,7 +21,7 @@ export const viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
-  userScalable: false, // Verhindert Zoomen in der App-Ansicht (wirkt nativer)
+  userScalable: false,
 };
 
 export default function RootLayout({ children }) {
