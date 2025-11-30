@@ -1,4 +1,5 @@
 import "./globals.css";
+import { Analytics } from "@vercel/analytics/next"
 
 export const metadata = {
   title: "Drachenboot Planer",
@@ -22,6 +23,7 @@ export const viewport = {
 export default function RootLayout({ children }) {
   return (
     <html lang="de">
+      <Analytics />
       <body>{children}</body>
     </html>
   );
