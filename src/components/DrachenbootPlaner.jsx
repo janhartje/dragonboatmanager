@@ -40,17 +40,24 @@ import {
 	Info,
 	Crosshair,
 	Scale,
+	Box,
+	UserPlus,
 } from 'lucide-react';
+
+// HINWEIS FÜR DEIN NEXT.JS PROJEKT:
+// 1. Führe im Terminal aus: npm install html2canvas
+// 2. Entkommentiere die folgende Zeile:
+// import html2canvas from 'html2canvas';
 
 /**
  * --- LOCAL STORAGE DATABASE ---
  */
 const db = {
-	KEY: 'drachenboot_pwa_data_v2',
+	KEY: 'drachenboot_pwa_data_v4', // Version bump
 	load: () => {
 		if (typeof window === 'undefined') return null;
 		try {
-			const data = localStorage.getItem('drachenboot_pwa_data_v2');
+			const data = localStorage.getItem('drachenboot_pwa_data_v4');
 			if (data) return JSON.parse(data);
 		} catch (e) {
 			console.error('Ladefehler', e);
@@ -61,7 +68,7 @@ const db = {
 		if (typeof window === 'undefined') return;
 		try {
 			localStorage.setItem(
-				'drachenboot_pwa_data_v2',
+				'drachenboot_pwa_data_v4',
 				JSON.stringify(data)
 			);
 		} catch (e) {
@@ -147,32 +154,163 @@ const DragonLogo = ({ className }) => (
 	</svg>
 );
 
-// --- ONBOARDING MODAL (FIX: Added missing component) ---
+// --- MODALS ---
+
+// ADD GUEST MODAL
+const AddGuestModal = ({ onClose, onAdd }) => {
+	const [name, setName] = useState('');
+	const [weight, setWeight] = useState('');
+	const [skills, setSkills] = useState({
+		left: false,
+		right: false,
+		drum: false,
+		steer: false,
+	});
+
+	const toggleSkill = (s) =>
+		setSkills((prev) => ({ ...prev, [s]: !prev[s] }));
+
+	const handleSubmit = (e) => {
+		e.preventDefault();
+		if (!name || !weight) return;
+		const skillsArr = Object.keys(skills).filter((k) => skills[k]);
+		if (skillsArr.length === 0) {
+			alert('Bitte mind. eine Rolle wählen');
+			return;
+		}
+
+		onAdd({ name, weight: parseFloat(weight), skills: skillsArr });
+		onClose();
+	};
+
+	return (
+		<div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
+			<div className="bg-white dark:bg-slate-900 w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden p-6">
+				<h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+					<UserPlus size={20} /> Gast hinzufügen
+				</h3>
+				<form onSubmit={handleSubmit} className="space-y-4">
+					<div>
+						<label className="text-xs font-bold text-slate-500 uppercase">
+							Name
+						</label>
+						<input
+							autoFocus
+							className="w-full p-2 border rounded bg-slate-50 dark:bg-slate-800 dark:border-slate-700 dark:text-white"
+							value={name}
+							onChange={(e) => setName(e.target.value)}
+							placeholder="Gast Name"
+						/>
+					</div>
+					<div>
+						<label className="text-xs font-bold text-slate-500 uppercase">
+							Gewicht (kg)
+						</label>
+						<input
+							type="number"
+							className="w-full p-2 border rounded bg-slate-50 dark:bg-slate-800 dark:border-slate-700 dark:text-white"
+							value={weight}
+							onChange={(e) => setWeight(e.target.value)}
+							placeholder="0"
+						/>
+					</div>
+					<div>
+						<label className="text-xs font-bold text-slate-500 uppercase mb-2 block">
+							Fähigkeiten
+						</label>
+						<div className="flex gap-2 flex-wrap">
+							<button
+								type="button"
+								onClick={() => toggleSkill('left')}
+								className={`px-3 py-1.5 rounded border text-sm ${
+									skills.left
+										? 'bg-red-500 text-white border-red-600'
+										: 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500'
+								}`}
+							>
+								Links
+							</button>
+							<button
+								type="button"
+								onClick={() => toggleSkill('right')}
+								className={`px-3 py-1.5 rounded border text-sm ${
+									skills.right
+										? 'bg-green-500 text-white border-green-600'
+										: 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500'
+								}`}
+							>
+								Rechts
+							</button>
+							<button
+								type="button"
+								onClick={() => toggleSkill('drum')}
+								className={`px-3 py-1.5 rounded border text-sm ${
+									skills.drum
+										? 'bg-yellow-500 text-white border-yellow-600'
+										: 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500'
+								}`}
+							>
+								Trommel
+							</button>
+							<button
+								type="button"
+								onClick={() => toggleSkill('steer')}
+								className={`px-3 py-1.5 rounded border text-sm ${
+									skills.steer
+										? 'bg-purple-500 text-white border-purple-600'
+										: 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500'
+								}`}
+							>
+								Steuer
+							</button>
+						</div>
+					</div>
+					<div className="flex gap-2 pt-2">
+						<button
+							type="button"
+							onClick={onClose}
+							className="flex-1 py-2 border rounded text-slate-500 hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-800"
+						>
+							Abbrechen
+						</button>
+						<button
+							type="submit"
+							className="flex-1 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 font-medium"
+						>
+							Hinzufügen
+						</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	);
+};
+
 const OnboardingModal = ({ onClose }) => {
 	const [step, setStep] = useState(0);
 	const steps = [
 		{
 			title: 'Willkommen an Bord!',
-			desc: 'Dein neuer Assistent für die Drachenboot-Planung ist da. Verwalte dein Team, plane Trainings und optimiere die Bootsbesetzung mit wenigen Klicks.',
+			desc: 'Dein neuer Assistent für die Drachenboot-Planung. Verwalte dein Team, plane Trainings und optimiere die Bootsbesetzung.',
 			icon: (
 				<DragonLogo className="w-32 h-32 text-blue-600 dark:text-blue-400 mb-4" />
 			),
 		},
 		{
 			title: 'Team & Termine',
-			desc: 'Lege deinen Kader an, definiere Fähigkeiten (Links, Rechts, Trommel, Steuer) und erstelle Termine. Deine Sportler können direkt zu- oder absagen.',
+			desc: 'Lege deinen Kader an, definiere Fähigkeiten und erstelle Termine. Sportler können direkt zu- oder absagen.',
 			icon: (
-				<div className="flex gap-6 text-blue-600 dark:text-blue-400 mb-6">
+				<div className="flex gap-6 text-blue-600 dark:text-blue-400 mb-6 justify-center">
 					<Users size={64} />
 					<Calendar size={64} />
 				</div>
 			),
 		},
 		{
-			title: 'Smarte Boots-Planung',
-			desc: "Der Planungsmodus hilft dir, das Boot perfekt auszubalancieren. Nutze den 'Auto-Fill' Zauberstab, um basierend auf Gewicht und Skills automatisch die beste Sitzordnung zu finden.",
+			title: 'Smarte Planung',
+			desc: 'Der Auto-Fill Zauberstab berechnet automatisch die beste Sitzordnung. Füge Gäste spontan hinzu oder nutze Kanister zum Ausgleich.',
 			icon: (
-				<div className="flex gap-6 text-blue-600 dark:text-blue-400 mb-6">
+				<div className="flex gap-6 text-blue-600 dark:text-blue-400 mb-6 justify-center">
 					<ShipWheel size={64} />
 					<Wand2 size={64} />
 				</div>
@@ -183,7 +321,7 @@ const OnboardingModal = ({ onClose }) => {
 		<div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-300">
 			<div className="bg-white dark:bg-slate-900 w-full max-w-md rounded-3xl shadow-2xl overflow-hidden flex flex-col text-center relative">
 				<div className="p-8 flex flex-col items-center pt-12 pb-8 min-h-[400px]">
-					<div className="flex-1 flex flex-col items-center justify-center">
+					<div className="flex-1 flex flex-col items-center justify-center w-full">
 						{steps[step].icon}
 						<h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-3">
 							{steps[step].title}
@@ -220,7 +358,6 @@ const OnboardingModal = ({ onClose }) => {
 	);
 };
 
-// --- HELP MODAL ---
 const HelpModal = ({ onClose }) => (
 	<div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
 		<div className="bg-white dark:bg-slate-900 w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
@@ -252,8 +389,8 @@ const HelpModal = ({ onClose }) => (
 					</h3>
 					<ul className="list-disc pl-5 space-y-1">
 						<li>
-							<strong>Kader verwalten:</strong> Füge neue Mitglieder mit
-							Name, Gewicht und Seite hinzu.
+							<strong>Kader verwalten:</strong> Füge neue Mitglieder hinzu,
+							bearbeite oder lösche sie.
 						</li>
 						<li>
 							<strong>Skills:</strong> Weise Rollen zu. Nur
@@ -267,11 +404,7 @@ const HelpModal = ({ onClose }) => (
 						<Calendar size={18} /> 2. Termine
 					</h3>
 					<ul className="list-disc pl-5 space-y-1">
-						<li>Erstelle Trainingstermine oder Regatten.</li>
-						<li>
-							Klicke auf die Symbole in der Liste, um Zu- oder Absagen für
-							Mitglieder einzutragen.
-						</li>
+						<li>Erstelle Termine und verwalte Zu-/Absagen.</li>
 						<li>
 							Mit "Planen" öffnest du die Bootsansicht für diesen Termin.
 						</li>
@@ -279,17 +412,20 @@ const HelpModal = ({ onClose }) => (
 				</section>
 				<section>
 					<h3 className="font-bold text-slate-900 dark:text-white text-base mb-2 flex items-center gap-2">
-						<Wand2 size={18} /> 3. Auto-Fill & Ziel-Trimm
+						<Wand2 size={18} /> 3. Auto-Fill & Tools
 					</h3>
 					<ul className="list-disc pl-5 space-y-1">
 						<li>
-							<strong>Ziel-Slider:</strong> Stelle mit dem Slider ein, ob
-							das Boot hecklastig (-kg) oder buglastig (+kg) sein soll.
+							<strong>Ziel-Slider:</strong> Stelle ein, ob das Boot
+							hecklastig (-kg) oder buglastig (+kg) sein soll.
 						</li>
 						<li>
-							<strong>Auto-Fill:</strong> Der Algorithmus versucht, die
-							Besatzung so zu verteilen, dass dieser Zielwert erreicht
-							wird.
+							<strong>Auto-Fill:</strong> Die KI verteilt die Besatzung so,
+							dass dieser Zielwert erreicht wird.
+						</li>
+						<li>
+							<strong>Gäste & Kanister:</strong> Füge spontan Gäste hinzu
+							oder nutze Kanister zum Ausgleich.
 						</li>
 					</ul>
 				</section>
@@ -299,8 +435,7 @@ const HelpModal = ({ onClose }) => (
 					</h3>
 					<p>
 						Der <span className="text-red-500 font-bold">rote Punkt</span>{' '}
-						im Boot zeigt den aktuellen Schwerpunkt basierend auf den
-						Gewichten an.
+						im Boot zeigt den aktuellen physikalischen Schwerpunkt an.
 					</p>
 				</section>
 			</div>
@@ -316,7 +451,6 @@ const HelpModal = ({ onClose }) => (
 	</div>
 );
 
-// --- IMPRINT MODAL ---
 const ImprintModal = ({ onClose }) => (
 	<div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
 		<div className="bg-white dark:bg-slate-900 w-full max-w-md rounded-2xl shadow-2xl overflow-hidden flex flex-col">
@@ -367,6 +501,7 @@ const DrachenbootPlaner = () => {
 	const [showHelp, setShowHelp] = useState(false);
 	const [showImprint, setShowImprint] = useState(false);
 	const [showOnboarding, setShowOnboarding] = useState(false);
+	const [showGuestModal, setShowGuestModal] = useState(false); // Guest Modal
 	const boatRef = useRef(null);
 	const [deleteConfirmId, setDeleteConfirmId] = useState(null);
 
@@ -376,39 +511,27 @@ const DrachenbootPlaner = () => {
 	const [assignmentsByEvent, setAssignmentsByEvent] = useState({});
 	const [targetTrim, setTargetTrim] = useState(0);
 
-	// --- INIT ---
-	useEffect(() => {
-		// Social Share Meta Tags
-		const metaTags = [
-			{
-				property: 'og:title',
-				content: 'Drachenboot Planer - Team Manager',
-			},
-			{
-				property: 'og:description',
-				content:
-					'Verwalte dein Drachenboot-Team, plane Trainings und optimiere die Bootsbesetzung.',
-			},
-			{
-				property: 'og:image',
-				content: 'https://cdn-icons-png.flaticon.com/512/2043/2043693.png',
-			},
-			{ name: 'theme-color', content: '#2563eb' },
-		];
-		metaTags.forEach((tag) => {
-			let el =
-				document.querySelector(`meta[property="${tag.property}"]`) ||
-				document.querySelector(`meta[name="${tag.name}"]`);
-			if (!el) {
-				el = document.createElement('meta');
-				if (tag.property) el.setAttribute('property', tag.property);
-				if (tag.name) el.setAttribute('name', tag.name);
-				document.head.appendChild(el);
-			}
-			el.setAttribute('content', tag.content);
-		});
-		document.title = 'Drachenboot Planer';
+	// Locked & Selection State
+	const [lockedSeats, setLockedSeats] = useState([]);
+	const [selectedPaddlerId, setSelectedPaddlerId] = useState(null);
+	const [isSimulating, setIsSimulating] = useState(false);
+	const [confirmClear, setConfirmClear] = useState(false);
 
+	// Forms
+	const [paddlerFormName, setPaddlerFormName] = useState('');
+	const [paddlerFormWeight, setPaddlerFormWeight] = useState('');
+	const [paddlerFormSkills, setPaddlerFormSkills] = useState({
+		left: false,
+		right: false,
+		drum: false,
+		steer: false,
+	});
+	const [editingPaddlerId, setEditingPaddlerId] = useState(null);
+	const [newEventTitle, setNewEventTitle] = useState('');
+	const [newEventDate, setNewEventDate] = useState('');
+
+	useEffect(() => {
+		// Load html2canvas dynamically
 		const script = document.createElement('script');
 		script.src =
 			'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
@@ -431,22 +554,22 @@ const DrachenbootPlaner = () => {
 			'drachenboot_onboarding_seen'
 		);
 		if (!hasSeenOnboarding) setShowOnboarding(true);
-
 		if (
 			!data &&
+			typeof window !== 'undefined' &&
 			window.matchMedia &&
 			window.matchMedia('(prefers-color-scheme: dark)').matches
 		)
 			setIsDarkMode(true);
+
 		return () => {
 			if (document.body.contains(script))
 				document.body.removeChild(script);
 		};
 	}, []);
 
-	// --- AUTO-SAVE ---
 	useEffect(() => {
-		if (!isLoading) {
+		if (!isLoading)
 			db.save({
 				paddlers,
 				events,
@@ -454,7 +577,6 @@ const DrachenbootPlaner = () => {
 				darkMode: isDarkMode,
 				targetTrim,
 			});
-		}
 		if (isDarkMode) document.documentElement.classList.add('dark');
 		else document.documentElement.classList.remove('dark');
 	}, [
@@ -467,7 +589,6 @@ const DrachenbootPlaner = () => {
 	]);
 
 	const toggleDarkMode = () => setIsDarkMode(!isDarkMode);
-
 	const closeOnboarding = () => {
 		localStorage.setItem('drachenboot_onboarding_seen', 'true');
 		setShowOnboarding(false);
@@ -519,26 +640,6 @@ const DrachenbootPlaner = () => {
 		setAssignmentsByEvent({ [initEventId]: {} });
 	};
 
-	// --- Temporary State ---
-	const [lockedSeats, setLockedSeats] = useState([]);
-	const [selectedPaddlerId, setSelectedPaddlerId] = useState(null);
-	const [isSimulating, setIsSimulating] = useState(false);
-	const [confirmClear, setConfirmClear] = useState(false);
-
-	// --- Forms ---
-	const [paddlerFormName, setPaddlerFormName] = useState('');
-	const [paddlerFormWeight, setPaddlerFormWeight] = useState('');
-	const [paddlerFormSkills, setPaddlerFormSkills] = useState({
-		left: false,
-		right: false,
-		drum: false,
-		steer: false,
-	});
-	const [editingPaddlerId, setEditingPaddlerId] = useState(null);
-	const [newEventTitle, setNewEventTitle] = useState('');
-	const [newEventDate, setNewEventDate] = useState('');
-
-	// --- Helpers ---
 	const currentContextId = activeEventId || 'global';
 	const assignments = useMemo(
 		() => assignmentsByEvent[currentContextId] || {},
@@ -553,25 +654,45 @@ const DrachenbootPlaner = () => {
 		},
 		[currentContextId]
 	);
+
 	const activeEvent = useMemo(
 		() => events.find((e) => e.id === activeEventId),
 		[activeEventId, events]
 	);
 	const activeEventTitle = activeEvent ? activeEvent.title : 'Sandbox';
+
+	// --- ACTIVE POOL CALCULATION ---
 	const activePaddlerPool = useMemo(() => {
-		let pool = paddlers;
-		if (activeEventId && activeEvent) {
-			pool = paddlers.filter((p) =>
-				['yes', 'maybe'].includes(activeEvent.attendance[p.id])
+		let pool = [];
+
+		if (view === 'team') {
+			// In Team View only real paddlers (no canisters, no guests)
+			pool = paddlers.filter((p) => !p.isCanister);
+		} else if (activeEventId && activeEvent) {
+			// In Planner View:
+			// 1. Real paddlers present
+			const regular = paddlers.filter(
+				(p) =>
+					!p.isCanister &&
+					['yes', 'maybe'].includes(activeEvent.attendance[p.id])
 			);
+			// 2. Canisters (Global)
+			const canisters = paddlers.filter((p) => p.isCanister);
+			// 3. Guests (Specific to Event)
+			const guests = activeEvent.guests || [];
+
+			pool = [...regular, ...canisters, ...guests];
+		} else {
+			pool = paddlers;
 		}
-		return [...pool].sort((a, b) => a.name.localeCompare(b.name));
-	}, [paddlers, activeEventId, activeEvent]);
+		return pool.sort((a, b) => a.name.localeCompare(b.name));
+	}, [paddlers, activeEventId, activeEvent, view]);
 
 	// --- ACTIONS ---
 	const toggleSkill = (skill) => {
 		setPaddlerFormSkills((prev) => ({ ...prev, [skill]: !prev[skill] }));
 	};
+
 	const resetPaddlerForm = () => {
 		setEditingPaddlerId(null);
 		setPaddlerFormName('');
@@ -583,6 +704,7 @@ const DrachenbootPlaner = () => {
 			steer: false,
 		});
 	};
+
 	const handleSavePaddler = (e) => {
 		e.preventDefault();
 		if (!paddlerFormName || !paddlerFormWeight) return;
@@ -610,6 +732,35 @@ const DrachenbootPlaner = () => {
 		}
 		resetPaddlerForm();
 	};
+
+	const handleAddCanister = () => {
+		const canisterId = 'canister-' + Date.now();
+		const canister = {
+			id: canisterId,
+			name: 'Kanister',
+			weight: 25,
+			skills: ['left', 'right'],
+			isCanister: true,
+		};
+		setPaddlers((prev) => [...prev, canister]);
+		setSelectedPaddlerId(canisterId);
+	};
+
+	const handleAddGuest = (guestData) => {
+		const guestId = 'guest-' + Date.now();
+		const newGuest = { ...guestData, id: guestId, isGuest: true };
+
+		setEvents((prev) =>
+			prev.map((ev) => {
+				if (ev.id === activeEventId) {
+					return { ...ev, guests: [...(ev.guests || []), newGuest] };
+				}
+				return ev;
+			})
+		);
+		setSelectedPaddlerId(guestId);
+	};
+
 	const handleEditPaddler = (p) => {
 		setEditingPaddlerId(p.id);
 		setPaddlerFormName(p.name);
@@ -619,6 +770,7 @@ const DrachenbootPlaner = () => {
 		setPaddlerFormSkills(sObj);
 		window.scrollTo({ top: 0, behavior: 'smooth' });
 	};
+
 	const triggerDelete = (id) => {
 		if (deleteConfirmId === id) {
 			handleDeletePaddler(id);
@@ -628,7 +780,32 @@ const DrachenbootPlaner = () => {
 			setTimeout(() => setDeleteConfirmId(null), 3000);
 		}
 	};
+
 	const handleDeletePaddler = (id) => {
+		// Check if it's a guest in the active event first
+		if (id.toString().startsWith('guest-') && activeEvent) {
+			setEvents((prev) =>
+				prev.map((ev) => {
+					if (ev.id === activeEventId) {
+						return {
+							...ev,
+							guests: (ev.guests || []).filter((g) => g.id !== id),
+						};
+					}
+					return ev;
+				})
+			);
+			// Clean assignment if seated
+			const nAss = { ...assignments };
+			const seat = Object.keys(nAss).find((k) => nAss[k] === id);
+			if (seat) {
+				delete nAss[seat];
+				updateAssignments(nAss);
+			}
+			return;
+		}
+
+		// Regular Paddler Deletion logic
 		setAssignmentsByEvent((prev) => {
 			const next = { ...prev };
 			Object.keys(next).forEach((eid) => {
@@ -654,6 +831,7 @@ const DrachenbootPlaner = () => {
 		setPaddlers((prev) => prev.filter((p) => p.id !== id));
 		if (editingPaddlerId === id) resetPaddlerForm();
 	};
+
 	const handleCreateEvent = (e) => {
 		e.preventDefault();
 		if (!newEventTitle || !newEventDate) return;
@@ -664,12 +842,14 @@ const DrachenbootPlaner = () => {
 			date: newEventDate,
 			type: 'training',
 			attendance: {},
+			guests: [],
 		};
 		setEvents((prev) => [...prev, ne]);
 		setAssignmentsByEvent((prev) => ({ ...prev, [nid]: {} }));
 		setNewEventTitle('');
 		setNewEventDate('');
 	};
+
 	const updateAttendance = (eid, pid, status) => {
 		setEvents((prev) =>
 			prev.map((ev) => {
@@ -690,16 +870,19 @@ const DrachenbootPlaner = () => {
 		setActiveEventId(null);
 		setView('team');
 	};
+
 	const handleExportImage = () => {
-		if (!boatRef.current || !window.html2canvas) return;
+		if (!boatRef.current) return;
+		const h2c = window.html2canvas || html2canvas;
+		if (!h2c) return;
+
 		setIsExporting(true);
 		setTimeout(() => {
-			window
-				.html2canvas(boatRef.current, {
-					backgroundColor: null,
-					scale: 3,
-					useCORS: true,
-				})
+			h2c(boatRef.current, {
+				backgroundColor: null,
+				scale: 3,
+				useCORS: true,
+			})
 				.then((canvas) => {
 					const link = document.createElement('a');
 					link.download = `drachenboot-${activeEventTitle.replace(
@@ -747,7 +930,10 @@ const DrachenbootPlaner = () => {
 			b = 0,
 			c = 0;
 		Object.entries(assignments).forEach(([sid, pid]) => {
-			const p = paddlers.find((x) => x.id === pid);
+			// Need to search in activePaddlerPool because guests/canisters are not in global paddlers
+			const p =
+				activePaddlerPool.find((x) => x.id === pid) ||
+				paddlers.find((x) => x.id === pid);
 			if (!p) return;
 			t += p.weight;
 			c++;
@@ -760,13 +946,16 @@ const DrachenbootPlaner = () => {
 			}
 		});
 		return { l, r, t, diffLR: l - r, f, b, diffFB: f - b, c };
-	}, [assignments, paddlers]);
+	}, [assignments, paddlers, activePaddlerPool]);
+
 	const cgStats = useMemo(() => {
 		let totalWeight = 0;
 		let weightedSumX = 0;
 		let weightedSumY = 0;
 		Object.entries(assignments).forEach(([sid, pid]) => {
-			const p = paddlers.find((x) => x.id === pid);
+			const p =
+				activePaddlerPool.find((x) => x.id === pid) ||
+				paddlers.find((x) => x.id === pid);
 			if (!p) return;
 			totalWeight += p.weight;
 			let xPos = 50;
@@ -786,7 +975,7 @@ const DrachenbootPlaner = () => {
 		const cgY = totalWeight > 0 ? weightedSumY / totalWeight : 50;
 		const targetY = 50 - targetTrim * 0.1;
 		return { x: cgX, y: cgY, targetY };
-	}, [assignments, paddlers, targetTrim]);
+	}, [assignments, paddlers, targetTrim, activePaddlerPool]);
 
 	const handleSeatClick = (sid) => {
 		if (lockedSeats.includes(sid)) return;
@@ -805,9 +994,20 @@ const DrachenbootPlaner = () => {
 	const handleUnassign = (sid, e) => {
 		e.stopPropagation();
 		if (lockedSeats.includes(sid)) return;
+
+		const paddlerId = assignments[sid];
+		// Check active pool for object
+		const paddler = activePaddlerPool.find((p) => p.id === paddlerId);
+
 		const nAss = { ...assignments };
 		delete nAss[sid];
 		updateAssignments(nAss);
+
+		if (paddler && paddler.isCanister) {
+			setPaddlers((prev) => prev.filter((p) => p.id !== paddlerId));
+		}
+		// Guests persist until explicitly deleted or event cleared?
+		// Current logic: guests stay in pool, so we just unassign them.
 	};
 	const toggleLock = (sid, e) => {
 		e.stopPropagation();
@@ -896,7 +1096,7 @@ const DrachenbootPlaner = () => {
 						b = 0;
 					Object.entries(currAss).forEach(([sid, pid]) => {
 						if (sid === 'drummer' || sid === 'steer') return;
-						const pad = paddlers.find((x) => x.id === pid);
+						const pad = activePaddlerPool.find((x) => x.id === pid);
 						if (!pad) return;
 						if (sid.includes('left')) l += pad.weight;
 						else r += pad.weight;
@@ -961,7 +1161,7 @@ const DrachenbootPlaner = () => {
 				}
 				Object.entries(currAss).forEach(([sid, pid]) => {
 					if (sid === 'drummer' || sid === 'steer') return;
-					const pad = paddlers.find((x) => x.id === pid);
+					const pad = activePaddlerPool.find((x) => x.id === pid);
 					if (!pad) return;
 					if (sid.includes('left')) fl += pad.weight;
 					else fr += pad.weight;
@@ -1012,9 +1212,9 @@ const DrachenbootPlaner = () => {
 
 	// --- RENDER ---
 	if (view === 'team') {
-		const sortedPaddlers = [...paddlers].sort((a, b) =>
-			a.name.localeCompare(b.name)
-		);
+		const sortedPaddlers = [...paddlers]
+			.filter((p) => !p.isCanister)
+			.sort((a, b) => a.name.localeCompare(b.name));
 		return (
 			<div className="min-h-screen bg-slate-100 p-2 md:p-4 font-sans text-slate-800 pb-20 dark:bg-slate-950 dark:text-slate-100 transition-colors">
 				{showHelp && <HelpModal onClose={() => setShowHelp(false)} />}
@@ -1079,7 +1279,7 @@ const DrachenbootPlaner = () => {
 									/>
 									<button
 										type="submit"
-										className="w-full bg-blue-600 text-white p-2 rounded text-sm font-medium hover:bg-blue-700 active:scale-95 transition-all"
+										className="w-full bg-blue-600 text-white p-2 rounded text-sm font-medium hover:bg-blue-700"
 									>
 										+ Erstellen
 									</button>
@@ -1158,7 +1358,7 @@ const DrachenbootPlaner = () => {
 																		className={`w-8 h-8 flex items-center justify-center rounded-lg border transition-all ${
 																			status === 'yes'
 																				? 'bg-green-500 text-white border-green-600'
-																				: 'bg-white dark:bg-slate-800 text-slate-300 dark:text-slate-600 border-slate-200 dark:border-slate-700'
+																				: 'bg-white dark:bg-slate-800 text-slate-300 dark:text-slate-600 border-slate-200 dark:border-slate-700 hover:border-slate-300'
 																		}`}
 																		title="Zusage"
 																	>
@@ -1175,7 +1375,7 @@ const DrachenbootPlaner = () => {
 																		className={`w-8 h-8 flex items-center justify-center rounded-lg border transition-all ${
 																			status === 'maybe'
 																				? 'bg-yellow-400 text-white border-yellow-500'
-																				: 'bg-white dark:bg-slate-800 text-slate-300 dark:text-slate-600 border-slate-200 dark:border-slate-700'
+																				: 'bg-white dark:bg-slate-800 text-slate-300 dark:text-slate-600 border-slate-200 dark:border-slate-700 hover:border-slate-300'
 																		}`}
 																		title="Vielleicht"
 																	>
@@ -1188,7 +1388,7 @@ const DrachenbootPlaner = () => {
 																		className={`w-8 h-8 flex items-center justify-center rounded-lg border transition-all ${
 																			status === 'no'
 																				? 'bg-red-500 text-white border-red-600'
-																				: 'bg-white dark:bg-slate-800 text-slate-300 dark:text-slate-600 border-slate-200 dark:border-slate-700'
+																				: 'bg-white dark:bg-slate-800 text-slate-300 dark:text-slate-600 border-slate-200 dark:border-slate-700 hover:border-slate-300'
 																		}`}
 																		title="Absage"
 																	>
@@ -1236,7 +1436,7 @@ const DrachenbootPlaner = () => {
 												Name
 											</label>
 											<input
-												className="w-full p-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-sm outline-none focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-blue-500 transition-all dark:text-white"
+												className="w-full p-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-sm outline-none dark:text-white"
 												value={paddlerFormName}
 												onChange={(e) =>
 													setPaddlerFormName(e.target.value)
@@ -1250,7 +1450,7 @@ const DrachenbootPlaner = () => {
 											</label>
 											<input
 												type="number"
-												className="w-full p-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-sm outline-none focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-blue-500 transition-all dark:text-white"
+												className="w-full p-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-sm outline-none dark:text-white"
 												value={paddlerFormWeight}
 												onChange={(e) =>
 													setPaddlerFormWeight(e.target.value)
@@ -1315,7 +1515,7 @@ const DrachenbootPlaner = () => {
 											<button
 												type="button"
 												onClick={resetPaddlerForm}
-												className="bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 px-4 py-2 rounded text-sm hover:bg-slate-50 dark:hover:bg-slate-700"
+												className="bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 px-4 py-2 rounded text-sm"
 											>
 												Abbruch
 											</button>
@@ -1367,7 +1567,6 @@ const DrachenbootPlaner = () => {
 												<button
 													onClick={() => handleEditPaddler(p)}
 													className="bg-white dark:bg-slate-700 text-slate-400 hover:text-orange-500 p-1.5 rounded-lg border dark:border-slate-600 shadow-sm"
-													title="Bearbeiten"
 												>
 													<Pencil size={12} />
 												</button>
@@ -1393,7 +1592,6 @@ const DrachenbootPlaner = () => {
 							</div>
 						</div>
 					</div>
-
 					<footer className="mt-20 pb-10 text-center text-xs text-slate-400">
 						<button
 							onClick={() => setShowImprint(true)}
@@ -1402,20 +1600,24 @@ const DrachenbootPlaner = () => {
 							Impressum
 						</button>
 					</footer>
-					{showImprint && (
-						<ImprintModal onClose={() => setShowImprint(false)} />
-					)}
 				</div>
 			</div>
 		);
 	}
 
-	// === RENDER: BOOT PLANER ===
+	// === PLANNER VIEW ===
 	return (
 		<div
 			className={`min-h-screen font-sans text-slate-800 dark:text-slate-100 transition-colors duration-300 bg-slate-100 dark:bg-slate-950 p-2 md:p-4 pb-20`}
 		>
 			{showHelp && <HelpModal onClose={() => setShowHelp(false)} />}
+			{showGuestModal && (
+				<AddGuestModal
+					onClose={() => setShowGuestModal(false)}
+					onAdd={handleAddGuest}
+				/>
+			)}
+
 			<div className="max-w-6xl mx-auto">
 				<header className="mb-4 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-3 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 sticky top-0 z-30">
 					<div>
@@ -1489,7 +1691,6 @@ const DrachenbootPlaner = () => {
 								diff={stats.diffFB}
 							/>
 
-							{/* --- TARGET TRIM SLIDER --- */}
 							<div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
 								<div className="flex justify-between text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">
 									<span>Hecklastig</span>
@@ -1560,9 +1761,27 @@ const DrachenbootPlaner = () => {
 						</div>
 
 						<div className="bg-white dark:bg-slate-900 p-4 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 h-[600px] flex flex-col">
-							<h2 className="font-bold text-sm text-slate-700 dark:text-slate-200 uppercase tracking-wide mb-3 flex items-center gap-2">
-								<User size={16} /> Verfügbar ({activePaddlerPool.length})
-							</h2>
+							<div className="flex justify-between items-center mb-3">
+								<h2 className="font-bold text-sm text-slate-700 dark:text-slate-200 uppercase tracking-wide flex items-center gap-2">
+									<User size={16} /> Verfügbar ({activePaddlerPool.length})
+								</h2>
+								<div className="flex gap-1">
+									<button
+										onClick={handleAddCanister}
+										className="p-1.5 bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-500 rounded hover:bg-amber-100 border border-amber-200 dark:border-amber-800"
+										title="Kanister +25kg"
+									>
+										<Box size={14} />
+									</button>
+									<button
+										onClick={() => setShowGuestModal(true)}
+										className="p-1.5 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded hover:bg-blue-100 border border-blue-200 dark:border-blue-800 flex items-center gap-1 text-xs font-bold"
+										title="Gast hinzufügen"
+									>
+										<UserPlus size={14} /> Gast+
+									</button>
+								</div>
+							</div>
 							{activePaddlerPool.length === 0 && (
 								<div className="text-center p-8 text-slate-400 italic text-sm border-2 border-dashed border-slate-100 dark:border-slate-800 rounded-xl">
 									Keine Zusagen.
@@ -1602,9 +1821,19 @@ const DrachenbootPlaner = () => {
 															: 'text-slate-800 dark:text-slate-200'
 													}`}
 												>
-													{p.name}{' '}
+													{p.name}
 													{isMaybe && (
 														<span className="text-xs opacity-70">(?)</span>
+													)}
+													{p.isCanister && (
+														<span className="text-xs opacity-70 ml-1">
+															(Box)
+														</span>
+													)}
+													{p.isGuest && (
+														<span className="text-xs opacity-70 ml-1">
+															(Gast)
+														</span>
 													)}
 												</div>
 												<div
@@ -1617,7 +1846,16 @@ const DrachenbootPlaner = () => {
 													<span>{p.weight} kg</span>
 												</div>
 											</div>
-											{getSkillBadges(p.skills)}
+											{p.isCanister ? (
+												<Box
+													size={16}
+													className={
+														isSelected ? 'text-white' : 'text-amber-500'
+													}
+												/>
+											) : (
+												getSkillBadges(p.skills)
+											)}
 										</div>
 									);
 								})}
@@ -1635,7 +1873,6 @@ const DrachenbootPlaner = () => {
 									backgroundSize: '30px 30px',
 								}}
 							></div>
-
 							<div
 								ref={boatRef}
 								className="relative w-[360px] flex flex-col items-center"
@@ -1646,7 +1883,6 @@ const DrachenbootPlaner = () => {
 								>
 									<DragonLogo className="w-24 h-24 text-amber-600 dark:text-amber-500" />
 								</div>
-
 								<div
 									className="relative bg-amber-50 dark:bg-amber-900 border-4 border-amber-800 dark:border-amber-950 shadow-xl w-full px-4 py-12 z-10"
 									style={{
@@ -1655,7 +1891,6 @@ const DrachenbootPlaner = () => {
 										borderRadius: '40px',
 									}}
 								>
-									{/* CENTER OF GRAVITY MARKER */}
 									<div
 										className="absolute pointer-events-none z-0 transition-all duration-500 ease-out"
 										style={{
@@ -1683,9 +1918,13 @@ const DrachenbootPlaner = () => {
 										<div className="flex justify-center mb-8">
 											{(() => {
 												const s = boatConfig[0];
-												const p = paddlers.find(
-													(x) => x.id === assignments[s.id]
-												);
+												const p =
+													paddlers.find(
+														(x) => x.id === assignments[s.id]
+													) ||
+													activeEvent?.guests?.find(
+														(g) => g.id === assignments[s.id]
+													);
 												const isMaybe =
 													activeEvent &&
 													activeEvent.attendance[p?.id] === 'maybe';
@@ -1705,24 +1944,26 @@ const DrachenbootPlaner = () => {
 												);
 											})()}
 										</div>
-
 										{Array.from({ length: rows }).map((_, i) => {
 											const r = i + 1;
 											const ls = `row-${r}-left`,
 												rs = `row-${r}-right`;
-											const pl = paddlers.find(
-												(x) => x.id === assignments[ls]
-											);
-											const pr = paddlers.find(
-												(x) => x.id === assignments[rs]
-											);
+											const pl =
+												activePaddlerPool.find(
+													(x) => x.id === assignments[ls]
+												) ||
+												paddlers.find((x) => x.id === assignments[ls]); // Safe find including guests
+											const pr =
+												activePaddlerPool.find(
+													(x) => x.id === assignments[rs]
+												) ||
+												paddlers.find((x) => x.id === assignments[rs]);
 											const ml =
 												activeEvent &&
 												activeEvent.attendance[pl?.id] === 'maybe';
 											const mr =
 												activeEvent &&
 												activeEvent.attendance[pr?.id] === 'maybe';
-
 											return (
 												<div
 													key={r}
@@ -1758,13 +1999,14 @@ const DrachenbootPlaner = () => {
 												</div>
 											);
 										})}
-
 										<div className="flex justify-center mt-10">
 											{(() => {
 												const s = boatConfig[boatConfig.length - 1];
-												const p = paddlers.find(
-													(x) => x.id === assignments[s.id]
-												);
+												const p =
+													activePaddlerPool.find(
+														(x) => x.id === assignments[s.id]
+													) ||
+													paddlers.find((x) => x.id === assignments[s.id]);
 												const isMaybe =
 													activeEvent &&
 													activeEvent.attendance[p?.id] === 'maybe';
@@ -1786,7 +2028,6 @@ const DrachenbootPlaner = () => {
 										</div>
 									</div>
 								</div>
-
 								<div
 									className="text-5xl z-20 mt-[-30px] drop-shadow-lg transform -scale-y-100 filter grayscale-[0.3] relative text-amber-600 dark:text-amber-500"
 									style={{ zIndex: 30 }}
@@ -1874,22 +2115,32 @@ const SeatBox = ({
 		badge = '';
 
 	if (paddler) {
-		let ok = false;
-		if (paddler.skills) {
-			if (seat.type === 'drummer' && paddler.skills.includes('drum'))
-				ok = true;
-			else if (seat.type === 'steer' && paddler.skills.includes('steer'))
-				ok = true;
-			else if (side && paddler.skills.includes(side)) ok = true;
-		}
-		if (ok) {
+		if (paddler.isCanister) {
 			base =
-				'bg-green-200 dark:bg-green-800 border-green-700 dark:border-green-600 shadow-md';
-			text = 'text-green-900 dark:text-green-100 font-bold';
+				'bg-amber-200 dark:bg-amber-800 border-amber-500 dark:border-amber-600 shadow-md';
+			text = 'text-amber-900 dark:text-amber-100 font-bold';
+		} else if (paddler.isGuest) {
+			base =
+				'bg-blue-100 dark:bg-blue-900 border-blue-300 dark:border-blue-700 shadow-md';
+			text = 'text-blue-900 dark:text-blue-100 font-bold';
 		} else {
-			base =
-				'bg-red-200 dark:bg-red-900 border-red-600 dark:border-red-700 shadow-md';
-			text = 'text-red-900 dark:text-red-100 font-bold';
+			let ok = false;
+			if (paddler.skills) {
+				if (seat.type === 'drummer' && paddler.skills.includes('drum'))
+					ok = true;
+				else if (seat.type === 'steer' && paddler.skills.includes('steer'))
+					ok = true;
+				else if (side && paddler.skills.includes(side)) ok = true;
+			}
+			if (ok) {
+				base =
+					'bg-green-200 dark:bg-green-800 border-green-700 dark:border-green-600 shadow-md';
+				text = 'text-green-900 dark:text-green-100 font-bold';
+			} else {
+				base =
+					'bg-red-200 dark:bg-red-900 border-red-600 dark:border-red-700 shadow-md';
+				text = 'text-red-900 dark:text-red-100 font-bold';
+			}
 		}
 
 		if (isMaybe) {
@@ -1936,7 +2187,8 @@ const SeatBox = ({
 							className={`text-[10px] opacity-90 ${text} flex items-center justify-center gap-1 mt-0.5 font-mono font-normal`}
 						>
 							<span>{paddler.weight}</span>
-							{getSkillBadges(paddler.skills)}
+							{!paddler.isCanister && getSkillBadges(paddler.skills)}
+							{paddler.isCanister && <Box size={10} />}
 						</div>
 					)}
 
