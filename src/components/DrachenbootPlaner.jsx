@@ -42,18 +42,12 @@ import {
 	Scale,
 	Box,
 	UserPlus,
-    History // Neues Icon für Changelog
 } from 'lucide-react';
 
 // HINWEIS FÜR DEIN NEXT.JS PROJEKT:
 // 1. Führe im Terminal aus: npm install html2canvas
 // 2. Entkommentiere die folgende Zeile:
 // import html2canvas from 'html2canvas';
-
-/**
- * --- APP CONFIG ---
- */
-const APP_VERSION = '1.0.0';
 
 /**
  * --- LOCAL STORAGE DATABASE ---
@@ -161,43 +155,6 @@ const DragonLogo = ({ className }) => (
 );
 
 // --- MODALS ---
-
-// CHANGELOG MODAL
-const ChangelogModal = ({ onClose }) => (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="bg-white dark:bg-slate-900 w-full max-w-md rounded-2xl shadow-2xl overflow-hidden flex flex-col">
-        <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-slate-800/50">
-          <h2 className="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
-             <History size={20} className="text-blue-500"/> Changelog
-          </h2>
-          <button onClick={onClose} className="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-full transition-colors text-slate-500">
-            <X size={20}/>
-          </button>
-        </div>
-        <div className="p-6 text-sm text-slate-600 dark:text-slate-300 space-y-4 max-h-[60vh] overflow-y-auto">
-          
-          <div>
-            <h3 className="font-bold text-slate-900 dark:text-white mb-1">v1.0.0 (Initial Release)</h3>
-            <ul className="list-disc pl-5 space-y-1">
-                <li>Team Management (Kader, Skills)</li>
-                <li>Terminplanung & Anwesenheit</li>
-                <li>Boots-Planer mit Drag & Drop</li>
-                <li>Auto-Fill Algorithmus (Balance, Trimm)</li>
-                <li>Dark Mode Support</li>
-                <li>PWA Support (Offline-fähig)</li>
-            </ul>
-          </div>
-
-           {/* Hier können zukünftige Versionen einfach angefügt werden */}
-
-        </div>
-         <div className="p-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 text-center">
-            <button onClick={onClose} className="bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors">Schließen</button>
-        </div>
-      </div>
-    </div>
-);
-
 
 // ADD GUEST MODAL
 const AddGuestModal = ({ onClose, onAdd }) => {
@@ -534,27 +491,6 @@ const ImprintModal = ({ onClose }) => (
 	</div>
 );
 
-// --- FOOTER ---
-const AppFooter = ({ onImprint, onChangelog }) => (
-     <footer className="mt-20 pb-10 text-center text-xs text-slate-400 space-x-4">
-        <button
-            onClick={onImprint}
-            className="hover:text-slate-600 dark:hover:text-slate-300 underline underline-offset-2 decoration-slate-300 dark:decoration-slate-600"
-        >
-            Impressum
-        </button>
-        <span className="text-slate-300 dark:text-slate-600">|</span>
-        <span className="font-mono text-slate-500 dark:text-slate-400">v{APP_VERSION}</span>
-        <span className="text-slate-300 dark:text-slate-600">|</span>
-        <button
-            onClick={onChangelog}
-            className="hover:text-slate-600 dark:hover:text-slate-300 underline underline-offset-2 decoration-slate-300 dark:decoration-slate-600"
-        >
-            Changelog
-        </button>
-    </footer>
-);
-
 const DrachenbootPlaner = () => {
 	// --- UI State ---
 	const [view, setView] = useState('team');
@@ -566,8 +502,6 @@ const DrachenbootPlaner = () => {
 	const [showImprint, setShowImprint] = useState(false);
 	const [showOnboarding, setShowOnboarding] = useState(false);
 	const [showGuestModal, setShowGuestModal] = useState(false); // Guest Modal
-    const [showChangelog, setShowChangelog] = useState(false); // Changelog Modal
-
 	const boatRef = useRef(null);
 	const [deleteConfirmId, setDeleteConfirmId] = useState(null);
 
@@ -1287,7 +1221,6 @@ const DrachenbootPlaner = () => {
 				{showImprint && (
 					<ImprintModal onClose={() => setShowImprint(false)} />
 				)}
-                {showChangelog && <ChangelogModal onClose={() => setShowChangelog(false)} />}
 				{showOnboarding && <OnboardingModal onClose={closeOnboarding} />}
 
 				<div className="max-w-6xl mx-auto">
@@ -1659,7 +1592,14 @@ const DrachenbootPlaner = () => {
 							</div>
 						</div>
 					</div>
-                    <AppFooter onImprint={() => setShowImprint(true)} onChangelog={() => setShowChangelog(true)} />
+					<footer className="mt-20 pb-10 text-center text-xs text-slate-400">
+						<button
+							onClick={() => setShowImprint(true)}
+							className="hover:text-slate-600 dark:hover:text-slate-300 underline underline-offset-2 decoration-slate-300 dark:decoration-slate-600"
+						>
+							Impressum
+						</button>
+					</footer>
 				</div>
 			</div>
 		);
@@ -1671,8 +1611,6 @@ const DrachenbootPlaner = () => {
 			className={`min-h-screen font-sans text-slate-800 dark:text-slate-100 transition-colors duration-300 bg-slate-100 dark:bg-slate-950 p-2 md:p-4 pb-20`}
 		>
 			{showHelp && <HelpModal onClose={() => setShowHelp(false)} />}
-            {showChangelog && <ChangelogModal onClose={() => setShowChangelog(false)} />}
-            {showImprint && <ImprintModal onClose={() => setShowImprint(false)} />}
 			{showGuestModal && (
 				<AddGuestModal
 					onClose={() => setShowGuestModal(false)}
@@ -1799,25 +1737,15 @@ const DrachenbootPlaner = () => {
 									)}
 								</button>
 								<button
-									onClick={handleAddCanister}
-									className="py-3 text-sm rounded-lg border border-slate-200 dark:border-slate-700 text-amber-600 dark:text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-all flex items-center justify-center gap-2"
-									title="Kanister hinzufügen"
-								>
-									<Box size={16} />{' '}
-									<span className="text-xs font-bold">+25kg</span>
-								</button>
-
-								<button
 									onClick={handleExportImage}
 									className="py-3 text-sm rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all flex items-center justify-center gap-2"
 									title="Bild speichern"
 								>
 									<Camera size={16} />
 								</button>
-
 								<button
 									onClick={clearBoat}
-									className={`py-3 text-sm rounded-lg border dark:border-slate-700 transition-all flex items-center justify-center gap-2 active:scale-95 col-span-3 mt-1 ${
+									className={`py-3 text-sm rounded-lg border dark:border-slate-700 transition-all flex items-center justify-center gap-2 active:scale-95 ${
 										confirmClear
 											? 'bg-red-500 text-white border-red-600 font-bold'
 											: 'text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 border-red-200'
@@ -1827,8 +1755,7 @@ const DrachenbootPlaner = () => {
 										<AlertCircle size={16} />
 									) : (
 										<RotateCcw size={16} />
-									)}{' '}
-									{confirmClear ? 'Sicher?' : 'Leeren'}
+									)}
 								</button>
 							</div>
 						</div>
@@ -1839,6 +1766,13 @@ const DrachenbootPlaner = () => {
 									<User size={16} /> Verfügbar ({activePaddlerPool.length})
 								</h2>
 								<div className="flex gap-1">
+									<button
+										onClick={handleAddCanister}
+										className="p-1.5 bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-500 rounded hover:bg-amber-100 border border-amber-200 dark:border-amber-800"
+										title="Kanister +25kg"
+									>
+										<Box size={14} />
+									</button>
 									<button
 										onClick={() => setShowGuestModal(true)}
 										className="p-1.5 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded hover:bg-blue-100 border border-blue-200 dark:border-blue-800 flex items-center gap-1 text-xs font-bold"
@@ -1869,21 +1803,27 @@ const DrachenbootPlaner = () => {
 											onClick={() =>
 												setSelectedPaddlerId(isSelected ? null : p.id)
 											}
-											className={`p-3 rounded-xl border cursor-pointer flex justify-between items-center ${
+											className={`p-3 rounded-xl border cursor-pointer transition-all flex justify-between items-center group ${
 												isSelected
-													? 'bg-blue-600 text-white'
-													: 'bg-slate-50 dark:bg-slate-800 dark:border-slate-700 dark:text-white'
-											} ${isAssigned ? 'opacity-40' : ''} ${
-												isMaybe ? 'border-yellow-400' : ''
+													? 'bg-blue-600 border-blue-700 text-white shadow-md transform scale-[1.02]'
+													: 'bg-slate-50 dark:bg-slate-800 border-slate-100 dark:border-slate-700 hover:border-blue-300 dark:hover:border-blue-600'
+											} ${isAssigned ? 'opacity-40 grayscale' : ''} ${
+												isMaybe
+													? 'border-yellow-300 bg-yellow-50 dark:bg-yellow-900/20 dark:border-yellow-700'
+													: ''
 											}`}
 										>
 											<div>
-												<div className="font-bold text-sm">
-													{p.name}{' '}
+												<div
+													className={`text-base font-bold ${
+														isSelected
+															? 'text-white'
+															: 'text-slate-800 dark:text-slate-200'
+													}`}
+												>
+													{p.name}
 													{isMaybe && (
-														<span className="text-xs opacity-70">
-															(?)
-														</span>
+														<span className="text-xs opacity-70">(?)</span>
 													)}
 													{p.isCanister && (
 														<span className="text-xs opacity-70 ml-1">
@@ -1896,12 +1836,23 @@ const DrachenbootPlaner = () => {
 														</span>
 													)}
 												</div>
-												<div className="text-xs opacity-70">
-													{p.weight} kg
+												<div
+													className={`text-sm mt-0.5 flex items-center gap-2 ${
+														isSelected
+															? 'text-blue-100'
+															: 'text-slate-500 dark:text-slate-400'
+													}`}
+												>
+													<span>{p.weight} kg</span>
 												</div>
 											</div>
 											{p.isCanister ? (
-												<Box size={16} />
+												<Box
+													size={16}
+													className={
+														isSelected ? 'text-white' : 'text-amber-500'
+													}
+												/>
 											) : (
 												getSkillBadges(p.skills)
 											)}
@@ -2086,13 +2037,201 @@ const DrachenbootPlaner = () => {
 							</div>
 						</div>
 					</div>
-                    <AppFooter onImprint={() => setShowImprint(true)} onChangelog={() => setShowChangelog(true)} />
 				</div>
 			</div>
-		);
-	}
+		</div>
+	);
+};
 
-	// ... rest of the component code ...
+// --- SUBS ---
+const BalanceBar = ({ left, right, diff }) => {
+	const total = left + right || 1;
+	const lp = (left / total) * 100;
+	const col =
+		Math.abs(diff) > 20
+			? 'bg-red-500'
+			: Math.abs(diff) > 10
+			? 'bg-yellow-400'
+			: 'bg-green-500';
+	return (
+		<div className="w-full mb-3">
+			<div className="flex justify-between text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 mb-1">
+				<span>Links</span> <span>Diff: {Math.abs(diff)}</span>{' '}
+				<span>Rechts</span>
+			</div>
+			<div className="h-3 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden flex relative">
+				<div
+					className={`h-full transition-all duration-500 ${col}`}
+					style={{ width: `${lp}%` }}
+				></div>
+				<div className="absolute left-1/2 top-0 bottom-0 w-px bg-slate-300 transform -translate-x-1/2"></div>
+			</div>
+		</div>
+	);
+};
+
+const TrimBar = ({ front, back, diff }) => (
+	<div className="w-full p-3 bg-blue-50/50 dark:bg-blue-900/30 rounded-lg border border-blue-100 dark:border-blue-800">
+		<div className="flex justify-between text-xs text-blue-800 dark:text-blue-300 font-bold mb-1">
+			<span className="flex gap-1">
+				<ArrowUpFromLine size={12} /> Bug: {front}
+			</span>
+			<span className="flex gap-1">
+				<Anchor size={12} /> Heck: {back}
+			</span>
+		</div>
+		<div className="text-[10px] uppercase font-bold text-center pt-1 text-blue-400 flex justify-between">
+			<span>
+				{diff > 0 ? `Buglastig` : diff < 0 ? `Hecklastig` : 'Perfekt'}
+			</span>
+			<span className={diff > 0 ? 'text-red-400' : 'text-green-500'}>
+				{diff > 0 ? '+' : ''}
+				{diff}
+			</span>
+		</div>
+	</div>
+);
+
+const SeatBox = ({
+	seat,
+	paddler,
+	isLocked,
+	isSelected,
+	onClick,
+	onUnassign,
+	onLock,
+	getSkillBadges,
+	hideWeight,
+	isMaybe,
+}) => {
+	const side = seat.id.includes('left')
+		? 'left'
+		: seat.id.includes('right')
+		? 'right'
+		: null;
+	let base =
+			'bg-white dark:bg-slate-800 border-amber-200/50 dark:border-slate-600 hover:border-blue-400 shadow-sm',
+		text = 'text-slate-800 dark:text-slate-200',
+		badge = '';
+
+	if (paddler) {
+		if (paddler.isCanister) {
+			base =
+				'bg-amber-200 dark:bg-amber-800 border-amber-500 dark:border-amber-600 shadow-md';
+			text = 'text-amber-900 dark:text-amber-100 font-bold';
+		} else if (paddler.isGuest) {
+			base =
+				'bg-blue-100 dark:bg-blue-900 border-blue-300 dark:border-blue-700 shadow-md';
+			text = 'text-blue-900 dark:text-blue-100 font-bold';
+		} else {
+			let ok = false;
+			if (paddler.skills) {
+				if (seat.type === 'drummer' && paddler.skills.includes('drum'))
+					ok = true;
+				else if (seat.type === 'steer' && paddler.skills.includes('steer'))
+					ok = true;
+				else if (side && paddler.skills.includes(side)) ok = true;
+			}
+			if (ok) {
+				base =
+					'bg-green-200 dark:bg-green-800 border-green-700 dark:border-green-600 shadow-md';
+				text = 'text-green-900 dark:text-green-100 font-bold';
+			} else {
+				base =
+					'bg-red-200 dark:bg-red-900 border-red-600 dark:border-red-700 shadow-md';
+				text = 'text-red-900 dark:text-red-100 font-bold';
+			}
+		}
+
+		if (isMaybe) {
+			base += ' ring-4 ring-yellow-400 border-yellow-500';
+		}
+		if (isLocked) base += ' ring-2 ring-slate-500 border-slate-600';
+	}
+	const active =
+		isSelected && !paddler
+			? 'ring-4 ring-blue-300 border-blue-600 z-20'
+			: '';
+
+	return (
+		<div
+			onClick={onClick}
+			className={`w-24 h-14 rounded-lg border-2 flex flex-col items-center justify-center cursor-pointer transition-all relative z-10 group ${base} ${active}`}
+		>
+			{paddler ? (
+				<>
+					<div
+						className={`w-full px-1 text-center ${
+							hideWeight ? 'flex h-full items-center justify-center' : ''
+						}`}
+					>
+						<span
+							className={`leading-tight break-words ${
+								hideWeight ? 'text-xs font-bold' : 'text-sm block truncate'
+							} ${text}`}
+						>
+							{paddler.name}{' '}
+							{isMaybe && (
+								<span
+									className="text-yellow-700 dark:text-yellow-300 font-extrabold text-xs ml-1"
+									title="Vielleicht"
+								>
+									?
+								</span>
+							)}
+						</span>
+					</div>
+
+					{!hideWeight && (
+						<div
+							className={`text-[10px] opacity-90 ${text} flex items-center justify-center gap-1 mt-0.5 font-mono font-normal`}
+						>
+							<span>{paddler.weight}</span>
+							{!paddler.isCanister && getSkillBadges(paddler.skills)}
+							{paddler.isCanister && <Box size={10} />}
+						</div>
+					)}
+
+					<button
+						onClick={onUnassign}
+						className={`absolute -top-2 -right-2 bg-white dark:bg-slate-700 text-slate-400 hover:text-red-500 rounded-full p-1 shadow border dark:border-slate-600 z-20 transition-all ${
+							isLocked || hideWeight
+								? 'hidden'
+								: 'scale-0 group-hover:scale-100'
+						}`}
+					>
+						<X size={10} />
+					</button>
+					<button
+						onClick={onLock}
+						className={`absolute top-1 left-1 p-0.5 rounded z-20 ${
+							hideWeight ? 'hidden' : ''
+						} ${
+							isLocked
+								? 'text-slate-700 dark:text-slate-300'
+								: 'text-slate-300 hover:text-slate-500'
+						}`}
+					>
+						<Pin size={12} fill={isLocked ? 'currentColor' : 'none'} />
+					</button>
+				</>
+			) : seat.type === 'drummer' ? (
+				<Drum
+					size={18}
+					className="text-slate-400 dark:text-slate-600 opacity-70"
+				/>
+			) : seat.type === 'steer' ? (
+				<ShipWheel
+					size={18}
+					className="text-slate-400 dark:text-slate-600 opacity-70"
+				/>
+			) : (
+				<span className="text-slate-400 dark:text-slate-600 text-[10px] font-bold uppercase tracking-wider opacity-70">
+					Frei
+				</span>
+			)}
+		</div>
+	);
 };
 
 export default DrachenbootPlaner;
