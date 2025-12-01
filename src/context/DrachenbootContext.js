@@ -29,19 +29,32 @@ export const DrachenbootProvider = ({ children }) => {
       setPaddlers(data.paddlers || []);
       setEvents(data.events || []);
       setAssignmentsByEvent(data.assignmentsByEvent || {});
-      if (data.darkMode !== undefined) setIsDarkMode(data.darkMode);
+      if (data.darkMode !== undefined) {
+        setIsDarkMode(data.darkMode);
+      } else if (typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        setIsDarkMode(true);
+      }
       if (data.targetTrim !== undefined) setTargetTrim(data.targetTrim);
     } else {
       const initial = seedInitialData();
       setPaddlers(initial.paddlers);
       setEvents(initial.events);
       setAssignmentsByEvent(initial.assignmentsByEvent);
+      // Check system preference for new users
+      if (typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        setIsDarkMode(true);
+      }
     }
-    setIsLoading(false);
 
-    if (!data && typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      setIsDarkMode(true);
+    // Listen for system theme changes
+    if (typeof window !== 'undefined' && window.matchMedia) {
+      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+      const handleChange = (e) => setIsDarkMode(e.matches);
+      mediaQuery.addEventListener('change', handleChange);
+      return () => mediaQuery.removeEventListener('change', handleChange);
     }
+
+    setIsLoading(false);
   }, []);
 
   // --- SAVE EFFECTS ---
@@ -113,18 +126,18 @@ export const DrachenbootProvider = ({ children }) => {
   }, []);
 
   const removeGuest = useCallback((eid, guestId) => {
-     setEvents(prev => prev.map(ev => ev.id === parseInt(eid) ? { ...ev, guests: (ev.guests || []).filter(g => g.id !== guestId) } : ev));
-     // Also remove from assignments if assigned
-     setAssignmentsByEvent(prev => {
-         const currentAssignments = prev[eid] || {};
-         const seat = Object.keys(currentAssignments).find(k => currentAssignments[k] === guestId);
-         if (seat) {
-             const nextAssignments = { ...currentAssignments };
-             delete nextAssignments[seat];
-             return { ...prev, [eid]: nextAssignments };
-         }
-         return prev;
-     });
+    setEvents(prev => prev.map(ev => ev.id === parseInt(eid) ? { ...ev, guests: (ev.guests || []).filter(g => g.id !== guestId) } : ev));
+    // Also remove from assignments if assigned
+    setAssignmentsByEvent(prev => {
+      const currentAssignments = prev[eid] || {};
+      const seat = Object.keys(currentAssignments).find(k => currentAssignments[k] === guestId);
+      if (seat) {
+        const nextAssignments = { ...currentAssignments };
+        delete nextAssignments[seat];
+        return { ...prev, [eid]: nextAssignments };
+      }
+      return prev;
+    });
   }, []);
 
 

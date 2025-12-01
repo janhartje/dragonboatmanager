@@ -5,6 +5,7 @@ import html2canvas from 'html2canvas';
 
 import { useDrachenboot } from '@/context/DrachenbootContext';
 import { runAutoFillAlgorithm } from '@/utils/algorithm';
+import { useLanguage } from '@/context/LanguageContext';
 import { AddGuestModal, HelpModal } from '../ui/Modals';
 import { BalanceBar, TrimBar } from './Stats';
 import SeatBox from './SeatBox';
@@ -17,6 +18,7 @@ import { useTour } from '@/context/TourContext';
 
 const PlannerView = ({ eventId }) => {
   const router = useRouter();
+  const { t } = useLanguage();
   const { checkAndStartTour } = useTour();
 
   useEffect(() => {
@@ -54,7 +56,7 @@ const PlannerView = ({ eventId }) => {
 
   // --- COMPUTED ---
   const activeEvent = useMemo(() => events.find((e) => e.id === activeEventId), [activeEventId, events]);
-  const activeEventTitle = activeEvent ? activeEvent.title : 'Unbekanntes Event';
+  const activeEventTitle = activeEvent ? activeEvent.title : t('unknownEvent');
 
   const assignments = useMemo(() => assignmentsByEvent[activeEventId] || {}, [assignmentsByEvent, activeEventId]);
 
@@ -111,7 +113,7 @@ const PlannerView = ({ eventId }) => {
 
   const handleAddCanister = () => {
     const canisterId = 'canister-' + Date.now();
-    const canister = { id: canisterId, name: 'Kanister', weight: 25, skills: ['left', 'right'], isCanister: true };
+    const canister = { id: canisterId, name: t('canister'), weight: 25, skills: ['left', 'right'], isCanister: true };
     setPaddlers((prev) => [...prev, canister]);
     setSelectedPaddlerId(canisterId);
   };
@@ -208,7 +210,7 @@ const PlannerView = ({ eventId }) => {
               <span className="font-bold text-slate-800 dark:text-white text-sm">{activeEventTitle}</span>
             </div>
           }
-          subtitle="Planungsmodus"
+          subtitle={t('plannerMode')}
           leftAction={
             <button onClick={goHome} className="p-2 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-500 hover:text-blue-600 hover:border-blue-300 transition-colors">
               <Home size={20} />
@@ -220,9 +222,9 @@ const PlannerView = ({ eventId }) => {
           isDarkMode={isDarkMode}
           toggleDarkMode={toggleDarkMode}
         >
-          <div className="text-center px-2"><div className="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-bold">Gesamt</div><div className="font-bold text-sm">{stats.t} kg</div></div>
+          <div className="text-center px-2"><div className="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-bold">{t('total')}</div><div className="font-bold text-sm">{stats.t} kg</div></div>
           <div className="w-px h-8 bg-slate-100 dark:bg-slate-800"></div>
-          <div className="text-center px-2"><div className="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-bold">Besetzt</div><div className="font-bold text-sm text-blue-600 dark:text-blue-400">{stats.c} / 22</div></div>
+          <div className="text-center px-2"><div className="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-bold">{t('assigned')}</div><div className="font-bold text-sm text-blue-600 dark:text-blue-400">{stats.c} / 22</div></div>
         </Header>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -230,26 +232,26 @@ const PlannerView = ({ eventId }) => {
             {/* Stats & Tools Panel */}
             <div id="tour-planner-stats" className="bg-white dark:bg-slate-900 p-4 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800">
               <h2 className="font-bold text-sm text-slate-700 dark:text-slate-200 uppercase tracking-wide mb-3 flex items-center gap-2">
-                <ArrowRightLeft size={16} /> Balance & Schwerpunkt
+                <ArrowRightLeft size={16} /> {t('balance')}
               </h2>
               <BalanceBar left={stats.l} right={stats.r} diff={stats.diffLR} />
               <TrimBar front={stats.f} back={stats.b} diff={stats.diffFB} />
 
               <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
                 <div className="flex justify-between text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">
-                  <span>Hecklastig</span>
-                  <span className="text-blue-600 dark:text-blue-400">Ziel: {targetTrim > 0 ? '+' : ''}{targetTrim} kg</span>
-                  <span>Buglastig</span>
+                  <span>{t('sternHeavy')}</span>
+                  <span className="text-blue-600 dark:text-blue-400">{t('target')}: {targetTrim > 0 ? '+' : ''}{targetTrim} kg</span>
+                  <span>{t('bowHeavy')}</span>
                 </div>
                 <input type="range" min="-100" max="100" step="5" value={targetTrim} onChange={(e) => setTargetTrim(parseInt(e.target.value))} className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-blue-600" />
                 <div className="flex justify-between text-[10px] text-slate-400 mt-1"><span>-100kg</span><span>0</span><span>+100kg</span></div>
               </div>
 
               <div className="grid grid-cols-3 gap-2 mt-4">
-                <button id="tour-planner-autofill" onClick={runAutoFill} disabled={isSimulating || activePaddlerPool.length === 0} className={`py-3 text-sm font-semibold rounded-lg border dark:border-slate-700 transition-all flex items-center justify-center gap-2 shadow-sm ${isSimulating ? 'bg-indigo-50 text-indigo-400 cursor-wait' : 'bg-indigo-600 text-white hover:bg-indigo-700 active:scale-95'} ${activePaddlerPool.length === 0 ? 'opacity-50 cursor-not-allowed' : ''}`} title="Magic KI: Automatische Besetzung">
+                <button id="tour-planner-autofill" onClick={runAutoFill} disabled={isSimulating || activePaddlerPool.length === 0} className={`py-3 text-sm font-semibold rounded-lg border dark:border-slate-700 transition-all flex items-center justify-center gap-2 shadow-sm ${isSimulating ? 'bg-indigo-50 text-indigo-400 cursor-wait' : 'bg-indigo-600 text-white hover:bg-indigo-700 active:scale-95'} ${activePaddlerPool.length === 0 ? 'opacity-50 cursor-not-allowed' : ''}`} title={t('magicAI')}>
                   {isSimulating ? <RefreshCw size={16} className="animate-spin" /> : <Wand2 size={16} />}
                 </button>
-                <button id="tour-planner-export" onClick={handleExportImage} className="py-3 text-sm rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all flex items-center justify-center gap-2" title="Bild speichern">
+                <button id="tour-planner-export" onClick={handleExportImage} className="py-3 text-sm rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all flex items-center justify-center gap-2" title={t('exportImage')}>
                   <Camera size={16} />
                 </button>
                 <button onClick={clearBoat} className={`py-3 text-sm rounded-lg border dark:border-slate-700 transition-all flex items-center justify-center gap-2 active:scale-95 ${confirmClear ? 'bg-red-500 text-white border-red-600 font-bold' : 'text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 border-red-200'}`}>
@@ -261,13 +263,13 @@ const PlannerView = ({ eventId }) => {
             {/* Paddler Pool */}
             <div id="tour-planner-pool" className="bg-white dark:bg-slate-900 p-4 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 flex-1 flex flex-col min-h-[400px]">
               <div className="flex justify-between items-center mb-3">
-                <h2 className="font-bold text-sm text-slate-700 dark:text-slate-200 uppercase tracking-wide flex items-center gap-2"><User size={16} /> Verfügbar ({activePaddlerPool.length})</h2>
+                <h2 className="font-bold text-sm text-slate-700 dark:text-slate-200 uppercase tracking-wide flex items-center gap-2"><User size={16} /> {t('available')} ({activePaddlerPool.length})</h2>
                 <div className="flex gap-1">
-                  <button id="tour-planner-canister" onClick={handleAddCanister} className="p-1.5 bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-500 rounded hover:bg-amber-100 border border-amber-200 dark:border-amber-800" title="Kanister +25kg"><Box size={14} /></button>
-                  <button id="tour-planner-guest" onClick={() => setShowGuestModal(true)} className="p-1.5 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded hover:bg-blue-100 border border-blue-200 dark:border-blue-800 flex items-center gap-1 text-xs font-bold" title="Gast hinzufügen"><UserPlus size={14} /> Gast+</button>
+                  <button id="tour-planner-canister" onClick={handleAddCanister} className="p-1.5 bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-500 rounded hover:bg-amber-100 border border-amber-200 dark:border-amber-800" title={`${t('canister')} +25kg`}><Box size={14} /></button>
+                  <button id="tour-planner-guest" onClick={() => setShowGuestModal(true)} className="p-1.5 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded hover:bg-blue-100 border border-blue-200 dark:border-blue-800 flex items-center gap-1 text-xs font-bold" title={t('guest')}><UserPlus size={14} /> {t('guestAdd')}</button>
                 </div>
               </div>
-              {activePaddlerPool.length === 0 && <div className="text-center p-8 text-slate-500 dark:text-slate-400 italic text-sm border-2 border-dashed border-slate-100 dark:border-slate-800 rounded-xl">Keine Zusagen.</div>}
+              {activePaddlerPool.length === 0 && <div className="text-center p-8 text-slate-500 dark:text-slate-400 italic text-sm border-2 border-dashed border-slate-100 dark:border-slate-800 rounded-xl">{t('noPromises')}</div>}
               <div className="flex-1 overflow-y-auto pr-1 space-y-2">
                 {activePaddlerPool.map((p) => {
                   const isAssigned = Object.values(assignments).includes(p.id);
@@ -280,8 +282,8 @@ const PlannerView = ({ eventId }) => {
                         <div className={`text-base font-bold ${isSelected ? 'text-white' : 'text-slate-800 dark:text-slate-200'}`}>
                           {p.name}
                           {isMaybe && <span className="text-xs opacity-70">(?)</span>}
-                          {p.isCanister && <span className="text-xs opacity-70 ml-1">(Box)</span>}
-                          {p.isGuest && <span className="text-xs opacity-70 ml-1">(Gast)</span>}
+                          {p.isCanister && <span className="text-xs opacity-70 ml-1">({t('canister')})</span>}
+                          {p.isGuest && <span className="text-xs opacity-70 ml-1">({t('guest')})</span>}
                         </div>
                         <div className={`text-sm mt-0.5 flex items-center gap-2 ${isSelected ? 'text-blue-100' : 'text-slate-600 dark:text-slate-400'}`}><span>{p.weight} kg</span></div>
                       </div>

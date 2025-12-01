@@ -1,5 +1,6 @@
 import React from 'react';
 import { Sun, Moon, Info } from 'lucide-react';
+import { useLanguage } from '@/context/LanguageContext';
 
 const Header = ({ 
   title, 
@@ -13,6 +14,8 @@ const Header = ({
   isDarkMode, 
   toggleDarkMode 
 }) => {
+  const { language, changeLanguage } = useLanguage();
+
   return (
     <header className="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-4 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 sticky top-0 z-30">
       <div className="flex items-center gap-3">
@@ -53,6 +56,13 @@ const Header = ({
             {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
           </button>
         )}
+        
+        <button 
+          onClick={() => changeLanguage(language === 'de' ? 'en' : 'de')} 
+          className="p-2 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-blue-50 dark:hover:bg-slate-700 transition-colors font-bold text-sm w-10 h-10 flex items-center justify-center"
+        >
+          {language.toUpperCase()}
+        </button>
       </div>
     </header>
   );

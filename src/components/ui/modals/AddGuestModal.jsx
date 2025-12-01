@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { UserPlus } from 'lucide-react';
+import { useLanguage } from '@/context/LanguageContext';
 
 const AddGuestModal = ({ onClose, onAdd }) => {
+  const { t } = useLanguage();
   const [name, setName] = useState('');
   const [weight, setWeight] = useState('');
   const [skills, setSkills] = useState({ left: false, right: false, drum: false, steer: false });
@@ -13,7 +15,7 @@ const AddGuestModal = ({ onClose, onAdd }) => {
     if (!name || !weight) return;
     const skillsArr = Object.keys(skills).filter((k) => skills[k]);
     if (skillsArr.length === 0) {
-      alert('Bitte mind. eine Rolle wählen');
+      alert(t('pleaseChooseRole'));
       return;
     }
     onAdd({ name, weight: parseFloat(weight), skills: skillsArr });
@@ -25,21 +27,21 @@ const AddGuestModal = ({ onClose, onAdd }) => {
       <div className="bg-white dark:bg-slate-900 w-full max-w-md rounded-2xl shadow-2xl overflow-hidden flex flex-col">
         <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-slate-800/50">
           <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            <UserPlus size={20} className="text-blue-500" /> Gast hinzufügen
+            <UserPlus size={20} className="text-blue-500" /> {t('guestAddTitle')}
           </h3>
         </div>
         <div className="p-6">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase">Name</label>
-            <input autoFocus className="w-full p-2 border rounded bg-slate-50 dark:bg-slate-800 dark:border-slate-700 dark:text-white" value={name} onChange={(e) => setName(e.target.value)} placeholder="Gast Name" />
+            <label className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase">{t('name')}</label>
+            <input autoFocus className="w-full p-2 border rounded bg-slate-50 dark:bg-slate-800 dark:border-slate-700 dark:text-white" value={name} onChange={(e) => setName(e.target.value)} placeholder={t('guestName')} />
           </div>
           <div>
-            <label className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase">Gewicht (kg)</label>
+            <label className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase">{t('weightKg')}</label>
             <input type="number" className="w-full p-2 border rounded bg-slate-50 dark:bg-slate-800 dark:border-slate-700 dark:text-white" value={weight} onChange={(e) => setWeight(e.target.value)} placeholder="0" />
           </div>
           <div>
-            <label className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase mb-2 block">Fähigkeiten</label>
+            <label className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase mb-2 block">{t('skills')}</label>
             <div className="flex gap-2 flex-wrap">
               {['left', 'right', 'drum', 'steer'].map(skill => (
                 <button
@@ -48,14 +50,14 @@ const AddGuestModal = ({ onClose, onAdd }) => {
                   onClick={() => toggleSkill(skill)}
                   className={`px-3 py-1.5 rounded border text-sm capitalize ${skills[skill] ? 'bg-blue-500 text-white border-blue-600' : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500'}`}
                 >
-                  {skill === 'steer' ? 'Steuer' : skill === 'drum' ? 'Trommel' : skill}
+                  {skill === 'steer' ? t('steer') : skill === 'drum' ? t('drum') : t(skill)}
                 </button>
               ))}
             </div>
           </div>
           <div className="flex gap-2 pt-2">
-            <button type="button" onClick={onClose} className="flex-1 py-2 border rounded text-slate-500 hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-800">Abbrechen</button>
-            <button type="submit" className="flex-1 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 font-medium">Hinzufügen</button>
+            <button type="button" onClick={onClose} className="flex-1 py-2 border rounded text-slate-500 hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-800">{t('cancel')}</button>
+            <button type="submit" className="flex-1 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 font-medium">{t('add')}</button>
           </div>
         </form>
         </div>

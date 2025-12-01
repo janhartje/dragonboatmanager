@@ -4,12 +4,15 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { driver } from 'driver.js';
 import 'driver.js/dist/driver.css';
 
+import { useLanguage } from '@/context/LanguageContext';
+
 const TourContext = createContext();
 
 export const useTour = () => useContext(TourContext);
 
 export const TourProvider = ({ children }) => {
   const [driverObj, setDriverObj] = useState(null);
+  const { t } = useLanguage();
 
   // Define tour configurations
   const tours = {
@@ -17,8 +20,8 @@ export const TourProvider = ({ children }) => {
       { 
         element: '#tour-welcome', 
         popover: { 
-          title: 'Willkommen beim Drachenboot Manager!', 
-          description: 'Hier ist eine kurze Tour durch die wichtigsten Funktionen.', 
+          title: t('tourWelcomeTitle'), 
+          description: t('tourWelcomeDesc'), 
           side: "center", 
           align: 'center' 
         } 
@@ -26,8 +29,8 @@ export const TourProvider = ({ children }) => {
       { 
         element: '#tour-new-event', 
         popover: { 
-          title: 'Neue Termine', 
-          description: 'Hier kannst du neue Trainings oder Regatten anlegen.', 
+          title: t('tourNewEventTitle'), 
+          description: t('tourNewEventDesc'), 
           side: "right", 
           align: 'start' 
         } 
@@ -35,8 +38,8 @@ export const TourProvider = ({ children }) => {
       { 
         element: '#tour-paddler-form', 
         popover: { 
-          title: 'Mitglieder verwalten', 
-          description: 'Füge neue Paddler hinzu oder bearbeite bestehende Mitglieder.', 
+          title: t('tourMembersTitle'), 
+          description: t('tourMembersDesc'), 
           side: "left", 
           align: 'start' 
         } 
@@ -44,8 +47,8 @@ export const TourProvider = ({ children }) => {
       { 
         element: '#tour-event-list', 
         popover: { 
-          title: 'Terminübersicht', 
-          description: 'Hier siehst du alle anstehenden Termine und kannst Zu/Absagen verwalten.', 
+          title: t('tourEventListTitle'), 
+          description: t('tourEventListDesc'), 
           side: "right", 
           align: 'start' 
         } 
@@ -53,8 +56,8 @@ export const TourProvider = ({ children }) => {
       { 
         element: '#tour-paddler-grid', 
         popover: { 
-          title: 'Kader Übersicht', 
-          description: 'Alle deine Teammitglieder auf einen Blick.', 
+          title: t('tourSquadTitle'), 
+          description: t('tourSquadDesc'), 
           side: "top", 
           align: 'start' 
         } 
@@ -64,26 +67,26 @@ export const TourProvider = ({ children }) => {
       {
         element: '#tour-planner-stats',
         popover: {
-          title: 'Statistik & Tools',
-          description: 'Hier siehst du die Gewichtsverteilung und kannst den Trimm anpassen.',
-          side: "right",
+          title: t('tourStatsTitle'), 
+          description: t('tourStatsDesc'), 
+          side: "right", 
           align: 'start'
         }
       },
       {
         element: '#tour-planner-pool',
         popover: {
-          title: 'Verfügbare Paddler',
-          description: 'Alle Paddler, die für diesen Termin zugesagt haben. Klicke auf einen Paddler, um ihn auszuwählen.',
-          side: "right",
+          title: t('tourPoolTitle'), 
+          description: t('tourPoolDesc'), 
+          side: "right", 
           align: 'start'
         }
       },
       {
         element: '#tour-planner-canister',
         popover: {
-          title: 'Kanister hinzufügen',
-          description: 'Füge einen 25kg Kanister als Platzhalter oder Gewichtsausgleich hinzu.',
+          title: t('tourCanisterTitle'), 
+          description: t('tourCanisterDesc'), 
           side: "bottom",
           align: 'end'
         }
@@ -91,8 +94,8 @@ export const TourProvider = ({ children }) => {
       {
         element: '#tour-planner-guest',
         popover: {
-          title: 'Gast hinzufügen',
-          description: 'Füge einen Gastpaddler hinzu, der nicht in der regulären Mitgliederliste steht.',
+          title: t('tourGuestTitle'), 
+          description: t('tourGuestDesc'), 
           side: "bottom",
           align: 'end'
         }
@@ -100,27 +103,27 @@ export const TourProvider = ({ children }) => {
       {
         element: '#tour-planner-boat',
         popover: {
-          title: 'Bootsbesetzung',
-          description: 'Klicke auf einen Sitzplatz, um den ausgewählten Paddler zu setzen. Nutze das "X" zum Entfernen und die Pin-Nadel zum Fixieren (schützt vor Magic KI Änderungen).',
-          side: "left",
+          title: t('tourBoatTitle'), 
+          description: t('tourBoatDesc'), 
+          side: "left", 
           align: 'start'
         }
       },
       {
         element: '#tour-planner-autofill',
         popover: {
-          title: 'Magic KI',
-          description: 'Lass die künstliche Intelligenz das Boot automatisch optimal besetzen.',
-          side: "top",
+          title: t('tourMagicAITitle'), 
+          description: t('tourMagicAIDesc'), 
+          side: "top", 
           align: 'center'
         }
       },
       {
         element: '#tour-planner-export',
         popover: {
-          title: 'Export',
-          description: 'Speichere die aktuelle Aufstellung als Bild.',
-          side: "top",
+          title: t('tourExportTitle'), 
+          description: t('tourExportDesc'), 
+          side: "top", 
           align: 'center'
         }
       }
@@ -131,14 +134,14 @@ export const TourProvider = ({ children }) => {
     const driverInstance = driver({
       showProgress: true,
       animate: true,
-      doneBtnText: 'Fertig',
-      nextBtnText: 'Weiter',
-      prevBtnText: 'Zurück',
+      doneBtnText: t('tourDone'),
+      nextBtnText: t('tourNext'),
+      prevBtnText: t('tourPrev'),
       // Steps will be set dynamically
     });
 
     setDriverObj(driverInstance);
-  }, []);
+  }, [t]);
 
   const startTour = (tourName = 'welcome') => {
     if (driverObj && tours[tourName]) {

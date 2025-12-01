@@ -1,6 +1,7 @@
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { DrachenbootProvider } from "@/context/DrachenbootContext";
+import { LanguageProvider } from "@/context/LanguageContext";
 import { TourProvider } from "@/context/TourContext";
 import { Analytics } from "@vercel/analytics/next"
 import { SpeedInsights } from "@vercel/speed-insights/next"
@@ -33,13 +34,15 @@ export const viewport = {
 export default function RootLayout({ children }) {
   return (
     <html lang="de">
-      <body className={inter.className}>
+      <body className={inter.className} suppressHydrationWarning>
         <DrachenbootProvider>
-          <TourProvider>
-            {children}
-            <Analytics />
-            <SpeedInsights />
-          </TourProvider>
+          <LanguageProvider>
+            <TourProvider>
+              {children}
+              <Analytics />
+              <SpeedInsights />
+            </TourProvider>
+          </LanguageProvider>
         </DrachenbootProvider>
       </body>
     </html>
