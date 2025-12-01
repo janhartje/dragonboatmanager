@@ -1,0 +1,133 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Drachenboot Manager API",
+        "version": "1.0.0",
+        "description": "API documentation for the Drachenboot Manager application."
+    },
+    "servers": [
+        {
+            "url": "http://localhost:3000",
+            "description": "Local Development Server"
+        }
+    ],
+    "paths": {
+        "/api/autofill": {
+            "post": {
+                "summary": "Auto-fill Boat Assignments",
+                "description": "Calculates optimal seat assignments based on paddler pool and constraints.",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "activePaddlerPool": {
+                                        "type": "array",
+                                        "items": {
+                                            "$ref": "#/components/schemas/Paddler"
+                                        }
+                                    },
+                                    "assignments": {
+                                        "type": "object",
+                                        "additionalProperties": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "lockedSeats": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "targetTrim": {
+                                        "type": "number"
+                                    }
+                                },
+                                "required": [
+                                    "activePaddlerPool",
+                                    "assignments",
+                                    "lockedSeats",
+                                    "targetTrim"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful assignment calculation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "assignments": {
+                                            "type": "object",
+                                            "additionalProperties": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input parameters"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "Paddler": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "weight": {
+                        "type": "number"
+                    },
+                    "side": {
+                        "type": "string",
+                        "enum": [
+                            "left",
+                            "right",
+                            "both",
+                            "steer",
+                            "drum"
+                        ]
+                    },
+                    "skills": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "isCanister": {
+                        "type": "boolean"
+                    },
+                    "isGuest": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "id",
+                    "name",
+                    "weight",
+                    "skills"
+                ]
+            }
+        }
+    }
+}

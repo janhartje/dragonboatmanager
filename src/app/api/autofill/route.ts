@@ -1,0 +1,21 @@
+import { NextResponse } from 'next/server';
+import { runAutoFillAlgorithm } from '@/utils/algorithm';
+import { Paddler, Assignments } from '@/types';
+
+export async function POST(request: Request) {
+  try {
+    const body = await request.json();
+    const { activePaddlerPool, assignments, lockedSeats, targetTrim } = body;
+
+    if (!activePaddlerPool || !assignments || !lockedSeats || targetTrim === undefined) {
+      return NextResponse.json({ error: 'Missing required parameters' }, { status: 400 });
+    }
+
+    const result = runAutoFillAlgorithm(activePaddlerPool, assignments, lockedSeats, targetTrim);
+
+    return NextResponse.json({ assignments: result });
+  } catch (error) {
+    console.error('Auto-fill error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
