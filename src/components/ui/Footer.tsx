@@ -14,6 +14,8 @@ const Footer: React.FC = () => {
           <button onClick={() => setShowImprint(true)} className="hover:text-slate-800 dark:hover:text-slate-200 transition-colors">{t('imprint')}</button>
           <span>•</span>
           <button onClick={() => setShowChangelog(true)} className="hover:text-slate-800 dark:hover:text-slate-200 transition-colors">{t('changelog')}</button>
+          <span>•</span>
+          <a href="/docs" className="hover:text-slate-800 dark:hover:text-slate-200 transition-colors">API Docs</a>
         </div>
         <p>&copy; {new Date().getFullYear()} {t('appTitle')}. {t('madeWithLove')}</p>
       </footer>

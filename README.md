@@ -51,6 +51,14 @@ src/
 *   Node.js 18.17+
 *   npm oder yarn
 
+### Konfiguration
+
+Erstelle eine `.env` Datei im Hauptverzeichnis (siehe `.env.example`):
+
+```bash
+NEXT_PUBLIC_SERVER_URL=http://localhost:3000
+```
+
 ### Installation
 
 1.  Repository klonen:
@@ -71,6 +79,39 @@ src/
 
 4.  App öffnen: [http://localhost:3000](http://localhost:3000)
 
+## 🧪 Testing
+
+Das Projekt verwendet **Jest** und **React Testing Library** für Unit- und Integrationstests.
+
+### Tests ausführen
+
+```bash
+npm test
+```
+
+### CI/CD
+
+Tests werden automatisch bei jedem Push und Pull Request auf den `main` Branch via **GitHub Actions** ausgeführt.
+
+- **Unit Tests**: `src/utils/__tests__` (Algorithmus-Logik)
+- **Component Tests**: `src/components/**/__tests__` (UI-Komponenten wie `SeatBox`, `Stats`, `Header`)
+
+## 📚 Documentation
+
+*   [API Documentation](docs/API.md)
+
+## 👨‍💻 Development Guidelines
+
+### Localization
+Neue Features müssen vollständig lokalisiert werden. Bitte aktualisiere immer beide Sprachdateien:
+*   `src/locales/de.json`
+*   `src/locales/en.json`
+
+### Testing
+Jedes neue Feature und jeder Bugfix sollte von Tests begleitet werden.
+*   **Logik**: Unit Tests in `src/utils/__tests__`
+*   **UI**: Component Tests in `src/components/**/__tests__`
+
 ## 🧠 Key Concepts
 
 *   **Paddler**: Ein Teammitglied mit Eigenschaften wie Gewicht und bevorzugter Seite.
@@ -81,6 +122,13 @@ src/
 ## 🤝 Contributing
 
 Verbesserungsvorschläge und Pull Requests sind willkommen! Bitte achte auf sauberen Code und aktualisiere Tests/Doku bei Änderungen.
+
+## 📄 License
+
+**Proprietary / All Rights Reserved**
+
+Copyright (c) 2025 Jan Hartje.
+Dieses Projekt ist urheberrechtlich geschützt. Jegliche kommerzielle Nutzung, Vervielfältigung oder Verbreitung ohne ausdrückliche schriftliche Genehmigung ist untersagt.
 
 ---
 Made with ❤️ in Hannover.

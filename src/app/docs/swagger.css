@@ -1,0 +1,91 @@
+/* Swagger UI Custom Theme */
+
+/* Top bar */
+.swagger-ui .topbar {
+  display: none;
+}
+
+/* Main container */
+.swagger-ui .wrapper {
+  padding: 0;
+  max-width: 100%;
+}
+
+/* Info section */
+.swagger-ui .info {
+  margin: 20px 0;
+}
+
+.swagger-ui .info .title {
+  color: #1e293b; /* slate-800 */
+  font-family: inherit;
+}
+
+.swagger-ui .info .description {
+  color: #475569; /* slate-600 */
+}
+
+/* Scheme container */
+.swagger-ui .scheme-container {
+  background: #f8fafc; /* slate-50 */
+  box-shadow: none;
+  border-bottom: 1px solid #e2e8f0; /* slate-200 */
+}
+
+/* Operations */
+.swagger-ui .opblock-tag {
+  color: #1e293b; /* slate-800 */
+  border-bottom: 1px solid #e2e8f0; /* slate-200 */
+}
+
+.swagger-ui .opblock-tag:hover {
+  background: #f1f5f9; /* slate-100 */
+}
+
+/* POST operation */
+.swagger-ui .opblock.opblock-post {
+  background: #eff6ff; /* blue-50 */
+  border-color: #bfdbfe; /* blue-200 */
+}
+
+.swagger-ui .opblock.opblock-post .opblock-summary {
+  border-color: #bfdbfe; /* blue-200 */
+}
+
+.swagger-ui .opblock.opblock-post .opblock-summary-method {
+  background: #2563eb; /* blue-600 */
+}
+
+/* Buttons */
+.swagger-ui .btn.execute {
+  background-color: #2563eb; /* blue-600 */
+  border-color: #2563eb; /* blue-600 */
+  color: white;
+}
+
+.swagger-ui .btn.execute:hover {
+  background-color: #1d4ed8; /* blue-700 */
+}
+
+.swagger-ui .btn.authorize {
+  color: #2563eb; /* blue-600 */
+  border-color: #2563eb; /* blue-600 */
+}
+
+.swagger-ui .btn.authorize svg {
+  fill: #2563eb; /* blue-600 */
+}
+
+/* Models */
+.swagger-ui section.models {
+  border: 1px solid #e2e8f0; /* slate-200 */
+  border-radius: 0.5rem;
+}
+
+.swagger-ui section.models h4 {
+  color: #475569; /* slate-600 */
+}
+
+.swagger-ui .model-box {
+  width: 100%;
+}

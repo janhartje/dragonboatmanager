@@ -4,7 +4,7 @@ import { Home } from 'lucide-react';
 import html2canvas from 'html2canvas';
 
 import { useDrachenboot } from '@/context/DrachenbootContext';
-import { runAutoFillAlgorithm } from '@/utils/algorithm';
+// import { runAutoFillAlgorithm } from '@/utils/algorithm'; // Moved to API
 import { useLanguage } from '@/context/LanguageContext';
 import { AddGuestModal, HelpModal } from '../ui/Modals';
 import Header from '../ui/Header';
@@ -175,13 +175,32 @@ const PlannerView: React.FC<PlannerViewProps> = ({ eventId }) => {
     }
   };
 
-  const runAutoFill = () => {
+  const runAutoFill = async () => {
     setIsSimulating(true);
-    setTimeout(() => {
-      const bestAss = runAutoFillAlgorithm(activePaddlerPool, assignments, lockedSeats, targetTrim);
-      if (bestAss) updateAssignments(activeEventId, bestAss);
+    try {
+      const response = await fetch('/api/autofill', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          activePaddlerPool,
+          assignments,
+          lockedSeats,
+          targetTrim
+        }),
+      });
+
+      if (!response.ok) throw new Error('Auto-fill failed');
+
+      const data = await response.json();
+      if (data.assignments) {
+        updateAssignments(activeEventId, data.assignments);
+      }
+    } catch (error) {
+      console.error('Auto-fill error:', error);
+      // Optional: Show error toast/alert
+    } finally {
       setIsSimulating(false);
-    }, 50);
+    }
   };
 
   const handleExportImage = () => {
