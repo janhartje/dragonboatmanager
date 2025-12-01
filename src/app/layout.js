@@ -7,7 +7,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next"
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
-  title: "Drachenboot Planer",
+  title: "Drachenboot Manager",
   description: "Team Manager & Boots-Besetzung",
   manifest: "/manifest.json",
   icons: {
@@ -17,7 +17,7 @@ export const metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "Drachenboot Planer",
+    title: "Drachenboot Manager",
   },
 };
 

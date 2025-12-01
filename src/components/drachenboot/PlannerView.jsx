@@ -10,6 +10,8 @@ import { BalanceBar, TrimBar } from './Stats';
 import SeatBox from './SeatBox';
 import DragonLogo from '../ui/DragonLogo';
 import SkillBadges from '../ui/SkillBadges';
+import Header from '../ui/Header';
+import Footer from '../ui/Footer';
 
 const PlannerView = ({ eventId }) => {
   const router = useRouter();
@@ -186,29 +188,34 @@ const PlannerView = ({ eventId }) => {
       {showGuestModal && <AddGuestModal onClose={() => setShowGuestModal(false)} onAdd={handleAddGuest} />}
 
       <div className="max-w-6xl mx-auto">
-        <header className="mb-4 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-3 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 sticky top-0 z-30">
-            <div>
-              <div className="flex items-center gap-3">
-                <button onClick={goHome} className="p-2 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-500 hover:text-blue-600 hover:border-blue-300 transition-colors"><Home size={20} /></button>
-                <div className="h-8 w-px bg-slate-200 dark:bg-slate-700"></div>
-                <div>
-                  <div className="flex items-center gap-2"><div className="text-blue-500"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg></div><span className="font-bold text-slate-800 dark:text-white text-sm">{activeEventTitle}</span></div>
-                  <p className="text-[10px] text-slate-400 uppercase tracking-wider font-bold">Planungsmodus</p>
-                </div>
+        <Header
+          title={
+            <div className="flex items-center gap-2">
+              <div className="text-blue-500">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
               </div>
+              <span className="font-bold text-slate-800 dark:text-white text-sm">{activeEventTitle}</span>
             </div>
-            <div className="flex gap-2 items-center">
-              <div className="text-center px-2"><div className="text-[10px] text-slate-400 uppercase font-bold">Gesamt</div><div className="font-bold text-sm">{stats.t} kg</div></div>
-              <div className="w-px h-8 bg-slate-100 dark:bg-slate-800"></div>
-              <div className="text-center px-2"><div className="text-[10px] text-slate-400 uppercase font-bold">Besetzt</div><div className="font-bold text-sm text-blue-600 dark:text-blue-400">{stats.c} / 22</div></div>
-              <div className="w-px h-8 bg-slate-100 dark:bg-slate-800 mx-2"></div>
-              <button onClick={() => setShowHelp(true)} className="p-2 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-blue-50 dark:hover:bg-slate-700"><Info size={18} /></button>
-              <button onClick={toggleDarkMode} className="p-2 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-blue-50 dark:hover:bg-slate-700">{isDarkMode ? <Sun size={18} /> : <Moon size={18} />}</button>
-            </div>
-          </header>
+          }
+          subtitle="Planungsmodus"
+          leftAction={
+            <button onClick={goHome} className="p-2 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-500 hover:text-blue-600 hover:border-blue-300 transition-colors">
+              <Home size={20} />
+            </button>
+          }
+          showHelp={true}
+          onHelp={() => setShowHelp(true)}
+          showThemeToggle={true}
+          isDarkMode={isDarkMode}
+          toggleDarkMode={toggleDarkMode}
+        >
+          <div className="text-center px-2"><div className="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-bold">Gesamt</div><div className="font-bold text-sm">{stats.t} kg</div></div>
+          <div className="w-px h-8 bg-slate-100 dark:bg-slate-800"></div>
+          <div className="text-center px-2"><div className="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-bold">Besetzt</div><div className="font-bold text-sm text-blue-600 dark:text-blue-400">{stats.c} / 22</div></div>
+        </Header>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-1 space-y-4">
+          <div className="lg:col-span-1 flex flex-col gap-4 lg:h-0 lg:min-h-full">
             {/* Stats & Tools Panel */}
             <div className="bg-white dark:bg-slate-900 p-4 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800">
               <h2 className="font-bold text-sm text-slate-700 dark:text-slate-200 uppercase tracking-wide mb-3 flex items-center gap-2">
@@ -241,7 +248,7 @@ const PlannerView = ({ eventId }) => {
             </div>
 
             {/* Paddler Pool */}
-            <div className="bg-white dark:bg-slate-900 p-4 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 h-[600px] flex flex-col">
+            <div className="bg-white dark:bg-slate-900 p-4 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 flex-1 flex flex-col min-h-[400px]">
               <div className="flex justify-between items-center mb-3">
                 <h2 className="font-bold text-sm text-slate-700 dark:text-slate-200 uppercase tracking-wide flex items-center gap-2"><User size={16} /> Verfügbar ({activePaddlerPool.length})</h2>
                 <div className="flex gap-1">
@@ -249,7 +256,7 @@ const PlannerView = ({ eventId }) => {
                   <button onClick={() => setShowGuestModal(true)} className="p-1.5 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded hover:bg-blue-100 border border-blue-200 dark:border-blue-800 flex items-center gap-1 text-xs font-bold" title="Gast hinzufügen"><UserPlus size={14} /> Gast+</button>
                 </div>
               </div>
-              {activePaddlerPool.length === 0 && <div className="text-center p-8 text-slate-400 italic text-sm border-2 border-dashed border-slate-100 dark:border-slate-800 rounded-xl">Keine Zusagen.</div>}
+              {activePaddlerPool.length === 0 && <div className="text-center p-8 text-slate-500 dark:text-slate-400 italic text-sm border-2 border-dashed border-slate-100 dark:border-slate-800 rounded-xl">Keine Zusagen.</div>}
               <div className="flex-1 overflow-y-auto pr-1 space-y-2">
                 {activePaddlerPool.map((p) => {
                   const isAssigned = Object.values(assignments).includes(p.id);
@@ -265,7 +272,7 @@ const PlannerView = ({ eventId }) => {
                           {p.isCanister && <span className="text-xs opacity-70 ml-1">(Box)</span>}
                           {p.isGuest && <span className="text-xs opacity-70 ml-1">(Gast)</span>}
                         </div>
-                        <div className={`text-sm mt-0.5 flex items-center gap-2 ${isSelected ? 'text-blue-100' : 'text-slate-500 dark:text-slate-400'}`}><span>{p.weight} kg</span></div>
+                        <div className={`text-sm mt-0.5 flex items-center gap-2 ${isSelected ? 'text-blue-100' : 'text-slate-600 dark:text-slate-400'}`}><span>{p.weight} kg</span></div>
                       </div>
                       {p.isCanister ? <Box size={16} className={isSelected ? 'text-white' : 'text-amber-500'} /> : <SkillBadges skills={p.skills} />}
                     </div>
@@ -277,7 +284,7 @@ const PlannerView = ({ eventId }) => {
 
           {/* Boat Visualization */}
           <div className="lg:col-span-2 pb-10">
-            <div className="bg-blue-100/30 dark:bg-blue-900/20 p-4 md:p-8 rounded-3xl border border-blue-100 dark:border-blue-800 min-h-[800px] flex justify-center items-start overflow-y-auto relative">
+            <div className="bg-blue-100/30 dark:bg-blue-900/20 p-4 md:p-8 rounded-3xl border border-blue-100 dark:border-blue-800 flex justify-center items-start overflow-y-auto relative">
               <div className="absolute inset-0 opacity-10 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at 10px 10px, #3b82f6 1px, transparent 0)', backgroundSize: '30px 30px' }}></div>
               <div ref={boatRef} className="relative w-[360px] flex flex-col items-center">
                 <div className="z-20 mb-[-15px] relative drop-shadow-xl filter" style={{ zIndex: 30 }}>
@@ -342,6 +349,7 @@ const PlannerView = ({ eventId }) => {
             </div>
           </div>
         </div>
+        <Footer />
       </div>
     </div>
   );

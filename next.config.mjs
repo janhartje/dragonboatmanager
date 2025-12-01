@@ -10,7 +10,6 @@ const withPWA = withPWAInit({
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'export', // Wichtig für statisches Hosting (Github Pages etc.)
   images: { unoptimized: true },
 };
 
