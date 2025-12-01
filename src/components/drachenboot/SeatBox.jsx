@@ -1,5 +1,6 @@
 import React from 'react';
 import { Drum, ShipWheel, X, Pin, Box } from 'lucide-react';
+import SkillBadges from '../ui/SkillBadges';
 
 const SeatBox = ({
   seat,
@@ -9,7 +10,6 @@ const SeatBox = ({
   onClick,
   onUnassign,
   onLock,
-  getSkillBadges,
   hideWeight,
   isMaybe,
 }) => {
@@ -57,7 +57,7 @@ const SeatBox = ({
           {!hideWeight && (
             <div className={`text-[10px] opacity-90 ${text} flex items-center justify-center gap-1 mt-0.5 font-mono font-normal`}>
               <span>{paddler.weight}</span>
-              {!paddler.isCanister && getSkillBadges(paddler.skills)}
+              {!paddler.isCanister && <SkillBadges skills={paddler.skills} />}
               {paddler.isCanister && <Box size={10} />}
             </div>
           )}

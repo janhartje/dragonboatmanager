@@ -1,31 +1,97 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
 import { Calendar, ChevronRight, Check, HelpCircle, X, User, Pencil, Save, Plus, Users, Trash2, Drum, ShipWheel } from 'lucide-react';
+import { useDrachenboot } from '@/context/DrachenbootContext';
+import SkillBadges from '../ui/SkillBadges';
 
-const TeamView = ({ 
-  events, 
-  paddlers, 
-  sortedPaddlers, 
-  handleCreateEvent, 
-  newEventTitle, 
-  setNewEventTitle, 
-  newEventDate, 
-  setNewEventDate, 
-  updateAttendance, 
-  handlePlanEvent, 
-  handleSavePaddler, 
-  paddlerFormName, 
-  setPaddlerFormName, 
-  paddlerFormWeight, 
-  setPaddlerFormWeight, 
-  paddlerFormSkills, 
-  toggleSkill, 
-  resetPaddlerForm, 
-  editingPaddlerId, 
-  handleEditPaddler, 
-  triggerDelete, 
-  deleteConfirmId, 
-  getSkillBadges 
-}) => {
+const TeamView = () => {
+  const router = useRouter();
+  const { 
+    events, 
+    paddlers, 
+    createEvent, 
+    updateAttendance, 
+    addPaddler, 
+    updatePaddler, 
+    deletePaddler 
+  } = useDrachenboot();
+
+  // --- LOCAL UI STATE ---
+  const [newEventTitle, setNewEventTitle] = useState('');
+  const [newEventDate, setNewEventDate] = useState('');
+  const [paddlerFormName, setPaddlerFormName] = useState('');
+  const [paddlerFormWeight, setPaddlerFormWeight] = useState('');
+  const [paddlerFormSkills, setPaddlerFormSkills] = useState({ left: false, right: false, drum: false, steer: false });
+  const [editingPaddlerId, setEditingPaddlerId] = useState(null);
+  const [deleteConfirmId, setDeleteConfirmId] = useState(null);
+
+  // --- COMPUTED ---
+  const sortedPaddlers = useMemo(() => 
+    [...paddlers].filter((p) => !p.isCanister).sort((a, b) => a.name.localeCompare(b.name)), 
+  [paddlers]);
+
+  // --- ACTIONS ---
+  const handleCreateEvent = (e) => {
+    e.preventDefault();
+    if (!newEventTitle || !newEventDate) return;
+    createEvent(newEventTitle, newEventDate);
+    setNewEventTitle('');
+    setNewEventDate('');
+  };
+
+  const handlePlanEvent = (eid) => {
+    router.push(`/planner/${eid}`);
+  };
+
+  const toggleSkill = (skill) => {
+    setPaddlerFormSkills((prev) => ({ ...prev, [skill]: !prev[skill] }));
+  };
+
+  const resetPaddlerForm = () => {
+    setEditingPaddlerId(null);
+    setPaddlerFormName('');
+    setPaddlerFormWeight('');
+    setPaddlerFormSkills({ left: false, right: false, drum: false, steer: false });
+  };
+
+  const handleSavePaddler = (e) => {
+    e.preventDefault();
+    if (!paddlerFormName || !paddlerFormWeight) return;
+    const skillsArray = Object.keys(paddlerFormSkills).filter((k) => paddlerFormSkills[k]);
+    if (skillsArray.length === 0) { alert('Bitte eine Rolle wählen.'); return; }
+    
+    const pData = { name: paddlerFormName, weight: parseFloat(paddlerFormWeight), skills: skillsArray };
+    
+    if (editingPaddlerId) {
+      updatePaddler(editingPaddlerId, pData);
+      setEditingPaddlerId(null);
+    } else {
+      addPaddler(pData);
+    }
+    resetPaddlerForm();
+  };
+
+  const handleEditPaddler = (p) => {
+    setEditingPaddlerId(p.id);
+    setPaddlerFormName(p.name);
+    setPaddlerFormWeight(p.weight);
+    const sObj = { left: false, right: false, drum: false, steer: false };
+    if (p.skills) p.skills.forEach((s) => sObj[s] = true);
+    setPaddlerFormSkills(sObj);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const triggerDelete = (id) => {
+    if (deleteConfirmId === id) { 
+      deletePaddler(id); 
+      setDeleteConfirmId(null); 
+      if (editingPaddlerId === id) resetPaddlerForm();
+    } else { 
+      setDeleteConfirmId(id); 
+      setTimeout(() => setDeleteConfirmId(null), 3000); 
+    }
+  };
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       <div className="lg:col-span-1 space-y-4">
@@ -127,7 +193,7 @@ const TeamView = ({
                     <div className="font-bold text-slate-800 dark:text-slate-200">{p.name}</div>
                     <div className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-mono">{p.weight} kg</div>
                   </div>
-                  {getSkillBadges(p.skills)}
+                  <SkillBadges skills={p.skills} />
                 </div>
                 <div className="absolute bottom-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                   <button onClick={() => handleEditPaddler(p)} className="bg-white dark:bg-slate-700 text-slate-400 hover:text-orange-500 p-1.5 rounded-lg border dark:border-slate-600 shadow-sm"><Pencil size={12} /></button>
