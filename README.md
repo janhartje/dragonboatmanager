@@ -79,6 +79,22 @@ NEXT_PUBLIC_SERVER_URL=http://localhost:3000
 
 4.  App öffnen: [http://localhost:3000](http://localhost:3000)
 
+## 📱 PWA Installation
+
+Die App kann als Progressive Web App (PWA) installiert werden:
+
+1. Öffne die App im Browser (Chrome, Edge, Safari)
+2. Navigiere zur App-Seite (`/app`)
+3. Klicke auf den **"App installieren"** Button im Header
+4. Bestätige die Installation
+5. Die App wird als eigenständige Anwendung auf deinem Gerät installiert
+
+**Vorteile der PWA-Installation:**
+- Direkter Zugriff vom Home-Screen/Desktop
+- Schnellere Ladezeiten durch Caching
+- Offline-Funktionalität
+- Native App-Erfahrung ohne App Store
+
 ## 🧪 Testing
 
 Das Projekt verwendet **Jest** und **React Testing Library** für Unit- und Integrationstests.

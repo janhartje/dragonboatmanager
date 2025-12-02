@@ -2,7 +2,7 @@
     "name": "Drachenboot Manager",
     "short_name": "Drachenboot",
     "description": "Team Manager & Bootsplaner",
-    "start_url": "/",
+    "start_url": "/app",
     "display": "standalone",
     "background_color": "#ffffff",
     "theme_color": "#2563eb",

@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { useDrachenboot } from '@/context/DrachenbootContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { HelpModal } from '../ui/Modals';
@@ -48,7 +49,7 @@ const TeamView: React.FC = () => {
   };
 
   const handlePlanEvent = (eid: number) => {
-    router.push(`/planner?id=${eid}`);
+    router.push(`/app/planner?id=${eid}`);
   };
 
   const handleSavePaddler = (data: Pick<Paddler, 'name' | 'weight' | 'skills'>) => {
@@ -82,12 +83,17 @@ const TeamView: React.FC = () => {
         <Header 
           title={t('appTitle')}
           subtitle={t('teamManager')}
-          logo={<DragonLogo className="w-10 h-10" />}
+          logo={
+            <Link href="/" className="cursor-pointer hover:opacity-80 transition-opacity">
+              <DragonLogo className="w-10 h-10" />
+            </Link>
+          }
           showHelp={true}
           onHelp={() => setShowHelp(true)}
           showThemeToggle={true}
           isDarkMode={isDarkMode}
           toggleDarkMode={toggleDarkMode}
+          showInstallButton={true}
         />
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

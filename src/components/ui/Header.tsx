@@ -1,5 +1,5 @@
-import React from 'react';
-import { Sun, Moon, Info } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Sun, Moon, Info, Download } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 
 interface HeaderProps {
@@ -13,6 +13,7 @@ interface HeaderProps {
   showThemeToggle?: boolean;
   isDarkMode?: boolean;
   toggleDarkMode?: () => void;
+  showInstallButton?: boolean;
 }
 
 const Header: React.FC<HeaderProps> = ({ 
@@ -25,9 +26,42 @@ const Header: React.FC<HeaderProps> = ({
   onHelp, 
   showThemeToggle = true, 
   isDarkMode, 
-  toggleDarkMode 
+  toggleDarkMode,
+  showInstallButton = false
 }) => {
-  const { language, changeLanguage } = useLanguage();
+  const { language, changeLanguage, t } = useLanguage();
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [canInstall, setCanInstall] = useState<boolean>(false);
+
+  useEffect(() => {
+    const handler = (e: Event) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+      setCanInstall(true);
+    };
+
+    window.addEventListener('beforeinstallprompt', handler);
+
+    if (window.matchMedia('(display-mode: standalone)').matches) {
+      setCanInstall(false);
+    }
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handler);
+    };
+  }, []);
+
+  const handleInstallClick = async () => {
+    if (!deferredPrompt) return;
+
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+
+    if (outcome === 'accepted') {
+      setCanInstall(false);
+    }
+    setDeferredPrompt(null);
+  };
 
   return (
     <header className="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-4 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 sticky top-0 z-30">
@@ -56,7 +90,18 @@ const Header: React.FC<HeaderProps> = ({
       <div className="flex gap-2 items-center">
         {children}
         
-        {(children && (showHelp || showThemeToggle)) && <div className="w-px h-8 bg-slate-100 dark:bg-slate-800 mx-2"></div>}
+        {(children && (showHelp || showThemeToggle || (showInstallButton && canInstall))) && <div className="w-px h-8 bg-slate-100 dark:bg-slate-800 mx-2"></div>}
+
+        {showInstallButton && canInstall && (
+          <button 
+            onClick={handleInstallClick}
+            className="flex items-center gap-1.5 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors font-medium text-sm shadow-sm"
+            title={t('installPWA')}
+          >
+            <Download size={16} />
+            <span className="hidden sm:inline">{t('installPWA')}</span>
+          </button>
+        )}
 
         {showHelp && onHelp && (
           <button onClick={onHelp} className="p-2 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-blue-50 dark:hover:bg-slate-700 transition-colors">

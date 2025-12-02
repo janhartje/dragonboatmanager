@@ -1,16 +1,53 @@
+'use client';
+
 import React, { useState } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
 import { ImprintModal, ChangelogModal } from './Modals';
 
-const Footer: React.FC = () => {
+interface FooterProps {
+  variant?: 'compact' | 'full';
+}
+
+const Footer: React.FC<FooterProps> = ({ variant = 'full' }) => {
   const { t } = useLanguage();
   const [showImprint, setShowImprint] = useState<boolean>(false);
   const [showChangelog, setShowChangelog] = useState<boolean>(false);
 
+
+  if (variant === 'compact') {
+    return (
+      <>
+        <footer className="py-12 border-t border-slate-200 dark:border-slate-800">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-6">
+            <div className="text-slate-500 dark:text-slate-400 text-sm">
+              © {new Date().getFullYear()} {t('appTitle')}. {t('madeWithLove')}
+            </div>
+            <div className="flex flex-wrap justify-center gap-3 sm:gap-4 text-sm items-center">
+              <button onClick={() => setShowImprint(true)} className="text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-colors">
+                {t('imprint')}
+              </button>
+              <span className="text-slate-300 dark:text-slate-600">•</span>
+              <button onClick={() => setShowChangelog(true)} className="text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-colors">
+                {t('changelog')}
+              </button>
+              <span className="text-slate-300 dark:text-slate-600">•</span>
+              <a href="/docs" className="text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-colors">
+                API Docs
+              </a>
+            </div>
+          </div>
+        </footer>
+
+        {showImprint && <ImprintModal onClose={() => setShowImprint(false)} />}
+        {showChangelog && <ChangelogModal onClose={() => setShowChangelog(false)} />}
+      </>
+    );
+  }
+
   return (
     <>
       <footer className="mt-12 text-center text-xs text-slate-500 dark:text-slate-400 pb-8">
-        <div className="flex justify-center gap-4 mb-2">
+        <div className="flex flex-wrap justify-center gap-3 sm:gap-4 mb-2 items-center">
           <button onClick={() => setShowImprint(true)} className="hover:text-slate-800 dark:hover:text-slate-200 transition-colors">{t('imprint')}</button>
           <span>•</span>
           <button onClick={() => setShowChangelog(true)} className="hover:text-slate-800 dark:hover:text-slate-200 transition-colors">{t('changelog')}</button>
@@ -27,3 +64,4 @@ const Footer: React.FC = () => {
 };
 
 export default Footer;
+

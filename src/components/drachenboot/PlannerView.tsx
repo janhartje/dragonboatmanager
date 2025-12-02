@@ -1,7 +1,9 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Home } from 'lucide-react';
 import html2canvas from 'html2canvas';
+import DragonLogo from '../ui/DragonLogo';
 
 import { useDrachenboot } from '@/context/DrachenbootContext';
 // import { runAutoFillAlgorithm } from '@/utils/algorithm'; // Moved to API
@@ -114,7 +116,7 @@ const PlannerView: React.FC<PlannerViewProps> = ({ eventId }) => {
   }, [assignments, paddlers, targetTrim, activePaddlerPool]);
 
   // --- ACTIONS ---
-  const goHome = () => router.push('/');
+  const goHome = () => router.push('/app');
 
   const handleAddCanister = () => {
     const canisterId = 'canister-' + Date.now();
@@ -237,6 +239,11 @@ const PlannerView: React.FC<PlannerViewProps> = ({ eventId }) => {
             </div>
           }
           subtitle={t('plannerMode')}
+          logo={
+            <Link href="/" className="cursor-pointer hover:opacity-80 transition-opacity">
+              <DragonLogo className="w-10 h-10" />
+            </Link>
+          }
           leftAction={
             <button onClick={goHome} className="p-2 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-500 hover:text-blue-600 hover:border-blue-300 transition-colors">
               <Home size={20} />
