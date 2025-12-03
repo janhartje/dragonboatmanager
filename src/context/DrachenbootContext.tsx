@@ -82,6 +82,7 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
   // --- SAVE EFFECTS ---
   useEffect(() => {
     if (!isLoading) {
+      // console.log('💾 Saving data...'); // Optional: Uncomment for verbose logging
       db.save({ paddlers, events, assignmentsByEvent, darkMode: isDarkMode, targetTrim });
     }
     if (isDarkMode) {

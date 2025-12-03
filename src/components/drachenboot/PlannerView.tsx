@@ -51,6 +51,10 @@ const PlannerView: React.FC<PlannerViewProps> = ({ eventId }) => {
 
   // --- LOCAL UI STATE ---
   const [activeEventId, setActiveEventId] = useState<number>(parseInt(eventId));
+
+  useEffect(() => {
+    setActiveEventId(parseInt(eventId));
+  }, [eventId]);
   const [isSimulating, setIsSimulating] = useState<boolean>(false);
   const [isExporting, setIsExporting] = useState<boolean>(false);
   const [showGuestModal, setShowGuestModal] = useState<boolean>(false);

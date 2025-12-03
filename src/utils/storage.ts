@@ -49,7 +49,7 @@ export const seedInitialData = (): AppData => {
     { id: 15, name: 'Thomas', weight: 88, skills: ['right'] },
     { id: 16, name: 'Maximilian', weight: 78, skills: ['left'] },
   ];
-  const initEventId = Date.now();
+  const initEventId = 1733000000000; // Fixed ID for stability
   return {
     paddlers: initialPaddlers,
     events: [

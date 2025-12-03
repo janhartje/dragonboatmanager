@@ -29,6 +29,16 @@ export const runAutoFillAlgorithm = (
     let currAss: Assignments = { ...lockedAss };
     let currPool = [...pool].sort(() => Math.random() - 0.5);
 
+    // 1. Steuerleute priorisieren (Zufällige Auswahl aus verfügbaren Steuerleuten)
+    if (!currAss['steer']) {
+      const steers = currPool.filter((p) => p.skills && p.skills.includes('steer'));
+      if (steers.length) {
+        const p = steers[Math.floor(Math.random() * steers.length)];
+        currAss['steer'] = p.id;
+        currPool = currPool.filter((x) => x.id !== p.id);
+      }
+    }
+
     // Random shuffle with weight noise
     currPool.sort((a, b) => (b.weight + Math.random() * 5) - (a.weight + Math.random() * 5));
 
@@ -42,7 +52,7 @@ export const runAutoFillAlgorithm = (
       if (!currAss[`row-${r}-right`]) free.push({ id: `row-${r}-right`, side: 'right', r });
     }
     
-    if (!currAss['steer']) free.push({ id: 'steer', side: 'steer', r: rows + 1 });
+    // Steer is already handled above
 
     for (let p of currPool) {
       // Berechne aktuelle Balance für Heuristik
