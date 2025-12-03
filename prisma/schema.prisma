@@ -1,0 +1,76 @@
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+
+model Paddler {
+  id        String   @id @default(cuid())
+  name      String
+  teamId    String?
+  team      Team?    @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  weight    Float
+  side      String?  // 'left', 'right', 'both'
+  skills    String[] // ['drum', 'steer', etc.]
+  isGuest   Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  attendances Attendance[]
+  assignments Assignment[]
+}
+
+model Event {
+  id            String   @id @default(uuid())
+  title         String
+  teamId        String?
+  team          Team?    @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  date          DateTime
+  type          String   @default("training") // "training" | "regatta"
+  boatSize      String   @default("standard") // "standard" | "small"
+  canisterCount Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  attendances Attendance[]
+  assignments Assignment[]
+}
+
+model Attendance {
+  id        String   @id @default(cuid())
+  eventId   String
+  paddlerId String
+  status    String   // 'yes', 'no', 'maybe'
+  
+  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  paddler   Paddler  @relation(fields: [paddlerId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, paddlerId])
+}
+
+model Assignment {
+  id         String   @id @default(cuid())
+  eventId    String
+  seatId     String
+  paddlerId  String?
+  isCanister Boolean  @default(false)
+
+  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  paddler   Paddler? @relation(fields: [paddlerId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, seatId])
+}
+
+model Team {
+  id        String   @id @default(cuid())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  paddlers Paddler[]
+  events   Event[]
+}

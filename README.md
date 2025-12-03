@@ -8,12 +8,13 @@ Der **Drachenboot Manager** ist eine Progressive Web App (PWA) zur Verwaltung vo
 
 ### ✨ Features
 
+*   **Multi-Team Management**: Verwalten mehrerer Teams mit einfachem Wechsel zwischen Teams.
 *   **Team Management**: Verwalten von Mitgliedern inkl. Gewicht und Fähigkeiten (Links, Rechts, Trommel, Steuer).
 *   **Terminplanung**: Erstellen von Trainings und Regatten mit Zu-/Absage-Funktion.
 *   **Magic KI**: Automatischer Algorithmus zur optimalen Bootsbesetzung (Balance & Trimm).
 *   **Boots-Visualisierung**: Interaktive Drag & Drop (bzw. Click & Assign) Oberfläche für das Drachenboot.
 *   **Statistiken**: Echtzeit-Berechnung von Gesamtgewicht, Balance (Links/Rechts) und Trimm (Bug/Heck).
-*   **Offline-First**: Dank PWA-Technologie und LocalStorage auch ohne Internet nutzbar.
+*   **Offline-First**: Dank PWA-Technologie und PostgreSQL auch ohne Internet nutzbar (nach initialer Synchronisation).
 *   **Internationalisierung**: Verfügbar in Deutsch und Englisch (automatische Erkennung).
 *   **Dark Mode**: Automatische Anpassung an das System-Theme.
 
@@ -21,10 +22,10 @@ Der **Drachenboot Manager** ist eine Progressive Web App (PWA) zur Verwaltung vo
 
 *   **Framework**: [Next.js 14](https://nextjs.org/) (App Router)
 *   **Language**: [TypeScript](https://www.typescriptlang.org/)
+*   **Database**: [PostgreSQL](https://www.postgresql.org/) with [Prisma ORM](https://www.prisma.io/)
 *   **Styling**: [Tailwind CSS](https://tailwindcss.com/)
 *   **Icons**: [Lucide React](https://lucide.dev/)
 *   **State Management**: React Context API (`DrachenbootContext`, `LanguageContext`)
-*   **Persistence**: LocalStorage (via `src/utils/storage.ts`)
 *   **Export**: `html2canvas` für Bild-Export der Aufstellung
 
 ## 📂 Projektstruktur
@@ -33,15 +34,21 @@ Der **Drachenboot Manager** ist eine Progressive Web App (PWA) zur Verwaltung vo
 src/
 ├── app/                 # Next.js App Router Pages (TSX)
 │   ├── layout.tsx       # Root Layout & Providers
-│   ├── page.tsx         # Home / Team View
-│   └── planner/         # Planner View Route
+│   ├── page.tsx         # Landing Page
+│   ├── app/             # Main Application
+│   │   ├── page.tsx     # Team View
+│   │   ├── planner/     # Planner View Route
+│   │   └── teams/       # Team Management Pages
+│   └── api/             # API Routes (Prisma)
 ├── components/
 │   ├── drachenboot/     # Domain-spezifische Komponenten (TeamView, PlannerView)
 │   └── ui/              # Wiederverwendbare UI-Komponenten (Buttons, Modals, etc.)
 ├── context/             # Global State (Daten, Sprache, Tour)
 ├── locales/             # Übersetzungsdateien (de.json, en.json)
 ├── types/               # TypeScript Definitionen (index.ts)
-└── utils/               # Hilfsfunktionen (Storage, Algorithmus)
+└── utils/               # Hilfsfunktionen (Algorithmus)
+prisma/
+└── schema.prisma        # Prisma Schema (Datenmodell)
 ```
 
 ## 🚀 Getting Started
@@ -57,6 +64,7 @@ Erstelle eine `.env` Datei im Hauptverzeichnis (siehe `.env.example`):
 
 ```bash
 NEXT_PUBLIC_SERVER_URL=http://localhost:3000
+DATABASE_URL="postgresql://user:password@localhost:5432/drachenboot?schema=public"
 ```
 
 ### Installation
@@ -72,12 +80,18 @@ NEXT_PUBLIC_SERVER_URL=http://localhost:3000
     npm install
     ```
 
-3.  Development Server starten:
+3.  Datenbank aufsetzen:
+    ```bash
+    npx prisma migrate dev
+    npx prisma generate
+    ```
+
+4.  Development Server starten:
     ```bash
     npm run dev
     ```
 
-4.  App öffnen: [http://localhost:3000](http://localhost:3000)
+5.  App öffnen: [http://localhost:3000](http://localhost:3000)
 
 ## 📱 PWA Installation
 
@@ -114,7 +128,9 @@ Tests werden automatisch bei jedem Push und Pull Request auf den `main` Branch v
 
 ## 📚 Documentation
 
-*   [API Documentation](docs/API.md)
+*   [API Documentation (OpenAPI)](http://localhost:3000/docs) - Interactive Swagger UI
+*   [OpenAPI Specification](public/openapi.json)
+*   [Data Model](DATA_MODEL.md) - Detaillierte Erklärung der Datenbankstruktur
 
 ## 👨‍💻 Development Guidelines
 
@@ -130,6 +146,7 @@ Jedes neue Feature und jeder Bugfix sollte von Tests begleitet werden.
 
 ## 🧠 Key Concepts
 
+*   **Team**: Eine Gruppe mit eigenem Kader und Terminkalender. Mehrere Teams können parallel verwaltet werden.
 *   **Paddler**: Ein Teammitglied mit Eigenschaften wie Gewicht und bevorzugter Seite.
 *   **Event**: Ein Training oder eine Regatta mit einer Liste von `attendance` (Zu/Absagen).
 *   **Assignment**: Die Zuordnung eines Paddlers zu einem Sitzplatz (`row-1-left`, `drummer`, etc.) für ein spezifisches Event.

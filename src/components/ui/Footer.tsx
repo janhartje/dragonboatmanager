@@ -2,7 +2,9 @@
 
 import React, { useState } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
+import { useDrachenboot } from '@/context/DrachenbootContext';
 import { ImprintModal, ChangelogModal } from './Modals';
+import { usePWAInstall } from '@/hooks/usePWAInstall';
 
 interface FooterProps {
   variant?: 'compact' | 'full';
@@ -12,6 +14,7 @@ const Footer: React.FC<FooterProps> = ({ variant = 'full' }) => {
   const { t } = useLanguage();
   const [showImprint, setShowImprint] = useState<boolean>(false);
   const [showChangelog, setShowChangelog] = useState<boolean>(false);
+  const { canInstall, promptInstall } = usePWAInstall();
 
 
   if (variant === 'compact') {
@@ -53,6 +56,14 @@ const Footer: React.FC<FooterProps> = ({ variant = 'full' }) => {
           <button onClick={() => setShowChangelog(true)} className="hover:text-slate-800 dark:hover:text-slate-200 transition-colors">{t('changelog')}</button>
           <span>•</span>
           <a href="/docs" className="hover:text-slate-800 dark:hover:text-slate-200 transition-colors">API Docs</a>
+          {canInstall && (
+            <>
+              <span>•</span>
+              <button onClick={promptInstall} className="hover:text-slate-800 dark:hover:text-slate-200 transition-colors font-medium text-blue-600 dark:text-blue-400">
+                {t('installPWA')}
+              </button>
+            </>
+          )}
         </div>
         <p>&copy; {new Date().getFullYear()} {t('appTitle')}. {t('madeWithLove')}</p>
       </footer>
@@ -64,4 +75,3 @@ const Footer: React.FC<FooterProps> = ({ variant = 'full' }) => {
 };
 
 export default Footer;
-

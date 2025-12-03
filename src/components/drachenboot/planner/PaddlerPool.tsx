@@ -1,5 +1,5 @@
 import React from 'react';
-import { User, Box, UserPlus } from 'lucide-react';
+import { User, Box, UserPlus, X } from 'lucide-react';
 import SkillBadges from '../../ui/SkillBadges';
 import { Paddler, Assignments, Event } from '@/types';
 
@@ -10,6 +10,8 @@ interface PaddlerPoolProps {
   setSelectedPaddlerId: (id: number | string | null) => void;
   activeEvent: Event | null;
   handleAddCanister: () => void;
+  onRemoveCanister: (id: string) => void;
+  onRemoveGuest: (id: string) => void;
   setShowGuestModal: (show: boolean) => void;
   t: (key: string) => string;
 }
@@ -21,9 +23,24 @@ const PaddlerPool: React.FC<PaddlerPoolProps> = ({
   setSelectedPaddlerId, 
   activeEvent, 
   handleAddCanister, 
+  onRemoveCanister,
+  onRemoveGuest,
   setShowGuestModal, 
   t 
 }) => {
+  const [deleteConfirmId, setDeleteConfirmId] = React.useState<string | null>(null);
+
+  const triggerDelete = (id: string, type: 'canister' | 'guest') => {
+    if (deleteConfirmId === id) {
+      if (type === 'canister') onRemoveCanister(id);
+      else onRemoveGuest(id);
+      setDeleteConfirmId(null);
+    } else {
+      setDeleteConfirmId(id);
+      setTimeout(() => setDeleteConfirmId(null), 3000);
+    }
+  };
+
   return (
     <div id="tour-planner-pool" className="bg-white dark:bg-slate-900 p-4 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 flex-1 flex flex-col min-h-[400px]">
       <div className="flex justify-between items-center mb-3">
@@ -40,18 +57,45 @@ const PaddlerPool: React.FC<PaddlerPoolProps> = ({
           const isSelected = selectedPaddlerId === p.id;
           const st = activeEvent ? activeEvent.attendance[p.id] : null;
           const isMaybe = st === 'maybe';
+          const isConfirming = deleteConfirmId === String(p.id);
+
           return (
             <div key={p.id} onClick={() => setSelectedPaddlerId(isSelected ? null : p.id)} className={`p-3 rounded-xl border cursor-pointer transition-all flex justify-between items-center group ${isSelected ? 'bg-blue-600 border-blue-700 text-white shadow-md transform scale-[1.02]' : 'bg-slate-50 dark:bg-slate-800 border-slate-100 dark:border-slate-700 hover:border-blue-300 dark:hover:border-blue-600'} ${isAssigned ? 'opacity-40 grayscale' : ''} ${isMaybe ? 'border-yellow-300 bg-yellow-50 dark:bg-yellow-900/20 dark:border-yellow-700' : ''}`}>
               <div>
                 <div className={`text-base font-bold ${isSelected ? 'text-white' : 'text-slate-800 dark:text-slate-200'}`}>
                   {p.name}
                   {isMaybe && <span className="text-xs opacity-70">(?)</span>}
-                  {p.isCanister && <span className="text-xs opacity-70 ml-1">({t('canister')})</span>}
                   {p.isGuest && <span className="text-xs opacity-70 ml-1">({t('guest')})</span>}
                 </div>
                 <div className={`text-sm mt-0.5 flex items-center gap-2 ${isSelected ? 'text-blue-100' : 'text-slate-600 dark:text-slate-400'}`}><span>{p.weight} kg</span></div>
               </div>
-              {p.isCanister ? <Box size={16} className={isSelected ? 'text-white' : 'text-amber-500'} /> : <SkillBadges skills={p.skills} />}
+              {p.isCanister ? (
+                <div className="flex items-center gap-2">
+                  <Box size={16} className={isSelected ? 'text-white' : 'text-amber-500'} />
+                  {!isAssigned && (
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); triggerDelete(String(p.id), 'canister'); }}
+                      className={`p-1 rounded transition-colors ${isConfirming ? 'bg-red-600 text-white hover:bg-red-700' : 'hover:bg-red-100 text-slate-400 hover:text-red-500'}`}
+                    >
+                      <X size={14} />
+                    </button>
+                  )}
+                </div>
+              ) : p.isGuest ? (
+                <div className="flex items-center gap-2">
+                  <SkillBadges skills={p.skills} />
+                  {!isAssigned && (
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); triggerDelete(String(p.id), 'guest'); }}
+                      className={`p-1 rounded transition-colors ${isConfirming ? 'bg-red-600 text-white hover:bg-red-700' : 'hover:bg-red-100 text-slate-400 hover:text-red-500'}`}
+                    >
+                      <X size={14} />
+                    </button>
+                  )}
+                </div>
+              ) : (
+                <SkillBadges skills={p.skills} />
+              )}
             </div>
           );
         })}

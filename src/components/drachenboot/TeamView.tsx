@@ -7,6 +7,7 @@ import { HelpModal } from '../ui/Modals';
 import DragonLogo from '../ui/DragonLogo';
 import Header from '../ui/Header';
 import Footer from '../ui/Footer';
+import TeamSwitcher from './TeamSwitcher';
 
 // Sub-components
 import NewEventForm from './team/NewEventForm';
@@ -22,6 +23,7 @@ const TeamView: React.FC = () => {
     events, 
     paddlers, 
     createEvent, 
+    deleteEvent,
     updateAttendance, 
     addPaddler, 
     updatePaddler, 
@@ -36,7 +38,7 @@ const TeamView: React.FC = () => {
 
   // --- COMPUTED ---
   const sortedPaddlers = useMemo(() => 
-    [...paddlers].filter((p) => !p.isCanister).sort((a, b) => a.name.localeCompare(b.name)), 
+    [...paddlers].filter((p) => !p.isCanister && !p.isGuest).sort((a, b) => a.name.localeCompare(b.name)), 
   [paddlers]);
 
   const paddlerToEdit = useMemo(() => 
@@ -44,11 +46,15 @@ const TeamView: React.FC = () => {
   [editingPaddlerId, paddlers]);
 
   // --- ACTIONS ---
-  const handleCreateEvent = (title: string, date: string) => {
-    createEvent(title, date);
+  const handleCreateEvent = (title: string, date: string, type: 'training' | 'regatta', boatSize: 'standard' | 'small') => {
+    createEvent(title, date, type, boatSize);
   };
 
-  const handlePlanEvent = (eid: number) => {
+  const handleDeleteEvent = (id: string) => {
+    deleteEvent(id);
+  };
+
+  const handlePlanEvent = (eid: number | string) => {
     router.push(`/app/planner?id=${eid}`);
   };
 
@@ -94,7 +100,9 @@ const TeamView: React.FC = () => {
           isDarkMode={isDarkMode}
           toggleDarkMode={toggleDarkMode}
           showInstallButton={true}
-        />
+        >
+          <TeamSwitcher />
+        </Header>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Neuer Termin */}
@@ -118,6 +126,7 @@ const TeamView: React.FC = () => {
               events={events} 
               sortedPaddlers={sortedPaddlers} 
               onPlan={handlePlanEvent} 
+              onDelete={handleDeleteEvent}
               onUpdateAttendance={updateAttendance} 
               t={t} 
             />

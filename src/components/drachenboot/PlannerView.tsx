@@ -1,14 +1,14 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Home } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import DragonLogo from '../ui/DragonLogo';
 
 import { useDrachenboot } from '@/context/DrachenbootContext';
 // import { runAutoFillAlgorithm } from '@/utils/algorithm'; // Moved to API
 import { useLanguage } from '@/context/LanguageContext';
-import { AddGuestModal, HelpModal } from '../ui/Modals';
+import { AddGuestModal, HelpModal, ConfirmModal } from '../ui/Modals';
 import Header from '../ui/Header';
 import Footer from '../ui/Footer';
 import { useTour } from '@/context/TourContext';
@@ -44,16 +44,19 @@ const PlannerView: React.FC<PlannerViewProps> = ({ eventId }) => {
     setTargetTrim, 
     addGuest,
     removeGuest,
+    addCanister,
+    removeCanister,
+    updateEvent,
     isDarkMode,
     toggleDarkMode,
     setPaddlers // needed for canister
   } = useDrachenboot();
 
   // --- LOCAL UI STATE ---
-  const [activeEventId, setActiveEventId] = useState<number>(parseInt(eventId));
+  const [activeEventId, setActiveEventId] = useState<string>(eventId);
 
   useEffect(() => {
-    setActiveEventId(parseInt(eventId));
+    setActiveEventId(eventId);
   }, [eventId]);
   const [isSimulating, setIsSimulating] = useState<boolean>(false);
   const [isExporting, setIsExporting] = useState<boolean>(false);
@@ -62,26 +65,44 @@ const PlannerView: React.FC<PlannerViewProps> = ({ eventId }) => {
   const [selectedPaddlerId, setSelectedPaddlerId] = useState<number | string | null>(null);
   const [lockedSeats, setLockedSeats] = useState<string[]>([]);
   const [confirmClear, setConfirmClear] = useState<boolean>(false);
-  const [boatSize, setBoatSize] = useState<'standard' | 'small'>('standard');
+  const [showBoatSizeConfirm, setShowBoatSizeConfirm] = useState<boolean>(false);
+  const [pendingBoatSize, setPendingBoatSize] = useState<'standard' | 'small' | null>(null);
   
   const boatRef = useRef<HTMLDivElement>(null);
 
   // --- COMPUTED ---
-  // --- COMPUTED ---
   const activeEvent = useMemo(() => events.find((e) => e.id === activeEventId) || null, [activeEventId, events]);
   const activeEventTitle = activeEvent ? activeEvent.title : t('unknownEvent');
+  const boatSize = activeEvent?.boatSize || 'standard';
 
-  // Use negative ID for small boat assignments to keep them separate
-  const assignmentKey = useMemo(() => boatSize === 'small' ? -activeEventId : activeEventId, [activeEventId, boatSize]);
+  // Assignments are always keyed by the event ID
+  const assignmentKey = activeEventId;
   const assignments = useMemo(() => assignmentsByEvent[assignmentKey] || {}, [assignmentsByEvent, assignmentKey]);
 
   const activePaddlerPool = useMemo(() => {
     if (!activeEvent) return [];
     const regular = paddlers.filter((p) => !p.isCanister && ['yes', 'maybe'].includes(activeEvent.attendance[p.id]));
-    const canisters = paddlers.filter((p) => p.isCanister);
+    
+    // Generate canister objects based on count
+    const canisters: Paddler[] = [];
+    const count = activeEvent.canisterCount || 0;
+    for (let i = 1; i <= count; i++) {
+      canisters.push({
+        id: `canister-${i}`,
+        name: t('canister'),
+        weight: 25,
+        skills: ['left', 'right'],
+        isCanister: true
+      });
+    }
+
+    // Guests are now in regular paddlers list with isGuest=true and attendance=yes
+    // But if we still have guests in activeEvent.guests (legacy or duplicate), we should filter them out if they are already in regular
     const guests = activeEvent.guests || [];
-    return [...regular, ...canisters, ...guests].sort((a, b) => a.name.localeCompare(b.name));
-  }, [paddlers, activeEvent]);
+    const uniqueGuests = guests.filter(g => !regular.find(r => r.id === g.id));
+    
+    return [...regular, ...canisters, ...uniqueGuests].sort((a, b) => a.name.localeCompare(b.name));
+  }, [paddlers, activeEvent, t]);
 
   // --- BOAT CONFIG ---
   const rows = boatSize === 'small' ? 5 : 10;
@@ -181,17 +202,45 @@ const PlannerView: React.FC<PlannerViewProps> = ({ eventId }) => {
   // --- ACTIONS ---
   const goHome = () => router.push('/app');
 
-  const handleAddCanister = () => {
-    const canisterId = 'canister-' + Date.now();
-    const canister: Paddler = { id: canisterId, name: t('canister'), weight: 25, skills: ['left', 'right'], isCanister: true };
-    setPaddlers((prev) => [...prev, canister]);
-    setSelectedPaddlerId(canisterId);
+  const handleAddCanister = async () => {
+    const canisterId = await addCanister(activeEventId);
+    if (canisterId) setSelectedPaddlerId(canisterId);
   };
 
-  const handleAddGuest = (guestData: Pick<Paddler, 'name' | 'weight' | 'skills'>) => {
-    const guestId = addGuest(activeEventId, guestData);
-    setSelectedPaddlerId(guestId);
+  const handleRemoveCanister = async (canisterId: string) => {
+    await removeCanister(activeEventId, canisterId);
+  };
+
+  const handleAddGuest = async (guestData: Pick<Paddler, 'name' | 'weight' | 'skills'>) => {
+    const guestId = await addGuest(activeEventId, guestData);
+    if (guestId) setSelectedPaddlerId(guestId);
     setShowGuestModal(false);
+  };
+
+  const handleRemoveGuest = async (guestId: string) => {
+    await removeGuest(activeEventId, guestId);
+  };
+
+  const handleUpdateBoatSize = (size: 'standard' | 'small') => {
+    if (size === boatSize) return;
+
+    // Check if boat has assignments
+    if (Object.keys(assignments).length > 0) {
+      setPendingBoatSize(size);
+      setShowBoatSizeConfirm(true);
+    } else {
+      updateEvent(activeEventId, { boatSize: size });
+    }
+  };
+
+  const confirmBoatSizeChange = () => {
+    if (pendingBoatSize) {
+      updateEvent(activeEventId, { boatSize: pendingBoatSize });
+      // Clear assignments as layout changes
+      updateAssignments(activeEventId, {});
+      setShowBoatSizeConfirm(false);
+      setPendingBoatSize(null);
+    }
   };
 
   const handleSeatClick = (sid: string) => {
@@ -314,6 +363,14 @@ const PlannerView: React.FC<PlannerViewProps> = ({ eventId }) => {
     <div className="min-h-screen font-sans text-slate-800 dark:text-slate-100 transition-colors duration-300 bg-slate-100 dark:bg-slate-950 p-2 md:p-4 pb-20">
       {showHelp && <HelpModal onClose={() => setShowHelp(false)} />}
       {showGuestModal && <AddGuestModal onClose={() => setShowGuestModal(false)} onAdd={handleAddGuest} />}
+      <ConfirmModal 
+        isOpen={showBoatSizeConfirm}
+        title={t('changeBoatSize')}
+        message={t('changeBoatSizeConfirm')}
+        onConfirm={confirmBoatSizeChange}
+        onCancel={() => { setShowBoatSizeConfirm(false); setPendingBoatSize(null); }}
+        confirmLabel={t('changeAndClear')}
+      />
 
       <div className="max-w-6xl mx-auto">
         <Header
@@ -333,7 +390,7 @@ const PlannerView: React.FC<PlannerViewProps> = ({ eventId }) => {
           }
           leftAction={
             <button onClick={goHome} className="p-2 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-500 hover:text-blue-600 hover:border-blue-300 transition-colors">
-              <Home size={20} />
+              <ArrowLeft size={20} />
             </button>
           }
           showHelp={true}
@@ -362,7 +419,7 @@ const PlannerView: React.FC<PlannerViewProps> = ({ eventId }) => {
               confirmClear={confirmClear} 
               t={t} 
               boatSize={boatSize}
-              setBoatSize={setBoatSize}
+              setBoatSize={handleUpdateBoatSize}
             />
 
             {/* Paddler Pool */}
@@ -373,6 +430,8 @@ const PlannerView: React.FC<PlannerViewProps> = ({ eventId }) => {
               setSelectedPaddlerId={setSelectedPaddlerId} 
               activeEvent={activeEvent} 
               handleAddCanister={handleAddCanister} 
+              onRemoveCanister={handleRemoveCanister}
+              onRemoveGuest={handleRemoveGuest}
               setShowGuestModal={setShowGuestModal} 
               t={t} 
             />

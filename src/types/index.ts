@@ -1,20 +1,29 @@
+export interface Team {
+  id: string;
+  name: string;
+}
+
 export interface Paddler {
   id: number | string;
   name: string;
   weight: number;
   side?: 'left' | 'right' | 'both'; // 'both' is sometimes used for drummers/steers or flexible paddlers
   skills: string[]; // e.g., 'left', 'right', 'drum', 'steer'
-  isCanister?: boolean;
   isGuest?: boolean;
+  isCanister?: boolean;
+  teamId?: string;
 }
 
 export interface Event {
-  id: number;
+  id: string;
   title: string;
   date: string; // ISO date string YYYY-MM-DD
-  type: 'training' | 'regatta' | 'other';
+  type: 'training' | 'regatta';
+  boatSize: 'standard' | 'small';
+  canisterCount: number;
   attendance: Record<string, 'yes' | 'no' | 'maybe'>; // map paddlerId -> status
   guests?: Paddler[];
+  teamId?: string;
 }
 
 export interface Assignments {

@@ -41,6 +41,7 @@ const DocsPage = () => {
           }
           showHelp={false}
           showThemeToggle={false}
+          showLanguageToggle={false}
         />
         
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">

@@ -2,20 +2,22 @@ import React, { useState } from 'react';
 import { Calendar, Plus } from 'lucide-react';
 
 interface NewEventFormProps {
-  onCreate: (title: string, date: string) => void;
+  onCreate: (title: string, date: string, type: 'training' | 'regatta', boatSize: 'standard' | 'small') => void;
   t: (key: string) => string;
 }
 
 const NewEventForm: React.FC<NewEventFormProps> = ({ onCreate, t }) => {
   const [title, setTitle] = useState<string>('');
   const [date, setDate] = useState<string>('');
+  const [type, setType] = useState<'training' | 'regatta'>('training');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!title || !date) return;
-    onCreate(title, date);
+    onCreate(title, date, type, 'standard');
     setTitle('');
     setDate('');
+    setType('training');
   };
 
   return (

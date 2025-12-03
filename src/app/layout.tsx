@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { LanguageProvider } from "@/context/LanguageContext";
+import { DrachenbootProvider } from "@/context/DrachenbootContext";
 
 import { Analytics } from "@vercel/analytics/next"
 import { SpeedInsights } from "@vercel/speed-insights/next"
@@ -81,9 +82,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="de">
       <body className={inter.className} suppressHydrationWarning>
         <LanguageProvider>
-          {children}
-          <Analytics />
-          <SpeedInsights />
+          <DrachenbootProvider>
+            {children}
+            <Analytics />
+            <SpeedInsights />
+          </DrachenbootProvider>
         </LanguageProvider>
       </body>
     </html>

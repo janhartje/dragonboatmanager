@@ -2,8 +2,8 @@
     "openapi": "3.0.0",
     "info": {
         "title": "Drachenboot Manager API",
-        "version": "1.0.0",
-        "description": "API documentation for the Drachenboot Manager application."
+        "version": "1.8.0",
+        "description": "API documentation for the Drachenboot Manager application with multi-team support."
     },
     "servers": [
         {
@@ -12,10 +12,1021 @@
         }
     ],
     "paths": {
+        "/api/teams": {
+            "get": {
+                "summary": "Get All Teams",
+                "description": "Fetches all teams ordered by name.",
+                "tags": [
+                    "Teams"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of teams",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Team"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to fetch teams",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "summary": "Create Team",
+                "description": "Creates a new team.",
+                "tags": [
+                    "Teams"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "description": "Team name"
+                                    }
+                                },
+                                "required": [
+                                    "name"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Team created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Team"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Name is required",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to create team",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/teams/{id}": {
+            "put": {
+                "summary": "Update Team",
+                "description": "Updates a team's name.",
+                "tags": [
+                    "Teams"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "Team ID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "description": "New team name"
+                                    }
+                                },
+                                "required": [
+                                    "name"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Team updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Team"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to update team",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "summary": "Delete Team",
+                "description": "Deletes a team and all its related data (paddlers, events, attendances, assignments). This is a cascade delete operation.",
+                "tags": [
+                    "Teams"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "Team ID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Team deleted successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to delete team",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string"
+                                        },
+                                        "details": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/paddlers": {
+            "get": {
+                "summary": "Get Paddlers",
+                "description": "Fetches all paddlers for a specific team.",
+                "tags": [
+                    "Paddlers"
+                ],
+                "parameters": [
+                    {
+                        "name": "teamId",
+                        "in": "query",
+                        "required": false,
+                        "description": "Team ID to filter paddlers",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of paddlers",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/PaddlerFull"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to fetch paddlers",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "summary": "Create Paddler",
+                "description": "Creates a new paddler.",
+                "tags": [
+                    "Paddlers"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PaddlerInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Paddler created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PaddlerFull"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to create paddler",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/paddlers/{id}": {
+            "put": {
+                "summary": "Update Paddler",
+                "description": "Updates a paddler's information.",
+                "tags": [
+                    "Paddlers"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "Paddler ID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "weight": {
+                                        "type": "number"
+                                    },
+                                    "side": {
+                                        "type": "string",
+                                        "enum": [
+                                            "left",
+                                            "right",
+                                            "both"
+                                        ],
+                                        "nullable": true
+                                    },
+                                    "skills": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "enum": [
+                                                "drum",
+                                                "steer"
+                                            ]
+                                        }
+                                    },
+                                    "isGuest": {
+                                        "type": "boolean"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Paddler updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PaddlerFull"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to updates paddler",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "summary": "Delete Paddler",
+                "description": "Deletes a paddler.",
+                "tags": [
+                    "Paddlers"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "Paddler ID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Paddler deleted successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to delete paddler",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/events": {
+            "get": {
+                "summary": "Get Events",
+                "description": "Fetches all events for a specific team with attendances and assignments.",
+                "tags": [
+                    "Events"
+                ],
+                "parameters": [
+                    {
+                        "name": "teamId",
+                        "in": "query",
+                        "required": false,
+                        "description": "Team ID to filter events",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of events",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/EventFull"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to fetch events",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "summary": "Create Event",
+                "description": "Creates a new event (training or regatta).",
+                "tags": [
+                    "Events"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/EventInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Event created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Event"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to create event",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/events/{id}": {
+            "put": {
+                "summary": "Update Event",
+                "description": "Updates an event's information.",
+                "tags": [
+                    "Events"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "Event ID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "title": {
+                                        "type": "string"
+                                    },
+                                    "date": {
+                                        "type": "string",
+                                        "format": "date-time"
+                                    },
+                                    "type": {
+                                        "type": "string",
+                                        "enum": [
+                                            "training",
+                                            "regatta"
+                                        ]
+                                    },
+                                    "boatSize": {
+                                        "type": "string",
+                                        "enum": [
+                                            "standard",
+                                            "small"
+                                        ]
+                                    },
+                                    "canisterCount": {
+                                        "type": "integer"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Event updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Event"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to update event",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "summary": "Delete Event",
+                "description": "Deletes an event and all its guest paddlers (cascade deletes attendances and assignments).",
+                "tags": [
+                    "Events"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "Event ID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Event deleted successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to delete event",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/events/{id}/assignments": {
+            "post": {
+                "summary": "Save Boat Assignments",
+                "description": "Replaces all seat assignments for an event. Deletes existing assignments and creates new ones.",
+                "tags": [
+                    "Events"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "Event ID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "assignments": {
+                                        "type": "object",
+                                        "additionalProperties": {
+                                            "type": "string"
+                                        },
+                                        "description": "Map of seatId to paddlerId (or canister-N)"
+                                    }
+                                },
+                                "required": [
+                                    "assignments"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Assignments saved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to save assignments",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/events/{id}/attendance": {
+            "post": {
+                "summary": "Update Attendance",
+                "description": "Creates or updates a paddler's attendance status for an event.",
+                "tags": [
+                    "Events"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "Event ID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "paddlerId": {
+                                        "type": "string"
+                                    },
+                                    "status": {
+                                        "type": "string",
+                                        "enum": [
+                                            "yes",
+                                            "no",
+                                            "maybe"
+                                        ]
+                                    }
+                                },
+                                "required": [
+                                    "paddlerId",
+                                    "status"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Attendance updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Attendance"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to update attendance",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/events/{id}/canisters": {
+            "post": {
+                "summary": "Add Canister",
+                "description": "Increments the canister count for an event.",
+                "tags": [
+                    "Events"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "Event ID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Canister added successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "canisterCount": {
+                                            "type": "integer"
+                                        },
+                                        "newCanisterId": {
+                                            "type": "string",
+                                            "description": "ID of the new canister (e.g., 'canister-1')"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to add canister",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "summary": "Remove Canister",
+                "description": "Decrements the canister count. Only works if there are unassigned canisters.",
+                "tags": [
+                    "Events"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "Event ID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "canisterId",
+                        "in": "query",
+                        "required": true,
+                        "description": "Canister ID (e.g., 'canister-1')",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Canister removed successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Canister ID required or canister is assigned",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to remove canister",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/events/{id}/guests": {
+            "post": {
+                "summary": "Add Guest Paddler",
+                "description": "Creates a guest paddler for a specific event with automatic attendance.",
+                "tags": [
+                    "Events"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "Event ID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "weight": {
+                                        "type": "number"
+                                    },
+                                    "skills": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "enum": [
+                                                "drum",
+                                                "steer"
+                                            ]
+                                        }
+                                    }
+                                },
+                                "required": [
+                                    "name",
+                                    "weight",
+                                    "skills"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Guest paddler created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PaddlerFull"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to add guest",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/events/{id}/guests/{guestId}": {
+            "delete": {
+                "summary": "Remove Guest Paddler",
+                "description": "Deletes a guest paddler (cascade deletes attendance and assignments).",
+                "tags": [
+                    "Events"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "Event ID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "guestId",
+                        "in": "path",
+                        "required": true,
+                        "description": "Guest paddler ID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Guest removed successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to remove guest",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/autofill": {
             "post": {
                 "summary": "Auto-fill Boat Assignments",
-                "description": "Calculates optimal seat assignments based on paddler pool and constraints.",
+                "description": "Calculates optimal seat assignments based on paddler pool and constraints using the Magic AI algorithm.",
+                "tags": [
+                    "Planner"
+                ],
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -86,6 +1097,35 @@
     },
     "components": {
         "schemas": {
+            "Team": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "description": "Unique team identifier (CUID)"
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "Team name"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "Team creation timestamp"
+                    },
+                    "updatedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "Last update timestamp"
+                    }
+                },
+                "required": [
+                    "id",
+                    "name",
+                    "createdAt",
+                    "updatedAt"
+                ]
+            },
             "Paddler": {
                 "type": "object",
                 "properties": {
@@ -95,6 +1135,11 @@
                     "name": {
                         "type": "string"
                     },
+                    "teamId": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "Associated team ID"
+                    },
                     "weight": {
                         "type": "number"
                     },
@@ -103,15 +1148,18 @@
                         "enum": [
                             "left",
                             "right",
-                            "both",
-                            "steer",
-                            "drum"
-                        ]
+                            "both"
+                        ],
+                        "nullable": true
                     },
                     "skills": {
                         "type": "array",
                         "items": {
-                            "type": "string"
+                            "type": "string",
+                            "enum": [
+                                "drum",
+                                "steer"
+                            ]
                         }
                     },
                     "isCanister": {
@@ -127,7 +1175,316 @@
                     "weight",
                     "skills"
                 ]
+            },
+            "PaddlerFull": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "description": "Unique paddler identifier (CUID)"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "teamId": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "Associated team ID"
+                    },
+                    "weight": {
+                        "type": "number",
+                        "description": "Weight in kg"
+                    },
+                    "side": {
+                        "type": "string",
+                        "enum": [
+                            "left",
+                            "right",
+                            "both"
+                        ],
+                        "nullable": true
+                    },
+                    "skills": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "enum": [
+                                "drum",
+                                "steer"
+                            ]
+                        }
+                    },
+                    "isGuest": {
+                        "type": "boolean"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updatedAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "required": [
+                    "id",
+                    "name",
+                    "weight",
+                    "skills",
+                    "isGuest",
+                    "createdAt",
+                    "updatedAt"
+                ]
+            },
+            "PaddlerInput": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "teamId": {
+                        "type": "string",
+                        "description": "Team ID (required)"
+                    },
+                    "weight": {
+                        "type": "number",
+                        "description": "Weight in kg"
+                    },
+                    "side": {
+                        "type": "string",
+                        "enum": [
+                            "left",
+                            "right",
+                            "both"
+                        ],
+                        "nullable": true
+                    },
+                    "skills": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "enum": [
+                                "drum",
+                                "steer"
+                            ]
+                        }
+                    },
+                    "isGuest": {
+                        "type": "boolean",
+                        "default": false
+                    }
+                },
+                "required": [
+                    "name",
+                    "teamId",
+                    "weight",
+                    "skills"
+                ]
+            },
+            "Event": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "description": "Unique event identifier (UUID)"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "teamId": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "date": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "type": {
+                        "type": "string",
+                        "enum": [
+                            "training",
+                            "regatta"
+                        ],
+                        "default": "training"
+                    },
+                    "boatSize": {
+                        "type": "string",
+                        "enum": [
+                            "standard",
+                            "small"
+                        ],
+                        "default": "standard"
+                    },
+                    "canisterCount": {
+                        "type": "integer",
+                        "default": 0
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updatedAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "required": [
+                    "id",
+                    "title",
+                    "date",
+                    "type",
+                    "boatSize",
+                    "createdAt",
+                    "updatedAt"
+                ]
+            },
+            "EventFull": {
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/Event"
+                    },
+                    {
+                        "type": "object",
+                        "properties": {
+                            "attendances": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/Attendance"
+                                }
+                            },
+                            "assignments": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/Assignment"
+                                }
+                            }
+                        }
+                    }
+                ]
+            },
+            "EventInput": {
+                "type": "object",
+                "properties": {
+                    "title": {
+                        "type": "string"
+                    },
+                    "teamId": {
+                        "type": "string",
+                        "description": "Team ID (required)"
+                    },
+                    "date": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "type": {
+                        "type": "string",
+                        "enum": [
+                            "training",
+                            "regatta"
+                        ],
+                        "default": "training"
+                    },
+                    "boatSize": {
+                        "type": "string",
+                        "enum": [
+                            "standard",
+                            "small"
+                        ],
+                        "default": "standard"
+                    }
+                },
+                "required": [
+                    "title",
+                    "teamId",
+                    "date"
+                ]
+            },
+            "Attendance": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "eventId": {
+                        "type": "string"
+                    },
+                    "paddlerId": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "yes",
+                            "no",
+                            "maybe"
+                        ]
+                    }
+                },
+                "required": [
+                    "id",
+                    "eventId",
+                    "paddlerId",
+                    "status"
+                ]
+            },
+            "Assignment": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "eventId": {
+                        "type": "string"
+                    },
+                    "seatId": {
+                        "type": "string",
+                        "description": "Seat identifier (e.g., 'row-1-left', 'drummer', 'steer')"
+                    },
+                    "paddlerId": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "isCanister": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "id",
+                    "eventId",
+                    "seatId",
+                    "isCanister"
+                ]
+            },
+            "Error": {
+                "type": "object",
+                "properties": {
+                    "error": {
+                        "type": "string",
+                        "description": "Error message"
+                    }
+                },
+                "required": [
+                    "error"
+                ]
             }
         }
-    }
+    },
+    "tags": [
+        {
+            "name": "Teams",
+            "description": "Team management operations"
+        },
+        {
+            "name": "Paddlers",
+            "description": "Paddler management operations"
+        },
+        {
+            "name": "Events",
+            "description": "Event management operations"
+        },
+        {
+            "name": "Planner",
+            "description": "Boat planning and assignment operations"
+        }
+    ]
 }

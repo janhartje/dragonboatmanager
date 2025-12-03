@@ -17,37 +17,37 @@ const ImprintModal: React.FC<ImprintModalProps> = ({ onClose }) => {
       </div>
       <div className="p-6 overflow-y-auto space-y-6 text-sm text-slate-700 dark:text-slate-300">
         <section>
-          <h3 className="font-bold text-slate-900 dark:text-white mb-1">{t('imprintLegal')}</h3>
-          <p>Jan Hartje<br />Hamburger Allee 6<br />30161 Hannover</p>
+          <h3 className="font-bold text-slate-900 dark:text-white mb-2 text-base">{t('imprintLegal')}</h3>
+          <p className="text-sm">{"Jan Hartje"}<br />{"Hamburger Allee 6"}<br />{"30161 Hannover"}</p>
         </section>
         
         <section>
-          <h3 className="font-bold text-slate-900 dark:text-white mb-1">{t('imprintContact')}</h3>
-          <p>E-Mail: info@janhartje.com</p>
+          <h3 className="font-bold text-slate-900 dark:text-white mb-2 text-base">{t('imprintContact')}</h3>
+          <p className="text-sm">E-Mail: info@janhartje.com</p>
         </section>
 
         <section>
-          <h3 className="font-bold text-slate-900 dark:text-white mb-1">{t('imprintResponsible')}</h3>
-          <p>Jan Hartje<br />Hamburger Allee 6<br />30161 Hannover</p>
+          <h3 className="font-bold text-slate-900 dark:text-white mb-2 text-base">{t('imprintResponsible')}</h3>
+          <p className="text-sm">{"Jan Hartje"}<br />{"Hamburger Allee 6"}<br />{"30161 Hannover"}</p>
         </section>
 
         <section>
-          <h3 className="font-bold text-slate-900 dark:text-white mb-1">{t('imprintLiabilityContent')}</h3>
-          <p className="text-xs">{t('imprintLiabilityContentText')}</p>
+          <h3 className="font-bold text-slate-900 dark:text-white mb-2 text-base">{t('imprintLiabilityContent')}</h3>
+          <p className="text-sm">{t('imprintLiabilityContentText')}</p>
         </section>
 
         <section>
-          <h3 className="font-bold text-slate-900 dark:text-white mb-1">{t('imprintLiabilityLinks')}</h3>
-          <p className="text-xs">{t('imprintLiabilityLinksText')}</p>
+          <h3 className="font-bold text-slate-900 dark:text-white mb-2 text-base">{t('imprintLiabilityLinks')}</h3>
+          <p className="text-sm">{t('imprintLiabilityLinksText')}</p>
         </section>
 
         <section>
-          <h3 className="font-bold text-slate-900 dark:text-white mb-1">{t('imprintCopyright')}</h3>
-          <p className="text-xs">{t('imprintCopyrightText')}</p>
+          <h3 className="font-bold text-slate-900 dark:text-white mb-2 text-base">{t('imprintCopyright')}</h3>
+          <p className="text-sm">{t('imprintCopyrightText')}</p>
         </section>
       </div>
       <div className="p-4 border-t border-slate-100 dark:border-slate-800 text-center bg-slate-50 dark:bg-slate-800/50">
-        <button onClick={onClose} className="bg-slate-900 dark:bg-slate-700 text-white px-8 py-2.5 rounded-lg hover:bg-slate-800 dark:hover:bg-slate-600 font-medium transition-colors">{t('close')}</button>
+        <button onClick={onClose} className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-2.5 rounded-lg font-medium transition-colors shadow-sm">{t('close')}</button>
       </div>
     </div>
   </div>

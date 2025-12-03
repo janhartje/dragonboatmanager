@@ -1,0 +1,126 @@
+import React, { useState, useRef, useEffect } from 'react';
+import { useDrachenboot } from '@/context/DrachenbootContext';
+import { useLanguage } from '@/context/LanguageContext';
+import { ChevronDown, Plus, Users, Check, Settings } from 'lucide-react';
+import { CreateTeamModal } from '../ui/modals/CreateTeamModal';
+
+import { useRouter } from 'next/navigation';
+
+const TeamSwitcher: React.FC = () => {
+  const router = useRouter();
+  const { teams, currentTeam, switchTeam, createTeam } = useDrachenboot();
+  const { t } = useLanguage();
+  const [isOpen, setIsOpen] = useState(false);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handleCreateTeam = (name: string) => {
+    createTeam(name);
+    setShowCreateModal(false);
+    setIsOpen(false);
+  };
+
+  if (!currentTeam && teams.length === 0) {
+    return (
+      <>
+        <button
+          onClick={() => setShowCreateModal(true)}
+          className="flex items-center gap-2 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors font-medium text-sm shadow-sm"
+        >
+          <Plus size={16} />
+          <span>{t('createTeam') || 'Create Team'}</span>
+        </button>
+        
+        {showCreateModal && (
+          <CreateTeamModal
+            onClose={() => setShowCreateModal(false)}
+            onCreate={handleCreateTeam}
+          />
+        )}
+      </>
+    );
+  }
+
+  return (
+    <div className="relative flex-1 min-w-0 md:flex-initial" ref={dropdownRef}>
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full md:w-auto flex items-center gap-2 px-3 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors text-slate-700 dark:text-slate-200 overflow-hidden"
+      >
+        <Users size={18} className="flex-shrink-0" />
+        <span className="font-medium flex-1 truncate min-w-0 md:flex-initial md:max-w-[200px]">
+          {currentTeam?.name || t('selectTeam') || 'Select Team'}
+        </span>
+        <ChevronDown size={16} className="transition-transform flex-shrink-0" />
+      </button>
+
+      {isOpen && (
+        <div className="absolute left-0 sm:left-auto sm:right-0 mt-2 w-full sm:w-64 bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 z-50 overflow-hidden">
+          <div className="p-2">
+            <div className="text-xs font-semibold text-slate-500 dark:text-slate-400 px-2 py-1 uppercase tracking-wider flex justify-between items-center">
+              <span>{t('teams') || 'Teams'}</span>
+              <button 
+                onClick={() => {
+                  router.push('/app/teams');
+                  setIsOpen(false);
+                }}
+                className="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
+                title={t('manageTeams') || 'Manage Teams'}
+              >
+                <Settings size={14} />
+              </button>
+            </div>
+            <div className="max-h-60 overflow-y-auto mt-1">
+              {teams.map((team) => (
+                <button
+                  key={team.id}
+                  onClick={() => {
+                    switchTeam(team.id);
+                    setIsOpen(false);
+                  }}
+                  className={`w-full text-left px-3 py-2 rounded-lg flex items-center justify-between transition-colors ${
+                    currentTeam?.id === team.id
+                      ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400'
+                      : 'hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200'
+                  }`}
+                >
+                  <span className="truncate">{team.name}</span>
+                  {currentTeam?.id === team.id && <Check size={16} />}
+                </button>
+              ))}
+            </div>
+            
+            <div className="h-px bg-slate-200 dark:bg-slate-700 my-2"></div>
+            
+            <button
+              onClick={() => setShowCreateModal(true)}
+              className="w-full text-left px-3 py-2 rounded-lg flex items-center gap-2 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
+            >
+              <Plus size={16} />
+              <span>{t('createTeam') || 'Create Team'}</span>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {showCreateModal && (
+        <CreateTeamModal
+          onClose={() => setShowCreateModal(false)}
+          onCreate={handleCreateTeam}
+        />
+      )}
+    </div>
+  );
+};
+
+export default TeamSwitcher;

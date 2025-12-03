@@ -1,20 +1,35 @@
 import React from 'react';
-import { Calendar, ChevronRight, Check, HelpCircle, X } from 'lucide-react';
+import { Calendar, ChevronRight, Check, HelpCircle, X, Trash2 } from 'lucide-react';
 import { Event, Paddler } from '@/types';
 
 interface EventListProps {
   events: Event[];
   sortedPaddlers: Paddler[];
-  onPlan: (eventId: number) => void;
-  onUpdateAttendance: (eventId: number, paddlerId: number | string, status: 'yes' | 'no' | 'maybe') => void;
+  onPlan: (eventId: number | string) => void;
+  onDelete: (eventId: string) => void;
+  onUpdateAttendance: (eventId: string, paddlerId: number | string, status: 'yes' | 'no' | 'maybe') => void;
   t: (key: string) => string;
 }
 
-const EventList: React.FC<EventListProps> = ({ events, sortedPaddlers, onPlan, onUpdateAttendance, t }) => {
+const EventList: React.FC<EventListProps> = ({ events, sortedPaddlers, onPlan, onDelete, onUpdateAttendance, t }) => {
+  const [deleteConfirmId, setDeleteConfirmId] = React.useState<string | null>(null);
+
+  const triggerDelete = (id: string) => {
+    if (deleteConfirmId === id) {
+      onDelete(id);
+      setDeleteConfirmId(null);
+    } else {
+      setDeleteConfirmId(id);
+      setTimeout(() => setDeleteConfirmId(null), 3000);
+    }
+  };
+
   return (
     <div id="tour-event-list" className="space-y-4 h-full">
       {events.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()).map((evt) => {
         const yesCount = Object.values(evt.attendance).filter((s) => s === 'yes').length;
+        const isConfirming = deleteConfirmId === evt.id;
+        
         return (
           <div key={evt.id} className="bg-white dark:bg-slate-900 p-4 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 hover:shadow-md transition-shadow">
             <div className="flex justify-between items-start mb-2">
@@ -28,7 +43,16 @@ const EventList: React.FC<EventListProps> = ({ events, sortedPaddlers, onPlan, o
             </div>
             <div className="flex justify-between items-center mt-4 pb-4 border-b border-slate-100 dark:border-slate-800">
               <div className="text-sm font-medium text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-lg"><span className="text-green-600 dark:text-green-400 font-bold">{yesCount}</span> {t('promises')}</div>
-              <button onClick={() => onPlan(evt.id)} className="text-sm bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-1">{t('plan')} <ChevronRight size={16} /></button>
+              <div className="flex gap-2">
+                <button 
+                  onClick={() => triggerDelete(evt.id)} 
+                  className={`text-sm px-3 py-2 rounded-lg transition-colors ${isConfirming ? 'bg-red-600 text-white hover:bg-red-700' : 'bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/40'}`} 
+                  title={t('delete')}
+                >
+                  <Trash2 size={16} />
+                </button>
+                <button onClick={() => onPlan(evt.id)} className="text-sm bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-1">{t('plan')} <ChevronRight size={16} /></button>
+              </div>
             </div>
             <div className="mt-2 max-h-60 overflow-y-auto space-y-1 pt-2">
               {sortedPaddlers.map((p) => {

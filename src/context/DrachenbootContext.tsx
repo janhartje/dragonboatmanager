@@ -1,13 +1,18 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, useMemo, useCallback } from 'react';
-import { db, seedInitialData } from '@/utils/storage';
-import { Paddler, Event, Assignments } from '@/types';
+import { Paddler, Event, Assignments, Team } from '@/types';
 
 interface DrachenbootContextType {
+  teams: Team[];
+  currentTeam: Team | null;
+  createTeam: (name: string) => Promise<void>;
+  updateTeam: (id: string, name: string) => Promise<void>;
+  deleteTeam: (id: string) => Promise<void>;
+  switchTeam: (teamId: string) => void;
   paddlers: Paddler[];
   events: Event[];
-  assignmentsByEvent: Record<number, Assignments>;
+  assignmentsByEvent: Record<string, Assignments>;
   targetTrim: number;
   setTargetTrim: (trim: number) => void;
   isDarkMode: boolean;
@@ -16,11 +21,15 @@ interface DrachenbootContextType {
   addPaddler: (paddler: Omit<Paddler, 'id'>) => void;
   updatePaddler: (id: number | string, data: Partial<Paddler>) => void;
   deletePaddler: (id: number | string) => void;
-  createEvent: (title: string, date: string) => number;
-  updateAttendance: (eid: number, pid: number | string, status: 'yes' | 'no' | 'maybe') => void;
-  updateAssignments: (eid: number, newAssignments: Assignments) => void;
-  addGuest: (eid: number | string, guestData: Pick<Paddler, 'name' | 'weight' | 'skills'>) => string;
-  removeGuest: (eid: number | string, guestId: string) => void;
+  createEvent: (title: string, date: string, type?: 'training' | 'regatta', boatSize?: 'standard' | 'small') => Promise<void>;
+  deleteEvent: (id: string) => Promise<void>;
+  updateEvent: (id: string, data: Partial<Event>) => Promise<void>;
+  updateAttendance: (eid: string, pid: number | string, status: 'yes' | 'no' | 'maybe') => void;
+  updateAssignments: (eid: string, newAssignments: Assignments) => void;
+  addGuest: (eid: string, guestData: Pick<Paddler, 'name' | 'weight' | 'skills'>) => Promise<string>;
+  removeGuest: (eid: string, guestId: string) => void;
+  addCanister: (eid: string) => Promise<string>;
+  removeCanister: (eid: string, canisterId: string) => Promise<void>;
   setPaddlers: React.Dispatch<React.SetStateAction<Paddler[]>>;
   setEvents: React.Dispatch<React.SetStateAction<Event[]>>;
 }
@@ -37,136 +46,474 @@ export const useDrachenboot = () => {
 
 export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   // --- STATE ---
+  const [teams, setTeams] = useState<Team[]>([]);
+  const [currentTeam, setCurrentTeam] = useState<Team | null>(null);
   const [paddlers, setPaddlers] = useState<Paddler[]>([]);
   const [events, setEvents] = useState<Event[]>([]);
-  const [assignmentsByEvent, setAssignmentsByEvent] = useState<Record<number, Assignments>>({});
+  const [assignmentsByEvent, setAssignmentsByEvent] = useState<Record<string, Assignments>>({});
   const [targetTrim, setTargetTrim] = useState<number>(0);
   const [isDarkMode, setIsDarkMode] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
+  // --- API HELPERS ---
+  const fetchTeams = async () => {
+    try {
+      const res = await fetch('/api/teams');
+      if (res.ok) {
+        const data = await res.json();
+        setTeams(data);
+        // If no current team, select the first one or load from local storage
+        if (data.length > 0 && !currentTeam) {
+            const storedTeamId = localStorage.getItem('drachenboot_team_id');
+            const teamToSelect = data.find((t: Team) => t.id === storedTeamId) || data[0];
+            setCurrentTeam(teamToSelect);
+        }
+      }
+    } catch (e) {
+      console.error('Failed to fetch teams', e);
+    }
+  };
+
+  const fetchPaddlers = useCallback(async () => {
+    if (!currentTeam) return;
+    try {
+      const res = await fetch(`/api/paddlers?teamId=${currentTeam.id}`);
+      if (res.ok) {
+        const data = await res.json();
+        setPaddlers(data);
+      }
+    } catch (e) {
+      console.error('Failed to fetch paddlers', e);
+    }
+  }, [currentTeam]);
+
+  const fetchEvents = useCallback(async () => {
+    if (!currentTeam) return;
+    try {
+      const res = await fetch(`/api/events?teamId=${currentTeam.id}`);
+      if (res.ok) {
+        const data = await res.json();
+        // Transform API data to App state
+        const loadedEvents: Event[] = [];
+        const loadedAssignments: Record<number, Assignments> = {};
+
+        data.forEach((apiEvent: any) => {
+          // Transform attendance array to object
+          const attendance: Record<string, 'yes' | 'no' | 'maybe'> = {};
+          if (apiEvent.attendances) {
+            apiEvent.attendances.forEach((att: any) => {
+              attendance[att.paddlerId] = att.status;
+            });
+          }
+
+          // Transform assignments array to object
+          const assignments: Assignments = {};
+          let canisterCounter = 1;
+          
+          if (apiEvent.assignments) {
+            apiEvent.assignments.forEach((a: any) => {
+              if (a.isCanister) {
+                assignments[a.seatId] = `canister-${canisterCounter}`;
+                canisterCounter++;
+              } else if (a.paddlerId) {
+                assignments[a.seatId] = a.paddlerId;
+              }
+            });
+          }
+          loadedAssignments[apiEvent.id] = assignments;
+
+          loadedEvents.push({
+            id: apiEvent.id,
+            title: apiEvent.title,
+            date: new Date(apiEvent.date).toISOString().split('T')[0], // Keep YYYY-MM-DD format
+            type: apiEvent.type,
+            boatSize: apiEvent.boatSize || 'standard',
+            canisterCount: apiEvent.canisterCount || 0,
+            attendance,
+            guests: [], // Guests are loaded via separate logic or need to be fetched/filtered
+          });
+        });
+
+        setEvents(loadedEvents);
+        setAssignmentsByEvent(loadedAssignments);
+      }
+    } catch (e) {
+      console.error('Failed to fetch events', e);
+    }
+  }, [currentTeam]);
+
+  // --- INITIAL LOAD ---
   // --- INITIAL LOAD ---
   useEffect(() => {
-    const data = db.load();
-    if (data) {
-      setPaddlers(data.paddlers || []);
-      setEvents(data.events || []);
-      setAssignmentsByEvent(data.assignmentsByEvent || {});
-      if (data.darkMode !== undefined) {
-        setIsDarkMode(data.darkMode);
-      } else if (typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        setIsDarkMode(true);
+    const init = async () => {
+      await fetchTeams();
+      
+      // Load local preferences
+      if (typeof window !== 'undefined') {
+        const storedTrim = localStorage.getItem('drachenboot_target_trim');
+        if (storedTrim) setTargetTrim(parseFloat(storedTrim));
+        
+        const storedTheme = localStorage.getItem('drachenboot_theme');
+        if (storedTheme === 'dark' || (!storedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+          setIsDarkMode(true);
+        }
       }
-      if (data.targetTrim !== undefined) setTargetTrim(data.targetTrim);
-    } else {
-      const initial = seedInitialData();
-      setPaddlers(initial.paddlers);
-      setEvents(initial.events);
-      setAssignmentsByEvent(initial.assignmentsByEvent);
-      // Check system preference for new users
-      if (typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        setIsDarkMode(true);
-      }
-    }
+      
+      setIsLoading(false);
+    };
+    init();
 
     // Listen for system theme changes
     if (typeof window !== 'undefined' && window.matchMedia) {
       const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-      const handleChange = (e: MediaQueryListEvent) => setIsDarkMode(e.matches);
+      const handleChange = (e: MediaQueryListEvent) => {
+        if (!localStorage.getItem('drachenboot_theme')) {
+          setIsDarkMode(e.matches);
+        }
+      };
       mediaQuery.addEventListener('change', handleChange);
       return () => mediaQuery.removeEventListener('change', handleChange);
     }
-
-    setIsLoading(false);
   }, []);
 
-  // --- SAVE EFFECTS ---
+  // --- TEAM DATA LOAD ---
   useEffect(() => {
-    if (!isLoading) {
-      // console.log('💾 Saving data...'); // Optional: Uncomment for verbose logging
-      db.save({ paddlers, events, assignmentsByEvent, darkMode: isDarkMode, targetTrim });
+    if (currentTeam) {
+        localStorage.setItem('drachenboot_team_id', currentTeam.id);
+        Promise.all([fetchPaddlers(), fetchEvents()]);
+    } else {
+        setPaddlers([]);
+        setEvents([]);
     }
+  }, [currentTeam, fetchPaddlers, fetchEvents]);
+
+  // --- THEME EFFECT ---
+  useEffect(() => {
     if (isDarkMode) {
       document.documentElement.classList.add('dark');
+      localStorage.setItem('drachenboot_theme', 'dark');
     } else {
       document.documentElement.classList.remove('dark');
+      localStorage.setItem('drachenboot_theme', 'light');
     }
-  }, [paddlers, events, assignmentsByEvent, isDarkMode, targetTrim, isLoading]);
+  }, [isDarkMode]);
+
+  // --- TRIM EFFECT ---
+  useEffect(() => {
+    localStorage.setItem('drachenboot_target_trim', targetTrim.toString());
+  }, [targetTrim]);
 
   // --- ACTIONS ---
   const toggleDarkMode = useCallback(() => setIsDarkMode(prev => !prev), []);
 
-  const addPaddler = useCallback((paddler: Omit<Paddler, 'id'>) => {
-    setPaddlers(prev => [...prev, { id: Date.now(), ...paddler }]);
-  }, []);
-
-  const updatePaddler = useCallback((id: number | string, data: Partial<Paddler>) => {
-    setPaddlers(prev => prev.map(p => p.id === id ? { ...p, ...data } : p));
-  }, []);
-
-  const deletePaddler = useCallback((id: number | string) => {
-    // Remove from assignments
-    setAssignmentsByEvent(prev => {
-      const next = { ...prev };
-      Object.keys(next).forEach(eid => {
-        const eventId = parseInt(eid);
-        const map = { ...next[eventId] };
-        let chg = false;
-        Object.keys(map).forEach(s => { if (map[s] === id) { delete map[s]; chg = true; } });
-        if (chg) next[eventId] = map;
+  const createTeam = async (name: string) => {
+    try {
+      const res = await fetch('/api/teams', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name }),
       });
-      return next;
-    });
-    // Remove from attendance
-    setEvents(prev => prev.map(ev => {
-      const att = { ...ev.attendance };
-      delete att[id as string]; // attendance keys are strings
-      return { ...ev, attendance: att };
-    }));
-    // Remove from list
-    setPaddlers(prev => prev.filter(p => p.id !== id));
-  }, []);
-
-  const createEvent = useCallback((title: string, date: string) => {
-    const nid = Date.now();
-    const ne: Event = { id: nid, title, date, type: 'training', attendance: {}, guests: [] };
-    setEvents(prev => [...prev, ne]);
-    setAssignmentsByEvent(prev => ({ ...prev, [nid]: {} }));
-    return nid;
-  }, []);
-
-  const updateAttendance = useCallback((eid: number, pid: number | string, status: 'yes' | 'no' | 'maybe') => {
-    setEvents(prev => prev.map(ev => ev.id !== eid ? ev : { ...ev, attendance: { ...ev.attendance, [pid]: status } }));
-  }, []);
-
-  const updateAssignments = useCallback((eid: number, newAssignments: Assignments) => {
-    setAssignmentsByEvent(prev => ({ ...prev, [eid]: newAssignments }));
-  }, []);
-
-  const addGuest = useCallback((eid: number | string, guestData: Pick<Paddler, 'name' | 'weight' | 'skills'>) => {
-    const guestId = 'guest-' + Date.now();
-    const newGuest: Paddler = { ...guestData, id: guestId, isGuest: true };
-    setEvents(prev => prev.map(ev => ev.id === parseInt(eid as string) ? { ...ev, guests: [...(ev.guests || []), newGuest] } : ev));
-    return guestId;
-  }, []);
-
-  const removeGuest = useCallback((eid: number | string, guestId: string) => {
-    setEvents(prev => prev.map(ev => ev.id === parseInt(eid as string) ? { ...ev, guests: (ev.guests || []).filter(g => g.id !== guestId) } : ev));
-    // Also remove from assignments if assigned
-    setAssignmentsByEvent(prev => {
-      const eventId = parseInt(eid as string);
-      const currentAssignments = prev[eventId] || {};
-      const seat = Object.keys(currentAssignments).find(k => currentAssignments[k] === guestId);
-      if (seat) {
-        const nextAssignments = { ...currentAssignments };
-        delete nextAssignments[seat];
-        return { ...prev, [eventId]: nextAssignments };
+      if (res.ok) {
+        const newTeam = await res.json();
+        setTeams(prev => [...prev, newTeam]);
+        // Automatically switch to new team
+        setCurrentTeam(newTeam);
+        localStorage.setItem('drachenboot_team', newTeam.id);
       }
-      return prev;
-    });
+    } catch (e) {
+      console.error('Failed to create team', e);
+    }
+  };
+
+  const updateTeam = async (id: string, name: string) => {
+    try {
+      const res = await fetch(`/api/teams/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name }),
+      });
+      if (res.ok) {
+        const updatedTeam = await res.json();
+        setTeams(prev => prev.map(t => t.id === id ? updatedTeam : t));
+        if (currentTeam?.id === id) {
+          setCurrentTeam(updatedTeam);
+        }
+      }
+    } catch (e) {
+      console.error('Failed to update team', e);
+    }
+  };
+
+  const deleteTeam = async (id: string) => {
+    try {
+      const res = await fetch(`/api/teams/${id}`, {
+        method: 'DELETE',
+      });
+      if (res.ok) {
+        setTeams(prev => prev.filter(t => t.id !== id));
+        if (currentTeam?.id === id) {
+          const remainingTeams = teams.filter(t => t.id !== id);
+          if (remainingTeams.length > 0) {
+            setCurrentTeam(remainingTeams[0]);
+            localStorage.setItem('drachenboot_team', remainingTeams[0].id);
+          } else {
+            setCurrentTeam(null);
+            localStorage.removeItem('drachenboot_team');
+          }
+        }
+      }
+    } catch (e) {
+      console.error('Failed to delete team', e);
+    }
+  };
+
+  const switchTeam = useCallback((teamId: string) => {
+    const team = teams.find(t => t.id === teamId);
+    if (team) setCurrentTeam(team);
+  }, [teams]);
+
+  const addPaddler = useCallback(async (paddler: Omit<Paddler, 'id'>) => {
+    if (!currentTeam) return;
+    try {
+      const res = await fetch('/api/paddlers', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...paddler, teamId: currentTeam.id }),
+      });
+      if (res.ok) {
+        const newPaddler = await res.json();
+        setPaddlers(prev => [...prev, newPaddler]);
+      }
+    } catch (e) {
+      console.error('Failed to add paddler', e);
+    }
+  }, [currentTeam]);
+
+  const updatePaddler = useCallback(async (id: number | string, data: Partial<Paddler>) => {
+    try {
+      const res = await fetch(`/api/paddlers/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (res.ok) {
+        setPaddlers(prev => prev.map(p => p.id === id ? { ...p, ...data } : p));
+      }
+    } catch (e) {
+      console.error('Failed to update paddler', e);
+    }
   }, []);
 
+  const deletePaddler = useCallback(async (id: number | string) => {
+    try {
+      const res = await fetch(`/api/paddlers/${id}`, { method: 'DELETE' });
+      if (res.ok) {
+        // Remove from local state
+        setAssignmentsByEvent(prev => {
+          const next = { ...prev };
+          Object.keys(next).forEach(eid => {
+            const eventId = eid; // string key
+            const map = { ...next[eventId] };
+            let chg = false;
+            Object.keys(map).forEach(s => { if (map[s] === id) { delete map[s]; chg = true; } });
+            if (chg) next[eventId] = map;
+          });
+          return next;
+        });
+        setEvents(prev => prev.map(ev => {
+          const att = { ...ev.attendance };
+          delete att[id as string];
+          return { ...ev, attendance: att };
+        }));
+        setPaddlers(prev => prev.filter(p => p.id !== id));
+      }
+    } catch (e) {
+      console.error('Failed to delete paddler', e);
+    }
+  }, []);
+
+  const createEvent = useCallback(async (title: string, date: string, type: 'training' | 'regatta' = 'training', boatSize: 'standard' | 'small' = 'standard') => {
+    if (!currentTeam) return '';
+    try {
+      const res = await fetch('/api/events', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title, date, type, boatSize, teamId: currentTeam.id }),
+      });
+      if (res.ok) {
+        const createdEvent = await res.json();
+        // Ensure date is string for local state if API returns Date object or string
+        // API returns Prisma object where date is Date object (serialized to string)
+        const newEvent = { 
+          ...createdEvent, 
+          date: new Date(createdEvent.date).toISOString().split('T')[0],
+          attendance: {}, 
+          guests: [],
+          canisterCount: 0
+        };
+        
+        setEvents(prev => [...prev, newEvent]);
+        setAssignmentsByEvent(prev => ({ ...prev, [createdEvent.id]: {} }));
+        return createdEvent.id;
+      }
+    } catch (e) {
+      console.error('Failed to create event', e);
+    }
+    return '';
+  }, [currentTeam]);
+
+  const deleteEvent = useCallback(async (id: string) => {
+    try {
+      const res = await fetch(`/api/events/${id}`, { method: 'DELETE' });
+      if (res.ok) {
+        setEvents((prev) => prev.filter((e) => e.id !== id));
+        setAssignmentsByEvent(prev => {
+          const next = { ...prev };
+          delete next[id];
+          return next;
+        });
+      }
+    } catch (e) { console.error(e); }
+  }, []);
+
+
+  const updateEvent = useCallback(async (id: string, data: Partial<Event>) => {
+    // Optimistic update
+    setEvents(prev => prev.map(e => e.id === id ? { ...e, ...data } : e));
+
+    try {
+      await fetch(`/api/events/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+    } catch (e) {
+      console.error('Failed to update event', e);
+    }
+  }, []);
+
+
+  const updateAttendance = useCallback(async (eid: string, pid: number | string, status: 'yes' | 'no' | 'maybe') => {
+    // Optimistic update
+    setEvents(prev => prev.map(ev => ev.id !== eid ? ev : { ...ev, attendance: { ...ev.attendance, [pid]: status } }));
+    
+    try {
+      await fetch(`/api/events/${eid}/attendance`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ paddlerId: pid, status }),
+      });
+    } catch (e) {
+      console.error('Failed to update attendance', e);
+      // Revert?
+    }
+  }, []);
+
+  const updateAssignments = useCallback(async (eid: string, newAssignments: Assignments) => {
+    // Optimistic update
+    setAssignmentsByEvent(prev => ({ ...prev, [eid]: newAssignments }));
+
+    try {
+      await fetch(`/api/events/${eid}/assignments`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ assignments: newAssignments }),
+      });
+    } catch (e) {
+      console.error('Failed to update assignments', e);
+    }
+  }, []);
+
+  const addGuest = useCallback(async (eid: string, guestData: Pick<Paddler, 'name' | 'weight' | 'skills'>) => {
+    try {
+      const res = await fetch(`/api/events/${eid}/guests`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(guestData),
+      });
+      
+      if (res.ok) {
+        const newGuest = await res.json();
+        
+        // Update Local State
+        setPaddlers(prev => [...prev, newGuest]);
+        setEvents(prev => prev.map(ev => {
+           if (ev.id === eid) {
+             return { ...ev, attendance: { ...ev.attendance, [newGuest.id]: 'yes' } };
+           }
+           return ev;
+        }));
+        
+        return newGuest.id;
+      }
+    } catch(e) { console.error(e); }
+    return '';
+  }, []);
+
+  const removeGuest = useCallback(async (eid: string, guestId: string) => {
+    // Remove from local state immediately (optimistic)
+    setEvents(prev => prev.map(ev => {
+      if (ev.id === eid) {
+        const newGuests = (ev.guests || []).filter(g => g.id !== guestId);
+        const newAttendance = { ...ev.attendance };
+        delete newAttendance[guestId];
+        return { ...ev, guests: newGuests, attendance: newAttendance };
+      }
+      return ev;
+    }));
+    
+    setPaddlers(prev => prev.filter(p => p.id !== guestId));
+
+    try {
+      await fetch(`/api/events/${eid}/guests/${guestId}`, { method: 'DELETE' });
+    } catch(e) { console.error(e); }
+  }, []);
+
+  const addCanister = useCallback(async (eid: string) => {
+    try {
+      const res = await fetch(`/api/events/${eid}/canisters`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      
+      if (res.ok) {
+        const data = await res.json();
+        const newCount = data.canisterCount;
+        setEvents(prev => prev.map(ev => ev.id === eid ? { ...ev, canisterCount: newCount } : ev));
+        return data.newCanisterId;
+      }
+    } catch(e) { console.error(e); }
+    return '';
+  }, []);
+
+  const removeCanister = useCallback(async (eid: string, canisterId: string) => {
+    try {
+      const res = await fetch(`/api/events/${eid}/canisters?canisterId=${canisterId}`, {
+        method: 'DELETE',
+      });
+
+      if (res.ok) {
+        // Update local state
+        setEvents(prev => prev.map(ev => {
+          if (ev.id === eid) {
+            return { ...ev, canisterCount: (ev.canisterCount || 0) - 1 };
+          }
+          return ev;
+        }));
+      } else {
+        const err = await res.json();
+        alert(err.error || 'Fehler beim Löschen');
+      }
+    } catch(e) { console.error(e); }
+  }, []);
 
   const value = useMemo(() => ({
+    teams,
+    currentTeam,
+    createTeam,
+    updateTeam,
+    deleteTeam,
+    switchTeam,
     paddlers,
     events,
     assignmentsByEvent,
@@ -179,16 +526,21 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
     updatePaddler,
     deletePaddler,
     createEvent,
+    deleteEvent,
+    updateEvent,
     updateAttendance,
     updateAssignments,
     addGuest,
     removeGuest,
-    setPaddlers, // Exposed for canister logic
-    setEvents // Exposed for direct manipulation if needed
+    addCanister,
+    removeCanister,
+    setPaddlers,
+    setEvents
   }), [
+    teams, currentTeam, createTeam, switchTeam,
     paddlers, events, assignmentsByEvent, targetTrim, isDarkMode, isLoading,
-    toggleDarkMode, addPaddler, updatePaddler, deletePaddler, createEvent,
-    updateAttendance, updateAssignments, addGuest, removeGuest
+    toggleDarkMode, addPaddler, updatePaddler, deletePaddler, createEvent, deleteEvent, updateEvent,
+    updateAttendance, updateAssignments, addGuest, removeGuest, addCanister, removeCanister
   ]);
 
   return (

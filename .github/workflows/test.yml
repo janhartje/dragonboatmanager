@@ -15,6 +15,8 @@ jobs:
       matrix:
         node-version: [20.x]
 
+    environment: preview
+    
     steps:
     - uses: actions/checkout@v6
     - name: Use Node.js ${{ matrix.node-version }}
@@ -23,6 +25,11 @@ jobs:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
     - run: npm ci
+      env:
+        POSTGRES_URL: ${{ secrets.POSTGRES_URL }}
+        DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        PRISMA_DATABASE_URL: ${{ secrets.PRISMA_DATABASE_URL }}
+        NEXT_PUBLIC_SERVER_URL: ${{ secrets.NEXT_PUBLIC_SERVER_URL }}
     
     - name: Run Tests
       id: test
