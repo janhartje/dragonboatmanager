@@ -56,7 +56,7 @@ const SeatBox: React.FC<SeatBoxProps> = ({
     if (isMaybe) base += ' ring-4 ring-yellow-400 border-yellow-500';
     if (isLocked) base += ' ring-2 ring-slate-500 border-slate-600';
   }
-  const active = isSelected && !paddler ? 'ring-4 ring-blue-300 border-blue-600 z-20' : '';
+  const active = isSelected ? 'ring-4 ring-blue-500 dark:ring-blue-400 border-blue-600 dark:border-blue-300 z-30 scale-105 shadow-xl' : '';
 
   return (
     <div onClick={onClick} className={`w-24 h-14 rounded-lg border-2 flex flex-col items-center justify-center cursor-pointer transition-all relative z-10 group ${base} ${active}`}>

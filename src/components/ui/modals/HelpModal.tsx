@@ -17,13 +17,13 @@ const HelpModal: React.FC<HelpModalProps> = ({ onClose }) => {
     onClose();
     if (pathname === '/') {
       startTour('welcome');
-    } else if (pathname === '/planner') {
+    } else if (pathname?.includes('/planner')) {
       startTour('planner');
     }
   };
 
   const renderContent = () => {
-    if (pathname === '/planner') {
+    if (pathname?.includes('/planner')) {
       return (
         <div className="space-y-6">
           <section>
@@ -33,6 +33,7 @@ const HelpModal: React.FC<HelpModalProps> = ({ onClose }) => {
             <ul className="list-disc list-inside space-y-1 text-slate-600 dark:text-slate-400 ml-1">
               <li>{t('helpBoatManning1')}</li>
               <li>{t('helpBoatManning2')}</li>
+              <li>{t('helpBoatManningSwap')}</li>
               <li>{t('helpBoatManning3')}</li>
               <li>{t('helpBoatManning4')}</li>
             </ul>

@@ -133,10 +133,33 @@ const PlannerView: React.FC<PlannerViewProps> = ({ eventId }) => {
 
   const handleSeatClick = (sid: string) => {
     if (lockedSeats.includes(sid)) return;
+    
     if (selectedPaddlerId) {
+      // Check if selectedPaddlerId is actually a paddler currently in a seat (for swapping)
+      const sourceSeatId = Object.keys(assignments).find(key => assignments[key] === selectedPaddlerId);
+      
       const nAss = { ...assignments };
-      Object.keys(nAss).forEach((k) => { if (nAss[k] === selectedPaddlerId) delete nAss[k]; });
-      nAss[sid] = selectedPaddlerId;
+      
+      if (sourceSeatId) {
+        // SWAP LOGIC
+        const targetPaddlerId = assignments[sid];
+        
+        if (targetPaddlerId) {
+          // Target is occupied -> Swap
+          nAss[sourceSeatId] = targetPaddlerId;
+          nAss[sid] = selectedPaddlerId;
+        } else {
+          // Target is empty -> Move (standard behavior)
+          delete nAss[sourceSeatId];
+          nAss[sid] = selectedPaddlerId;
+        }
+      } else {
+        // Standard assignment from pool
+        // Remove paddler from any other seat if they were somehow assigned (though sourceSeatId check covers most)
+        Object.keys(nAss).forEach((k) => { if (nAss[k] === selectedPaddlerId) delete nAss[k]; });
+        nAss[sid] = selectedPaddlerId;
+      }
+      
       updateAssignments(activeEventId, nAss);
       setSelectedPaddlerId(null);
     } else if (assignments[sid]) {
