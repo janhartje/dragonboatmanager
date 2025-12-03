@@ -14,6 +14,8 @@ interface StatsPanelProps {
   clearBoat: () => void;
   confirmClear: boolean;
   t: (key: string) => string;
+  boatSize: 'standard' | 'small';
+  setBoatSize: (size: 'standard' | 'small') => void;
 }
 
 const StatsPanel: React.FC<StatsPanelProps> = ({ 
@@ -26,13 +28,33 @@ const StatsPanel: React.FC<StatsPanelProps> = ({
   handleExportImage, 
   clearBoat, 
   confirmClear, 
-  t 
+  t,
+  boatSize,
+  setBoatSize
 }) => {
   return (
     <div id="tour-planner-stats" className="bg-white dark:bg-slate-900 p-4 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800">
-      <h2 className="font-bold text-sm text-slate-700 dark:text-slate-200 uppercase tracking-wide mb-3 flex items-center gap-2">
-        <ArrowRightLeft size={16} /> {t('balance')}
-      </h2>
+      <div className="flex items-center justify-between mb-3">
+        <h2 className="font-bold text-sm text-slate-700 dark:text-slate-200 uppercase tracking-wide flex items-center gap-2">
+          <ArrowRightLeft size={16} /> {t('balance')}
+        </h2>
+        
+        <div className="flex bg-slate-100 dark:bg-slate-800 rounded-lg p-1">
+          <button 
+            onClick={() => setBoatSize('standard')}
+            className={`px-2 py-1 text-xs font-bold rounded-md transition-all ${boatSize === 'standard' ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'}`}
+          >
+            {t('standardBoat')}
+          </button>
+          <button 
+            onClick={() => setBoatSize('small')}
+            className={`px-2 py-1 text-xs font-bold rounded-md transition-all ${boatSize === 'small' ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'}`}
+          >
+            {t('smallBoat')}
+          </button>
+        </div>
+      </div>
+      
       <BalanceBar left={stats.l} right={stats.r} diff={stats.diffLR} />
       <TrimBar front={stats.f} back={stats.b} diff={stats.diffFB} />
 

@@ -2,6 +2,8 @@
     "appTitle": "Dragonboat Manager",
     "teamManager": "Team Manager",
     "plannerMode": "Planner Mode",
+    "standardBoat": "Standard (20)",
+    "smallBoat": "Small (10)",
     "newTermin": "New Event",
     "title": "Title",
     "date": "Date",

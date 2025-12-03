@@ -58,14 +58,18 @@ const PlannerView: React.FC<PlannerViewProps> = ({ eventId }) => {
   const [selectedPaddlerId, setSelectedPaddlerId] = useState<number | string | null>(null);
   const [lockedSeats, setLockedSeats] = useState<string[]>([]);
   const [confirmClear, setConfirmClear] = useState<boolean>(false);
+  const [boatSize, setBoatSize] = useState<'standard' | 'small'>('standard');
   
   const boatRef = useRef<HTMLDivElement>(null);
 
   // --- COMPUTED ---
+  // --- COMPUTED ---
   const activeEvent = useMemo(() => events.find((e) => e.id === activeEventId) || null, [activeEventId, events]);
   const activeEventTitle = activeEvent ? activeEvent.title : t('unknownEvent');
 
-  const assignments = useMemo(() => assignmentsByEvent[activeEventId] || {}, [assignmentsByEvent, activeEventId]);
+  // Use negative ID for small boat assignments to keep them separate
+  const assignmentKey = useMemo(() => boatSize === 'small' ? -activeEventId : activeEventId, [activeEventId, boatSize]);
+  const assignments = useMemo(() => assignmentsByEvent[assignmentKey] || {}, [assignmentsByEvent, assignmentKey]);
 
   const activePaddlerPool = useMemo(() => {
     if (!activeEvent) return [];
@@ -76,44 +80,95 @@ const PlannerView: React.FC<PlannerViewProps> = ({ eventId }) => {
   }, [paddlers, activeEvent]);
 
   // --- BOAT CONFIG ---
-  const rows = 10;
+  const rows = boatSize === 'small' ? 5 : 10;
   const boatConfig = useMemo(() => {
     const s: BoatConfigItem[] = [{ id: 'drummer', type: 'drummer' }];
     for (let i = 1; i <= rows; i++) { s.push({ id: `row-${i}-left`, type: 'paddler', side: 'left', row: i }); s.push({ id: `row-${i}-right`, type: 'paddler', side: 'right', row: i }); }
     s.push({ id: 'steer', type: 'steer' });
     return s;
-  }, []);
+  }, [rows]);
 
   // --- STATS ---
   const stats = useMemo(() => {
     let l = 0, r = 0, t = 0, f = 0, b = 0, c = 0;
+    const mid = (rows + 1) / 2;
     Object.entries(assignments).forEach(([sid, pid]) => {
+      // Filter out assignments that are not in the current boat config
+      if (sid.includes('row')) {
+        const match = sid.match(/row-(\d+)/);
+        if (match && parseInt(match[1]) > rows) return;
+      }
+
       const p = activePaddlerPool.find((x) => x.id === pid) || paddlers.find((x) => x.id === pid);
       if (!p) return;
       t += p.weight; c++;
       if (sid.includes('row')) {
         if (sid.includes('left')) l += p.weight; else r += p.weight;
         const match = sid.match(/row-(\d+)/);
-        if (match && parseInt(match[1]) <= 5) f += p.weight; else b += p.weight;
+        // Adjust front/back calculation based on rows
+        if (match) {
+          const rowNum = parseInt(match[1]);
+          if (rowNum < mid) f += p.weight;
+          else if (rowNum > mid) b += p.weight;
+        }
       }
     });
     return { l, r, t, diffLR: l - r, f, b, diffFB: f - b, c };
-  }, [assignments, paddlers, activePaddlerPool]);
+  }, [assignments, paddlers, activePaddlerPool, rows]);
 
   const cgStats = useMemo(() => {
     let totalWeight = 0, weightedSumX = 0, weightedSumY = 0;
     Object.entries(assignments).forEach(([sid, pid]) => {
+      // Filter out assignments that are not in the current boat config
+      if (sid.includes('row')) {
+        const match = sid.match(/row-(\d+)/);
+        if (match && parseInt(match[1]) > rows) return;
+      }
+
       const p = activePaddlerPool.find((x) => x.id === pid) || paddlers.find((x) => x.id === pid);
       if (!p) return;
       totalWeight += p.weight;
       let xPos = 50; if (sid.includes('left')) xPos = 25; else if (sid.includes('right')) xPos = 75;
-      let yPos = 50; if (sid === 'drummer') yPos = 4; else if (sid === 'steer') yPos = 96; else if (sid.includes('row')) { const match = sid.match(/row-(\d+)/); if (match) { const r = parseInt(match[1]); yPos = 12 + ((r - 1) / 9) * 70; } }
+      
+      // Dynamic Y position calculation based on rows
+      // Precise calculation based on CSS:
+      // Container Padding: 48px (py-12) + 24px (pt-6) = 72px top offset
+      // Drummer: 56px (h-14) + 32px (mb-8) = 88px
+      // Row Start (Top of Row 1): 72 + 88 = 160px
+      // Row Height: 56px (h-14) + 12px (space-y-3) = 68px stride
+      // Row 1 Center: 160 + 28 = 188px
+      // Bottom Offset: 40px (mt-10) + 56px (Steer) + 24px (pb-6) + 48px (py-12) = 168px
+      // Total Height = 160 + (rows * 68 - 12) + 168 = 316 + rows * 68
+      
+      const totalHeight = 316 + rows * 68;
+      const row1Center = 188;
+      const rowLastCenter = 188 + (rows - 1) * 68;
+      
+      const yStart = (row1Center / totalHeight) * 100;
+      const yEnd = (rowLastCenter / totalHeight) * 100;
+      
+      let yPos = 50; 
+      if (sid === 'drummer') yPos = (100 / totalHeight) * 100; // Approx center of drummer
+      else if (sid === 'steer') yPos = ((totalHeight - 100) / totalHeight) * 100; // Approx center of steer
+      else if (sid.includes('row')) { 
+        const match = sid.match(/row-(\d+)/); 
+        if (match) { 
+          const r = parseInt(match[1]); 
+          // Linear interpolation between first and last row
+          if (rows > 1) {
+            const rowStep = (yEnd - yStart) / (rows - 1); 
+            yPos = yStart + (r - 1) * rowStep;
+          } else {
+            yPos = yStart;
+          }
+        } 
+      }
       weightedSumX += p.weight * xPos; weightedSumY += p.weight * yPos;
     });
     const cgX = totalWeight > 0 ? weightedSumX / totalWeight : 50;
     const cgY = totalWeight > 0 ? weightedSumY / totalWeight : 50;
     return { x: cgX, y: cgY, targetY: 50 - targetTrim * 0.1 };
-  }, [assignments, paddlers, targetTrim, activePaddlerPool]);
+  }, [assignments, paddlers, targetTrim, activePaddlerPool, rows]);
 
   // --- ACTIONS ---
   const goHome = () => router.push('/app');
@@ -160,7 +215,7 @@ const PlannerView: React.FC<PlannerViewProps> = ({ eventId }) => {
         nAss[sid] = selectedPaddlerId;
       }
       
-      updateAssignments(activeEventId, nAss);
+      updateAssignments(assignmentKey, nAss);
       setSelectedPaddlerId(null);
     } else if (assignments[sid]) {
       setSelectedPaddlerId(assignments[sid]);
@@ -175,7 +230,7 @@ const PlannerView: React.FC<PlannerViewProps> = ({ eventId }) => {
     
     const nAss = { ...assignments };
     delete nAss[sid];
-    updateAssignments(activeEventId, nAss);
+    updateAssignments(assignmentKey, nAss);
     
     if (paddler && paddler.isCanister) {
         setPaddlers((prev) => prev.filter((p) => p.id !== paddlerId));
@@ -192,7 +247,7 @@ const PlannerView: React.FC<PlannerViewProps> = ({ eventId }) => {
     if (confirmClear) {
       const nAss = { ...assignments };
       Object.keys(nAss).forEach((s) => { if (!lockedSeats.includes(s)) delete nAss[s]; });
-      updateAssignments(activeEventId, nAss);
+      updateAssignments(assignmentKey, nAss);
       setConfirmClear(false);
     } else {
       setConfirmClear(true);
@@ -210,7 +265,8 @@ const PlannerView: React.FC<PlannerViewProps> = ({ eventId }) => {
           activePaddlerPool,
           assignments,
           lockedSeats,
-          targetTrim
+          targetTrim,
+          rows
         }),
       });
 
@@ -218,7 +274,7 @@ const PlannerView: React.FC<PlannerViewProps> = ({ eventId }) => {
 
       const data = await response.json();
       if (data.assignments) {
-        updateAssignments(activeEventId, data.assignments);
+        updateAssignments(assignmentKey, data.assignments);
       }
     } catch (error) {
       console.error('Auto-fill error:', error);
@@ -297,6 +353,8 @@ const PlannerView: React.FC<PlannerViewProps> = ({ eventId }) => {
               clearBoat={clearBoat} 
               confirmClear={confirmClear} 
               t={t} 
+              boatSize={boatSize}
+              setBoatSize={setBoatSize}
             />
 
             {/* Paddler Pool */}
@@ -327,6 +385,7 @@ const PlannerView: React.FC<PlannerViewProps> = ({ eventId }) => {
             handleSeatClick={handleSeatClick} 
             handleUnassign={handleUnassign} 
             toggleLock={toggleLock} 
+            rows={rows}
           />
         </div>
         <Footer />

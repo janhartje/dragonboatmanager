@@ -5,13 +5,13 @@ import { Paddler, Assignments } from '@/types';
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { activePaddlerPool, assignments, lockedSeats, targetTrim } = body;
+    const { activePaddlerPool, assignments, lockedSeats, targetTrim, rows } = body;
 
     if (!activePaddlerPool || !assignments || !lockedSeats || targetTrim === undefined) {
       return NextResponse.json({ error: 'Missing required parameters' }, { status: 400 });
     }
 
-    const result = runAutoFillAlgorithm(activePaddlerPool, assignments, lockedSeats, targetTrim);
+    const result = runAutoFillAlgorithm(activePaddlerPool, assignments, lockedSeats, targetTrim, rows || 10);
 
     return NextResponse.json({ assignments: result });
   } catch (error) {

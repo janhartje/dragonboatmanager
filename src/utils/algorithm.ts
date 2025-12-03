@@ -4,9 +4,9 @@ export const runAutoFillAlgorithm = (
   activePaddlerPool: Paddler[],
   assignments: Assignments,
   lockedSeats: string[],
-  targetTrim: number
+  targetTrim: number,
+  rows: number = 10
 ): Assignments | null => {
-  const rows = 10;
   const lockedAss: Assignments = {};
   
   // Gesperrte Sitze behalten
@@ -57,6 +57,8 @@ export const runAutoFillAlgorithm = (
     // Random shuffle with weight noise
     currPool.sort((a, b) => (b.weight + Math.random() * 5) - (a.weight + Math.random() * 5));
 
+    const mid = (rows + 1) / 2;
+
     const free: { id: string; side: string; r: number }[] = [];
     for (let r = 1; r <= rows; r++) {
       if (!currAss[`row-${r}-left`]) free.push({ id: `row-${r}-left`, side: 'left', r });
@@ -74,7 +76,11 @@ export const runAutoFillAlgorithm = (
         if (!pad) return;
         if (sid.includes('left')) l += pad.weight; else r += pad.weight;
         const match = sid.match(/row-(\d+)/);
-        if (match && parseInt(match[1]) <= 5) f += pad.weight; else b += pad.weight;
+        if (match) {
+          const rowNum = parseInt(match[1]);
+          if (rowNum < mid) f += pad.weight;
+          else if (rowNum > mid) b += pad.weight;
+        }
       });
 
       const nBack = f - b > targetTrim; // Benötigt Gewicht hinten?
@@ -101,8 +107,8 @@ export const runAutoFillAlgorithm = (
             sa += A.r * 3;
             sb += B.r * 3;
           } else {
-            sa += (11 - A.r) * 3;
-            sb += (11 - B.r) * 3;
+            sa += (rows + 1 - A.r) * 3;
+            sb += (rows + 1 - B.r) * 3;
           }
           return sb - sa;
         });
@@ -135,7 +141,11 @@ export const runAutoFillAlgorithm = (
       if (!pad) return;
       if (sid.includes('left')) fl += pad.weight; else fr += pad.weight;
       const match = sid.match(/row-(\d+)/);
-      if (match && parseInt(match[1]) <= 5) ff += pad.weight; else fb += pad.weight;
+      if (match) {
+        const rowNum = parseInt(match[1]);
+        if (rowNum < mid) ff += pad.weight;
+        else if (rowNum > mid) fb += pad.weight;
+      }
     });
 
     let sc = -Math.pow(Math.abs(fl - fr), 2); // Links/Rechts Strafe

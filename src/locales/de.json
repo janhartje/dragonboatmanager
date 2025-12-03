@@ -1,7 +1,9 @@
 {
     "appTitle": "Drachenboot Manager",
     "teamManager": "Team Manager",
-    "plannerMode": "Planungsmodus",
+    "plannerMode": "Planer Modus",
+    "standardBoat": "Standard (20)",
+    "smallBoat": "Klein (10)",
     "newTermin": "Neuer Termin",
     "title": "Titel",
     "date": "Datum",

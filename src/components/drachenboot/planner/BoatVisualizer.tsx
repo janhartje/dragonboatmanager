@@ -17,6 +17,7 @@ interface BoatVisualizerProps {
   handleSeatClick: (seatId: string) => void;
   handleUnassign: (seatId: string, e: React.MouseEvent) => void;
   toggleLock: (seatId: string, e: React.MouseEvent) => void;
+  rows: number;
 }
 
 const BoatVisualizer = React.forwardRef<HTMLDivElement, BoatVisualizerProps>(({ 
@@ -31,9 +32,9 @@ const BoatVisualizer = React.forwardRef<HTMLDivElement, BoatVisualizerProps>(({
   isExporting, 
   handleSeatClick, 
   handleUnassign, 
-  toggleLock 
+  toggleLock,
+  rows
 }, ref) => {
-  const rows = 10;
 
   return (
     <div id="tour-planner-boat" className="lg:col-span-2 pb-10">
