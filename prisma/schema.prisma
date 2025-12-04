@@ -41,6 +41,12 @@ model User {
   emailVerified DateTime?
   image         String?
   weight        Float?
+  
+  // User preferences
+  theme         String?   // 'light', 'dark', 'system'
+  language      String?   // 'de', 'en'
+  activeTeamId  String?   // Last selected team ID
+  
   accounts      Account[]
   sessions      Session[]
   paddlers      Paddler[]

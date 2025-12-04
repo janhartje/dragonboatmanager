@@ -155,17 +155,46 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
   useEffect(() => {
     const init = async () => {
       if (status === 'authenticated') {
-        await fetchTeams();
+        // Load user preferences from API first
+        try {
+          const prefsResponse = await fetch('/api/user/preferences');
+          if (prefsResponse.ok) {
+            const prefs = await prefsResponse.json();
+            
+            // Apply theme preference
+            if (prefs.theme === 'dark') {
+              setIsDarkMode(true);
+            } else if (prefs.theme === 'light') {
+              setIsDarkMode(false);
+            } else {
+              // 'system' or null - use system preference
+              if (typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                setIsDarkMode(true);
+              }
+            }
+            
+            // Fetch teams and apply activeTeamId preference
+            await fetchTeamsWithPreference(prefs.activeTeamId);
+          } else {
+            await fetchTeams();
+          }
+        } catch (e) {
+          console.error('Failed to load preferences', e);
+          await fetchTeams();
+        }
       }
       
-      // Load local preferences
+      // Load local preferences as fallback
       if (typeof window !== 'undefined') {
         const storedTrim = localStorage.getItem('drachenboot_target_trim');
         if (storedTrim) setTargetTrim(parseFloat(storedTrim));
         
-        const storedTheme = localStorage.getItem('drachenboot_theme');
-        if (storedTheme === 'dark' || (!storedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-          setIsDarkMode(true);
+        // Only use local theme if not authenticated
+        if (status !== 'authenticated') {
+          const storedTheme = localStorage.getItem('drachenboot_theme');
+          if (storedTheme === 'dark' || (!storedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            setIsDarkMode(true);
+          }
         }
       }
       
@@ -185,27 +214,71 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
       return () => mediaQuery.removeEventListener('change', handleChange);
     }
   }, [status]);
+  
+  // Helper function to fetch teams with preference for activeTeamId
+  const fetchTeamsWithPreference = async (preferredTeamId: string | null) => {
+    try {
+      const res = await fetch('/api/teams');
+      if (res.status === 401) {
+        setTeams([]);
+        setCurrentTeam(null);
+        return;
+      }
+      if (res.ok) {
+        const data = await res.json();
+        setTeams(data);
+        if (data.length > 0) {
+          // Priority: API preference > localStorage > first team
+          let teamToSelect = null;
+          if (preferredTeamId) {
+            teamToSelect = data.find((t: Team) => t.id === preferredTeamId);
+          }
+          if (!teamToSelect) {
+            const storedTeamId = localStorage.getItem('drachenboot_team_id');
+            teamToSelect = data.find((t: Team) => t.id === storedTeamId);
+          }
+          if (!teamToSelect) {
+            teamToSelect = data[0];
+          }
+          setCurrentTeam(teamToSelect);
+        }
+      }
+    } catch (e) {
+      console.error('Failed to fetch teams', e);
+    }
+  };
 
   // --- TEAM DATA LOAD ---
   useEffect(() => {
     if (currentTeam) {
         localStorage.setItem('drachenboot_team_id', currentTeam.id);
+        
+        // Save to API if authenticated
+        if (status === 'authenticated') {
+          fetch('/api/user/preferences', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ activeTeamId: currentTeam.id }),
+          }).catch(e => console.error('Failed to save active team preference', e));
+        }
+        
         Promise.all([fetchPaddlers(), fetchEvents()]);
     } else {
         setPaddlers([]);
         setEvents([]);
     }
-  }, [currentTeam, fetchPaddlers, fetchEvents]);
+  }, [currentTeam, fetchPaddlers, fetchEvents, status]);
 
   // --- THEME EFFECT ---
   useEffect(() => {
     if (isDarkMode) {
       document.documentElement.classList.add('dark');
-      localStorage.setItem('drachenboot_theme', 'dark');
     } else {
       document.documentElement.classList.remove('dark');
-      localStorage.setItem('drachenboot_theme', 'light');
     }
+    
+    // Save locally always
+    localStorage.setItem('drachenboot_theme', isDarkMode ? 'dark' : 'light');
   }, [isDarkMode]);
 
   // --- TRIM EFFECT ---
@@ -214,7 +287,23 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
   }, [targetTrim]);
 
   // --- ACTIONS ---
-  const toggleDarkMode = useCallback(() => setIsDarkMode(prev => !prev), []);
+  const toggleDarkMode = useCallback(async () => {
+    const newDarkMode = !isDarkMode;
+    setIsDarkMode(newDarkMode);
+    
+    // Save to API if authenticated
+    if (status === 'authenticated') {
+      try {
+        await fetch('/api/user/preferences', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ theme: newDarkMode ? 'dark' : 'light' }),
+        });
+      } catch (e) {
+        console.error('Failed to save theme preference', e);
+      }
+    }
+  }, [isDarkMode, status]);
 
   const createTeam = async (name: string) => {
     try {
