@@ -1,11 +1,39 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { auth } from '@/auth';
 
 export async function PUT(
   request: Request,
   { params }: { params: { id: string } }
 ) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   try {
+    // Fetch paddler to check team ownership
+    const existingPaddler = await prisma.paddler.findUnique({
+      where: { id: params.id },
+      select: { teamId: true }
+    });
+
+    if (!existingPaddler?.teamId) {
+      return NextResponse.json({ error: 'Paddler not found' }, { status: 404 });
+    }
+
+    // Check if user is a member of the team
+    const membership = await prisma.paddler.findFirst({
+      where: {
+        teamId: existingPaddler.teamId,
+        userId: session.user.id,
+      },
+    });
+
+    if (!membership) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+    }
+
     const body = await request.json();
     const paddler = await prisma.paddler.update({
       where: { id: params.id },
@@ -52,7 +80,34 @@ export async function DELETE(
   request: Request,
   { params }: { params: { id: string } }
 ) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   try {
+    // Fetch paddler to check team ownership
+    const existingPaddler = await prisma.paddler.findUnique({
+      where: { id: params.id },
+      select: { teamId: true }
+    });
+
+    if (!existingPaddler?.teamId) {
+      return NextResponse.json({ error: 'Paddler not found' }, { status: 404 });
+    }
+
+    // Check if user is a member of the team
+    const membership = await prisma.paddler.findFirst({
+      where: {
+        teamId: existingPaddler.teamId,
+        userId: session.user.id,
+      },
+    });
+
+    if (!membership) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+    }
+
     await prisma.paddler.delete({
       where: { id: params.id },
     });
