@@ -76,6 +76,21 @@ export default function TeamManagementPage() {
                     }`}
                   >
                     <div className="flex items-center gap-3 overflow-hidden">
+                      {team.icon ? (
+                        <div className="w-10 h-10 rounded-full overflow-hidden border border-slate-200 dark:border-slate-700 shrink-0">
+                          <img 
+                            src={team.icon} 
+                            alt={team.name} 
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                      ) : (
+                        <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center shrink-0">
+                          <span className="text-lg font-bold text-slate-400 dark:text-slate-500">
+                            {team.name.charAt(0).toUpperCase()}
+                          </span>
+                        </div>
+                      )}
                       <span className="font-medium text-lg text-slate-800 dark:text-slate-200 truncate">
                         {team.name}
                       </span>

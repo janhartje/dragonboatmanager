@@ -5,27 +5,25 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useDrachenboot } from '@/context/DrachenbootContext';
 import { useLanguage } from '@/context/LanguageContext';
-import { ArrowLeft, Save, Trash2, AlertTriangle, Check } from 'lucide-react';
+import { ArrowLeft, Trash2, AlertTriangle } from 'lucide-react';
 import Header from '@/components/ui/Header';
 import Footer from '@/components/ui/Footer';
 import DragonLogo from '@/components/ui/DragonLogo';
+import TeamSettingsForm from '@/components/drachenboot/team/TeamSettingsForm';
 
 export default function TeamDetailPage({ params }: { params: { id: string } }) {
   const router = useRouter();
-  const { teams, updateTeam, deleteTeam, isDarkMode, toggleDarkMode, currentTeam, switchTeam } = useDrachenboot();
+  const { teams, updateTeam, deleteTeam, isDarkMode, toggleDarkMode } = useDrachenboot();
   const { t } = useLanguage();
   
-  const [name, setName] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [deleteConfirm, setDeleteConfirm] = useState(false);
-  const [saveSuccess, setSaveSuccess] = useState(false);
 
   const team = teams.find(t => t.id === params.id);
 
   useEffect(() => {
     if (teams.length > 0) {
       if (team) {
-        setName(team.name);
         setIsLoading(false);
       } else {
         // Team not found, redirect
@@ -34,11 +32,9 @@ export default function TeamDetailPage({ params }: { params: { id: string } }) {
     }
   }, [teams, team, router, params.id]);
 
-  const handleSave = async () => {
-    if (team && name.trim() && name !== team.name) {
-      await updateTeam(team.id, name);
-      setSaveSuccess(true);
-      setTimeout(() => setSaveSuccess(false), 2000);
+  const handleSave = async (data: any) => {
+    if (team) {
+      await updateTeam(team.id, data);
     }
   };
 
@@ -80,35 +76,17 @@ export default function TeamDetailPage({ params }: { params: { id: string } }) {
           toggleDarkMode={toggleDarkMode}
         />
 
-        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden max-w-2xl mx-auto">
-          <div className="p-6 space-y-6">
+        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
+          <div className="p-6 space-y-8">
             <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                {t('teamName') || 'Team Name'}
-              </label>
-              <div className="flex flex-col sm:flex-row gap-2">
-                <input
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="flex-1 px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
-                  placeholder={t('teamNamePlaceholder') || 'Enter team name'}
-                />
-                <button
-                  onClick={handleSave}
-                  disabled={!name.trim() || name === team.name}
-                  className={`px-4 py-2 rounded-lg flex items-center justify-center gap-2 font-medium transition-all whitespace-nowrap ${
-                    saveSuccess 
-                      ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
-                      : !name.trim() || name === team.name
-                        ? 'bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500 cursor-not-allowed'
-                        : 'bg-blue-600 hover:bg-blue-700 text-white shadow-sm hover:shadow'
-                  }`}
-                >
-                  {saveSuccess ? <Check size={18} /> : <Save size={18} />}
-                  <span>{saveSuccess ? (t('saved') || 'Saved') : (t('save') || 'Save')}</span>
-                </button>
-              </div>
+              <h3 className="text-lg font-medium text-slate-800 dark:text-slate-200 mb-4">
+                {t('generalSettings') || 'General Settings'}
+              </h3>
+              <TeamSettingsForm 
+                initialData={team} 
+                onSave={handleSave}
+                t={t}
+              />
             </div>
 
             <div className="pt-6 border-t border-slate-200 dark:border-slate-800">

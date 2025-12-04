@@ -49,7 +49,8 @@ const PlannerView: React.FC<PlannerViewProps> = ({ eventId }) => {
     updateEvent,
     isDarkMode,
     toggleDarkMode,
-    setPaddlers // needed for canister
+    setPaddlers, // needed for canister
+    currentTeam
   } = useDrachenboot();
 
   // --- LOCAL UI STATE ---
@@ -385,7 +386,17 @@ const PlannerView: React.FC<PlannerViewProps> = ({ eventId }) => {
           subtitle={t('plannerMode')}
           logo={
             <Link href="/" className="cursor-pointer hover:opacity-80 transition-opacity">
-              <DragonLogo className="w-10 h-10" />
+              {currentTeam?.icon ? (
+                <div className="w-10 h-10 rounded-full overflow-hidden border border-slate-200 dark:border-slate-700">
+                  <img 
+                    src={currentTeam.icon} 
+                    alt={currentTeam.name} 
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              ) : (
+                <DragonLogo className="w-10 h-10" />
+              )}
             </Link>
           }
           leftAction={

@@ -200,5 +200,7 @@
     "saved": "Gespeichert",
     "dangerZone": "Gefahrenzone",
     "confirmDelete": "Ja, Team löschen",
-    "deleteTeam": "Team löschen"
+    "deleteTeam": "Team löschen",
+    "generalSettings": "Allgemeine Einstellungen",
+    "imageTooLarge": "Bild ist zu groß (max 5MB)"
 }
