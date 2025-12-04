@@ -166,6 +166,11 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const startTour = (tourName = 'welcome') => {
     if (driverObj && tours[tourName]) {
       driverObj.setConfig({
+        showProgress: true,
+        animate: true,
+        doneBtnText: t('tourDone'),
+        nextBtnText: t('tourNext'),
+        prevBtnText: t('tourPrev'),
         steps: tours[tourName],
         onDestroyed: () => {
           localStorage.setItem(`${tourName}_tour_seen`, 'true');

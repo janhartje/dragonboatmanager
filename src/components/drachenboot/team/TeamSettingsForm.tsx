@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Team } from '@/types';
 import { Save, Globe, Instagram, Facebook, Twitter, Mail, Image as ImageIcon, Check } from 'lucide-react';
+import { useAlert } from '@/context/AlertContext';
+
+import { FormInput } from '@/components/ui/FormInput';
 
 interface TeamSettingsFormProps {
   initialData: Partial<Team>;
@@ -11,9 +14,16 @@ interface TeamSettingsFormProps {
 }
 
 const TeamSettingsForm: React.FC<TeamSettingsFormProps> = ({ initialData, onSave, onCancel, t, className = '' }) => {
+  const { showAlert } = useAlert();
   const [formData, setFormData] = useState<Partial<Team>>({});
   const [isLoading, setIsLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+
+  useEffect(() => {
+    if (initialData) {
+      setFormData(initialData);
+    }
+  }, [initialData]);
 
   useEffect(() => {
     if (success) {
@@ -48,11 +58,11 @@ const TeamSettingsForm: React.FC<TeamSettingsFormProps> = ({ initialData, onSave
         <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">
           {t('teamName') || 'Team Name'}
         </label>
-        <input
+        <FormInput
           type="text"
           value={formData.name || ''}
           onChange={(e) => handleChange('name', e.target.value)}
-          className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none transition-all"
+          className="focus:ring-amber-500"
           required
         />
       </div>
@@ -62,12 +72,12 @@ const TeamSettingsForm: React.FC<TeamSettingsFormProps> = ({ initialData, onSave
         <label className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300">
           <Globe size={16} /> Website
         </label>
-        <input
+        <FormInput
           type="url"
           value={formData.website || ''}
           onChange={(e) => handleChange('website', e.target.value)}
           placeholder="https://example.com"
-          className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none transition-all"
+          className="focus:ring-amber-500"
         />
       </div>
 
@@ -103,7 +113,7 @@ const TeamSettingsForm: React.FC<TeamSettingsFormProps> = ({ initialData, onSave
                 const file = e.target.files?.[0];
                 if (file) {
                   if (file.size > 5 * 1024 * 1024) { // 5MB limit
-                    alert(t('imageTooLarge') || 'Image too large (max 5MB)');
+                    showAlert(t('imageTooLarge') || 'Image too large (max 5MB)', 'error');
                     return;
                   }
                   const reader = new FileReader();
@@ -138,45 +148,45 @@ const TeamSettingsForm: React.FC<TeamSettingsFormProps> = ({ initialData, onSave
         <div className="space-y-3">
           <div className="flex items-center gap-3">
             <Instagram size={18} className="text-pink-600" />
-            <input
+            <FormInput
               type="text"
               value={formData.instagram || ''}
               onChange={(e) => handleChange('instagram', e.target.value)}
               placeholder="Instagram Username/URL"
-              className="flex-1 px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none transition-all"
+              className="flex-1 focus:ring-amber-500"
             />
           </div>
 
           <div className="flex items-center gap-3">
             <Facebook size={18} className="text-blue-600" />
-            <input
+            <FormInput
               type="text"
               value={formData.facebook || ''}
               onChange={(e) => handleChange('facebook', e.target.value)}
               placeholder="Facebook URL"
-              className="flex-1 px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none transition-all"
+              className="flex-1 focus:ring-amber-500"
             />
           </div>
 
           <div className="flex items-center gap-3">
             <Twitter size={18} className="text-sky-500" />
-            <input
+            <FormInput
               type="text"
               value={formData.twitter || ''}
               onChange={(e) => handleChange('twitter', e.target.value)}
               placeholder="Twitter/X Handle"
-              className="flex-1 px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none transition-all"
+              className="flex-1 focus:ring-amber-500"
             />
           </div>
 
           <div className="flex items-center gap-3">
             <Mail size={18} className="text-slate-600 dark:text-slate-400" />
-            <input
+            <FormInput
               type="email"
               value={formData.email || ''}
               onChange={(e) => handleChange('email', e.target.value)}
               placeholder="Contact Email"
-              className="flex-1 px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none transition-all"
+              className="flex-1 focus:ring-amber-500"
             />
           </div>
         </div>

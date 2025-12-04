@@ -5,21 +5,30 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useDrachenboot } from '@/context/DrachenbootContext';
 import { useLanguage } from '@/context/LanguageContext';
-import { ArrowLeft, Trash2, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, Trash2, AlertTriangle, Shield, ShieldAlert } from 'lucide-react';
 import Header from '@/components/ui/Header';
 import Footer from '@/components/ui/Footer';
 import DragonLogo from '@/components/ui/DragonLogo';
 import TeamSettingsForm from '@/components/drachenboot/team/TeamSettingsForm';
+import { InviteMemberForm } from '@/components/drachenboot/team/InviteMemberForm';
+import { HelpModal, AlertModal } from '@/components/ui/Modals';
 
 export default function TeamDetailPage({ params }: { params: { id: string } }) {
   const router = useRouter();
-  const { teams, updateTeam, deleteTeam, isDarkMode, toggleDarkMode } = useDrachenboot();
+  const { teams, updateTeam, deleteTeam, isDarkMode, toggleDarkMode, paddlers, updatePaddler } = useDrachenboot();
   const { t } = useLanguage();
   
   const [isLoading, setIsLoading] = useState(true);
   const [deleteConfirm, setDeleteConfirm] = useState(false);
+  const [activeTab, setActiveTab] = useState<'general' | 'members'>('general');
+  const [alertMessage, setAlertMessage] = useState<string | null>(null);
 
   const team = teams.find(t => t.id === params.id);
+
+  // Filter for actual users (members) of this team
+  const members = paddlers.filter(p => p.userId && p.teamId === params.id);
+
+  const [showHelp, setShowHelp] = useState(false);
 
   useEffect(() => {
     if (teams.length > 0) {
@@ -43,6 +52,18 @@ export default function TeamDetailPage({ params }: { params: { id: string } }) {
       await deleteTeam(team.id);
       router.push('/app/teams');
     }
+  };
+
+  const handleRoleChange = async (paddlerId: string | number, newRole: 'CAPTAIN' | 'PADDLER') => {
+    // Prevent removing the last captain
+    if (newRole === 'PADDLER') {
+      const captains = members.filter(m => m.role === 'CAPTAIN');
+      if (captains.length <= 1 && captains[0].id === paddlerId) {
+        setAlertMessage(t('cannotRemoveLastCaptain') || 'Cannot remove the last captain');
+        return;
+      }
+    }
+    updatePaddler(paddlerId, { role: newRole });
   };
 
   if (isLoading || !team) {
@@ -74,68 +95,172 @@ export default function TeamDetailPage({ params }: { params: { id: string } }) {
           showThemeToggle={true}
           isDarkMode={isDarkMode}
           toggleDarkMode={toggleDarkMode}
+          showHelp={true}
+          onHelp={() => setShowHelp(true)}
         />
 
-        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
-          <div className="p-6 space-y-8">
-            <div>
-              <h3 className="text-lg font-medium text-slate-800 dark:text-slate-200 mb-4">
-                {t('generalSettings') || 'General Settings'}
-              </h3>
-              <TeamSettingsForm 
-                initialData={team} 
-                onSave={handleSave}
-                t={t}
-              />
-            </div>
+        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col min-h-[600px]">
+          <div className="flex border-b border-slate-200 dark:border-slate-800">
+            <button
+              onClick={() => setActiveTab('general')}
+              className={`flex-1 py-4 text-sm font-medium transition-colors border-b-2 ${
+                activeTab === 'general'
+                  ? 'border-blue-600 text-blue-600 dark:border-blue-400 dark:text-blue-400 bg-blue-50/50 dark:bg-blue-900/10'
+                  : 'border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/50'
+              }`}
+            >
+              {t('general') || 'General'}
+            </button>
+            <button
+              onClick={() => setActiveTab('members')}
+              className={`flex-1 py-4 text-sm font-medium transition-colors border-b-2 ${
+                activeTab === 'members'
+                  ? 'border-blue-600 text-blue-600 dark:border-blue-400 dark:text-blue-400 bg-blue-50/50 dark:bg-blue-900/10'
+                  : 'border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/50'
+              }`}
+            >
+              {t('members') || 'Members'}
+            </button>
+          </div>
 
-            <div className="pt-6 border-t border-slate-200 dark:border-slate-800">
-              <h3 className="text-lg font-medium text-slate-800 dark:text-slate-200 mb-2">
-                {t('dangerZone') || 'Danger Zone'}
-              </h3>
-              <div className="bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/30 rounded-lg p-4">
-                <div className="flex items-start gap-3 mb-4">
-                  <AlertTriangle size={20} className="text-red-500 shrink-0 mt-0.5" />
-                  <div>
-                    <h4 className="font-medium text-red-800 dark:text-red-400">
-                      {t('deleteTeam') || 'Delete Team'}
-                    </h4>
-                    <p className="text-sm text-red-600 dark:text-red-300/80 mt-1">
-                      {t('deleteTeamWarning') || 'Deleting a team will permanently remove all its paddlers and events. This action cannot be undone.'}
-                    </p>
+          <div className="p-6">
+            {activeTab === 'general' ? (
+              <div className="space-y-8">
+                <div>
+                  <h3 className="text-lg font-medium text-slate-800 dark:text-slate-200 mb-4">
+                    {t('generalSettings') || 'General Settings'}
+                  </h3>
+                  <TeamSettingsForm 
+                    initialData={team} 
+                    onSave={handleSave}
+                    t={t}
+                  />
+                </div>
+
+                <div className="pt-6 border-t border-slate-200 dark:border-slate-800">
+                  <h3 className="text-lg font-medium text-slate-800 dark:text-slate-200 mb-2">
+                    {t('dangerZone') || 'Danger Zone'}
+                  </h3>
+                  <div className="bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/30 rounded-lg p-4">
+                    <div className="flex items-start gap-3 mb-4">
+                      <AlertTriangle size={20} className="text-red-500 shrink-0 mt-0.5" />
+                      <div>
+                        <h4 className="font-medium text-red-800 dark:text-red-400">
+                          {t('deleteTeam') || 'Delete Team'}
+                        </h4>
+                        <p className="text-sm text-red-600 dark:text-red-300/80 mt-1">
+                          {t('deleteTeamWarning') || 'Deleting a team will permanently remove all its paddlers and events. This action cannot be undone.'}
+                        </p>
+                      </div>
+                    </div>
+                    
+                    {deleteConfirm ? (
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-3 animate-in fade-in slide-in-from-top-2 duration-200">
+                        <button
+                          onClick={handleDelete}
+                          className="w-full sm:w-auto px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors shadow-sm"
+                        >
+                          {t('confirmDelete') || 'Yes, delete team'}
+                        </button>
+                        <button
+                          onClick={() => setDeleteConfirm(false)}
+                          className="w-full sm:w-auto px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg font-medium transition-colors"
+                        >
+                          {t('cancel') || 'Cancel'}
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => setDeleteConfirm(true)}
+                        className="px-4 py-2 border border-red-200 dark:border-red-900/50 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg font-medium transition-colors flex items-center gap-2"
+                      >
+                        <Trash2 size={18} />
+                        <span>{t('deleteTeam') || 'Delete Team'}</span>
+                      </button>
+                    )}
                   </div>
                 </div>
-                
-                {deleteConfirm ? (
-                  <div className="flex flex-col sm:flex-row sm:items-center gap-3 animate-in fade-in slide-in-from-top-2 duration-200">
-                    <button
-                      onClick={handleDelete}
-                      className="w-full sm:w-auto px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors shadow-sm"
-                    >
-                      {t('confirmDelete') || 'Yes, delete team'}
-                    </button>
-                    <button
-                      onClick={() => setDeleteConfirm(false)}
-                      className="w-full sm:w-auto px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg font-medium transition-colors"
-                    >
-                      {t('cancel') || 'Cancel'}
-                    </button>
-                  </div>
-                ) : (
-                  <button
-                    onClick={() => setDeleteConfirm(true)}
-                    className="px-4 py-2 border border-red-200 dark:border-red-900/50 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg font-medium transition-colors flex items-center gap-2"
-                  >
-                    <Trash2 size={18} />
-                    <span>{t('deleteTeam') || 'Delete Team'}</span>
-                  </button>
-                )}
               </div>
-            </div>
+            ) : (
+              <div className="space-y-8">
+                <div>
+                  <h3 className="text-lg font-medium text-slate-800 dark:text-slate-200 mb-4">
+                    {t('inviteMembers') || 'Invite Members'}
+                  </h3>
+                  <InviteMemberForm teamId={team.id} />
+                </div>
+                
+                <div className="pt-6 border-t border-slate-200 dark:border-slate-800">
+                  <h3 className="text-lg font-medium text-slate-800 dark:text-slate-200 mb-4">
+                    {t('teamMembers') || 'Team Members'}
+                  </h3>
+                  <div className="space-y-3">
+                    {members.map(member => (
+                      <div key={member.id} className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-100 dark:border-slate-800">
+                        <div className="flex items-center gap-4">
+                          <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400 font-bold text-sm overflow-hidden">
+                            {member.user?.image ? (
+                              <img src={member.user.image} alt={member.name} className="w-full h-full object-cover" />
+                            ) : (
+                              member.name.charAt(0).toUpperCase()
+                            )}
+                          </div>
+                          <div>
+                            <p className="font-medium text-slate-900 dark:text-slate-100">{member.name}</p>
+                            <p className="text-sm text-slate-500 dark:text-slate-400">
+                              {member.role === 'CAPTAIN' ? (t('captain') || 'Captain') : (t('paddler') || 'Paddler')}
+                            </p>
+                          </div>
+                        </div>
+                        
+                        <button
+                          onClick={() => handleRoleChange(member.id, member.role === 'CAPTAIN' ? 'PADDLER' : 'CAPTAIN')}
+                          className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors font-medium text-sm border shadow-sm ${
+                            member.role === 'CAPTAIN'
+                              ? 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-700'
+                              : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-700'
+                          }`}
+                          title={member.role === 'CAPTAIN' ? (t('demoteToPaddler') || 'Demote to Paddler') : (t('promoteToCaptain') || 'Promote to Captain')}
+                        >
+                          {member.role === 'CAPTAIN' ? (
+                            <>
+                              <ShieldAlert size={16} className="text-amber-500" />
+                              <span>{t('demote') || 'Demote'}</span>
+                            </>
+                          ) : (
+                            <>
+                              <Shield size={16} className="text-blue-500" />
+                              <span>{t('promote') || 'Promote'}</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    ))}
+                    
+                    {members.length === 0 && (
+                      <div className="text-center py-8 bg-slate-50 dark:bg-slate-800/30 rounded-lg border border-dashed border-slate-200 dark:border-slate-800">
+                        <p className="text-slate-500 dark:text-slate-400">
+                          {t('noMembersFound') || 'No members found.'}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
         <Footer />
+        
+        {showHelp && <HelpModal onClose={() => setShowHelp(false)} />}
+        
+        <AlertModal
+          isOpen={!!alertMessage}
+          message={alertMessage || ''}
+          onClose={() => setAlertMessage(null)}
+          type="warning"
+        />
       </div>
     </div>
   );

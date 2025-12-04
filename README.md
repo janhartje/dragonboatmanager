@@ -9,6 +9,7 @@ Der **Drachenboot Manager** ist eine Progressive Web App (PWA) zur Verwaltung vo
 ### ✨ Features
 
 *   **Multi-Team Management**: Verwalten mehrerer Teams mit einfachem Wechsel zwischen Teams.
+*   **User Accounts**: Benutzer-Authentifizierung (Login) und Verknüpfung von Paddlern mit Benutzerkonten.
 *   **Team Management**: Verwalten von Mitgliedern inkl. Gewicht und Fähigkeiten (Links, Rechts, Trommel, Steuer).
 *   **Terminplanung**: Erstellen von Trainings und Regatten mit Zu-/Absage-Funktion.
 *   **Magic KI**: Automatischer Algorithmus zur optimalen Bootsbesetzung (Balance & Trimm).

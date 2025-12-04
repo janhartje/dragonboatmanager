@@ -40,26 +40,31 @@ describe('PaddlerForm', () => {
     expect(mockSave).toHaveBeenCalledWith({
       name: 'New Paddler',
       weight: 75,
-      skills: ['left']
+      skills: ['left'],
+      userId: null
     });
   });
 
   it('validates input before save', () => {
-    // Mock alert
-    window.alert = jest.fn();
-    
     render(<PaddlerForm paddlerToEdit={null} onSave={mockSave} onCancel={mockCancel} t={mockT} />);
     
     // Try submit without data
     fireEvent.click(screen.getByText('add'));
     expect(mockSave).not.toHaveBeenCalled();
     
-    // Add name/weight but no skill
+    // Add only name (no weight)
     fireEvent.change(screen.getByPlaceholderText('name'), { target: { value: 'Test' } });
+    fireEvent.click(screen.getByText('add'));
+    expect(mockSave).not.toHaveBeenCalled();
+    
+    // Add weight too - now it should work (skills are optional)
     fireEvent.change(screen.getByPlaceholderText('kg'), { target: { value: '80' } });
     fireEvent.click(screen.getByText('add'));
-    
-    expect(window.alert).toHaveBeenCalledWith('pleaseChooseRole');
-    expect(mockSave).not.toHaveBeenCalled();
+    expect(mockSave).toHaveBeenCalledWith({
+      name: 'Test',
+      weight: 80,
+      skills: [],
+      userId: null
+    });
   });
 });

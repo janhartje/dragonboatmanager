@@ -1,11 +1,29 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { auth } from '@/auth';
 
 export async function PUT(
   request: Request,
   { params }: { params: { id: string } }
 ) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   try {
+    // Check if user is a member of the team
+    const membership = await prisma.paddler.findFirst({
+      where: {
+        teamId: params.id,
+        userId: session.user.id,
+      },
+    });
+
+    if (!membership) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+    }
+
     const body = await request.json();
     const { name, website, icon, instagram, facebook, twitter, email } = body;
 
@@ -29,7 +47,25 @@ export async function DELETE(
   request: Request,
   { params }: { params: { id: string } }
 ) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   try {
+    // Check if user is a member of the team (ideally CAPTAIN role)
+    const membership = await prisma.paddler.findFirst({
+      where: {
+        teamId: params.id,
+        userId: session.user.id,
+        role: 'CAPTAIN', // Only captains can delete teams
+      },
+    });
+
+    if (!membership) {
+      return NextResponse.json({ error: 'Unauthorized - Only team captains can delete teams' }, { status: 403 });
+    }
+
     // Manually delete related records first to ensure cascade works
     // Delete assignments first (they depend on paddlers and events)
     await prisma.assignment.deleteMany({

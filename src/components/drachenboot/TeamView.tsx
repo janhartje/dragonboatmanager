@@ -8,13 +8,13 @@ import DragonLogo from '../ui/DragonLogo';
 import Header from '../ui/Header';
 import Footer from '../ui/Footer';
 import TeamSwitcher from './TeamSwitcher';
-import TeamSettingsModal from './team/TeamSettingsModal';
-import { Settings, Globe, Instagram, Facebook, Twitter, Mail } from 'lucide-react';
+import { UserMenu } from '@/components/auth/UserMenu';
+import { Settings, Globe, Instagram, Facebook, Twitter, Mail, Plus } from 'lucide-react';
 import { Team } from '@/types';
 
 // Sub-components
 import NewEventForm from './team/NewEventForm';
-import PaddlerForm from './team/PaddlerForm';
+import PaddlerModal from './team/PaddlerModal';
 import EventList from './team/EventList';
 import PaddlerGrid from './team/PaddlerGrid';
 import { Paddler } from '@/types';
@@ -34,13 +34,14 @@ const TeamView: React.FC = () => {
     updatePaddler, 
     deletePaddler,
     isDarkMode,
-    toggleDarkMode
+    toggleDarkMode,
+    userRole
   } = useDrachenboot();
 
   // --- LOCAL UI STATE ---
   const [editingPaddlerId, setEditingPaddlerId] = useState<number | string | null>(null);
   const [showHelp, setShowHelp] = useState<boolean>(false);
-  const [showSettings, setShowSettings] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   // --- COMPUTED ---
   const sortedPaddlers = useMemo(() => 
@@ -64,12 +65,17 @@ const TeamView: React.FC = () => {
     router.push(`/app/planner?id=${eid}`);
   };
 
-  const handleSavePaddler = (data: Pick<Paddler, 'name' | 'weight' | 'skills'>) => {
-    if (editingPaddlerId) {
-      updatePaddler(editingPaddlerId, data);
+  const handleSavePaddler = async (data: Pick<Paddler, 'name' | 'weight' | 'skills'>) => {
+    setErrorMessage(null);
+    try {
+      if (editingPaddlerId && editingPaddlerId !== 'new') {
+        await updatePaddler(editingPaddlerId, data);
+      } else {
+        await addPaddler(data);
+      }
       setEditingPaddlerId(null);
-    } else {
-      addPaddler(data);
+    } catch (e: any) {
+      setErrorMessage(e.message || t('errorSavingPaddler'));
     }
   };
 
@@ -96,15 +102,6 @@ const TeamView: React.FC = () => {
   return (
     <div className="min-h-screen font-sans text-slate-800 dark:text-slate-100 transition-colors duration-300 bg-slate-100 dark:bg-slate-950 p-2 md:p-4 pb-20">
       {showHelp && <HelpModal onClose={() => setShowHelp(false)} />}
-      {currentTeam && (
-        <TeamSettingsModal 
-          team={currentTeam} 
-          isOpen={showSettings} 
-          onClose={() => setShowSettings(false)} 
-          onSave={handleUpdateTeam}
-          t={t}
-        />
-      )}
       
       <div className="max-w-6xl mx-auto">
         <Header 
@@ -126,19 +123,15 @@ const TeamView: React.FC = () => {
           toggleDarkMode={toggleDarkMode}
           showInstallButton={true}
         >
+
           <TeamSwitcher />
-          <button 
-            onClick={() => setShowSettings(true)}
-            className="p-2 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-blue-50 dark:hover:bg-slate-700 transition-colors"
-            title={t('settings') || 'Einstellungen'}
-          >
-            <Settings size={20} />
-          </button>
+          <div className="w-px h-8 bg-slate-100 dark:bg-slate-800 mx-2"></div>
+          <UserMenu />
         </Header>
 
-        {/* Team Metadata / Social Links */}
-        {currentTeam && (
-          <div className="mb-6 flex flex-wrap items-center gap-4 px-2">
+        {/* Team Metadata / Social Links - only render if there are links */}
+        {currentTeam && (currentTeam.website || currentTeam.instagram || currentTeam.facebook || currentTeam.twitter || currentTeam.email) && (
+          <div className="-mt-4 mb-6 flex flex-wrap items-center gap-4 px-2">
             {currentTeam.website && (
               <a href={currentTeam.website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 transition-colors">
                 <Globe size={16} />
@@ -171,19 +164,9 @@ const TeamView: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Neuer Termin */}
           <div className="lg:col-span-1 lg:order-1 flex flex-col">
-            <NewEventForm onCreate={handleCreateEvent} t={t} />
+            {userRole === 'CAPTAIN' && <NewEventForm onCreate={handleCreateEvent} t={t} />}
           </div>
 
-          {/* Paddler Form */}
-          <div className="lg:col-span-2 lg:order-2 flex flex-col">
-            <PaddlerForm 
-              paddlerToEdit={paddlerToEdit} 
-              onSave={handleSavePaddler} 
-              onCancel={handleCancelEdit} 
-              t={t} 
-            />
-          </div>
-            
           {/* Event Liste */}
           <div className="lg:col-span-1 lg:order-3 flex flex-col">
             <EventList 
@@ -197,16 +180,40 @@ const TeamView: React.FC = () => {
           </div>
 
           {/* Paddler Grid */}
-          <div className="lg:col-span-2 lg:order-4 flex flex-col">
+          <div className="lg:col-span-2 lg:order-2 lg:row-span-2 flex flex-col">
             <PaddlerGrid 
               paddlers={sortedPaddlers} 
-              editingId={editingPaddlerId} 
+              editingId={editingPaddlerId === 'new' ? null : editingPaddlerId} 
               onEdit={handleEditPaddler} 
               onDelete={handleDeletePaddler} 
-              t={t} 
+              t={t}
+              headerAction={
+                userRole === 'CAPTAIN' && (
+                  <button 
+                    onClick={() => setEditingPaddlerId('new')}
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-3 h-8 rounded text-sm font-medium flex items-center gap-2 shadow-sm transition-colors"
+                  >
+                    <Plus size={16} />
+                    {t('addPaddler')}
+                  </button>
+                )
+              }
             />
           </div>
         </div>
+        
+        {/* Paddler Modal */}
+        {userRole === 'CAPTAIN' && (
+          <PaddlerModal
+            isOpen={!!editingPaddlerId}
+            onClose={() => setEditingPaddlerId(null)}
+            paddlerToEdit={editingPaddlerId === 'new' ? null : paddlerToEdit}
+            onSave={handleSavePaddler}
+            t={t}
+            teamMembers={paddlers.filter(p => p.userId).map(p => ({ userId: p.userId, name: p.name, email: p.user?.email || '' }))}
+            errorMessage={errorMessage}
+          />
+        )}
         <Footer />
       </div>
     </div>

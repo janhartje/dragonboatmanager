@@ -1,6 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, useMemo, useCallback } from 'react';
+import { useSession } from "next-auth/react";
 import { Paddler, Event, Assignments, Team } from '@/types';
 
 interface DrachenbootContextType {
@@ -18,8 +19,8 @@ interface DrachenbootContextType {
   isDarkMode: boolean;
   toggleDarkMode: () => void;
   isLoading: boolean;
-  addPaddler: (paddler: Omit<Paddler, 'id'>) => void;
-  updatePaddler: (id: number | string, data: Partial<Paddler>) => void;
+  addPaddler: (paddler: Omit<Paddler, 'id'>) => Promise<void>;
+  updatePaddler: (id: number | string, data: Partial<Paddler>) => Promise<void>;
   deletePaddler: (id: number | string) => void;
   createEvent: (title: string, date: string, type?: 'training' | 'regatta', boatSize?: 'standard' | 'small') => Promise<void>;
   deleteEvent: (id: string) => Promise<void>;
@@ -32,6 +33,7 @@ interface DrachenbootContextType {
   removeCanister: (eid: string, canisterId: string) => Promise<void>;
   setPaddlers: React.Dispatch<React.SetStateAction<Paddler[]>>;
   setEvents: React.Dispatch<React.SetStateAction<Event[]>>;
+  userRole: 'CAPTAIN' | 'PADDLER' | null;
 }
 
 const DrachenbootContext = createContext<DrachenbootContextType | undefined>(undefined);
@@ -45,6 +47,7 @@ export const useDrachenboot = () => {
 };
 
 export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { data: session, status } = useSession();
   // --- STATE ---
   const [teams, setTeams] = useState<Team[]>([]);
   const [currentTeam, setCurrentTeam] = useState<Team | null>(null);
@@ -59,6 +62,11 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
   const fetchTeams = async () => {
     try {
       const res = await fetch('/api/teams');
+      if (res.status === 401) {
+        setTeams([]);
+        setCurrentTeam(null);
+        return;
+      }
       if (res.ok) {
         const data = await res.json();
         setTeams(data);
@@ -146,16 +154,47 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
   // --- INITIAL LOAD ---
   useEffect(() => {
     const init = async () => {
-      await fetchTeams();
+      if (status === 'authenticated') {
+        // Load user preferences from API first
+        try {
+          const prefsResponse = await fetch('/api/user/preferences');
+          if (prefsResponse.ok) {
+            const prefs = await prefsResponse.json();
+            
+            // Apply theme preference
+            if (prefs.theme === 'dark') {
+              setIsDarkMode(true);
+            } else if (prefs.theme === 'light') {
+              setIsDarkMode(false);
+            } else {
+              // 'system' or null - use system preference
+              if (typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                setIsDarkMode(true);
+              }
+            }
+            
+            // Fetch teams and apply activeTeamId preference
+            await fetchTeamsWithPreference(prefs.activeTeamId);
+          } else {
+            await fetchTeams();
+          }
+        } catch (e) {
+          console.error('Failed to load preferences', e);
+          await fetchTeams();
+        }
+      }
       
-      // Load local preferences
+      // Load local preferences as fallback
       if (typeof window !== 'undefined') {
         const storedTrim = localStorage.getItem('drachenboot_target_trim');
         if (storedTrim) setTargetTrim(parseFloat(storedTrim));
         
-        const storedTheme = localStorage.getItem('drachenboot_theme');
-        if (storedTheme === 'dark' || (!storedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-          setIsDarkMode(true);
+        // Only use local theme if not authenticated
+        if (status !== 'authenticated') {
+          const storedTheme = localStorage.getItem('drachenboot_theme');
+          if (storedTheme === 'dark' || (!storedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            setIsDarkMode(true);
+          }
         }
       }
       
@@ -174,28 +213,72 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
       mediaQuery.addEventListener('change', handleChange);
       return () => mediaQuery.removeEventListener('change', handleChange);
     }
-  }, []);
+  }, [status]);
+  
+  // Helper function to fetch teams with preference for activeTeamId
+  const fetchTeamsWithPreference = async (preferredTeamId: string | null) => {
+    try {
+      const res = await fetch('/api/teams');
+      if (res.status === 401) {
+        setTeams([]);
+        setCurrentTeam(null);
+        return;
+      }
+      if (res.ok) {
+        const data = await res.json();
+        setTeams(data);
+        if (data.length > 0) {
+          // Priority: API preference > localStorage > first team
+          let teamToSelect = null;
+          if (preferredTeamId) {
+            teamToSelect = data.find((t: Team) => t.id === preferredTeamId);
+          }
+          if (!teamToSelect) {
+            const storedTeamId = localStorage.getItem('drachenboot_team_id');
+            teamToSelect = data.find((t: Team) => t.id === storedTeamId);
+          }
+          if (!teamToSelect) {
+            teamToSelect = data[0];
+          }
+          setCurrentTeam(teamToSelect);
+        }
+      }
+    } catch (e) {
+      console.error('Failed to fetch teams', e);
+    }
+  };
 
   // --- TEAM DATA LOAD ---
   useEffect(() => {
     if (currentTeam) {
         localStorage.setItem('drachenboot_team_id', currentTeam.id);
+        
+        // Save to API if authenticated
+        if (status === 'authenticated') {
+          fetch('/api/user/preferences', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ activeTeamId: currentTeam.id }),
+          }).catch(e => console.error('Failed to save active team preference', e));
+        }
+        
         Promise.all([fetchPaddlers(), fetchEvents()]);
     } else {
         setPaddlers([]);
         setEvents([]);
     }
-  }, [currentTeam, fetchPaddlers, fetchEvents]);
+  }, [currentTeam, fetchPaddlers, fetchEvents, status]);
 
   // --- THEME EFFECT ---
   useEffect(() => {
     if (isDarkMode) {
       document.documentElement.classList.add('dark');
-      localStorage.setItem('drachenboot_theme', 'dark');
     } else {
       document.documentElement.classList.remove('dark');
-      localStorage.setItem('drachenboot_theme', 'light');
     }
+    
+    // Save locally always
+    localStorage.setItem('drachenboot_theme', isDarkMode ? 'dark' : 'light');
   }, [isDarkMode]);
 
   // --- TRIM EFFECT ---
@@ -204,7 +287,23 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
   }, [targetTrim]);
 
   // --- ACTIONS ---
-  const toggleDarkMode = useCallback(() => setIsDarkMode(prev => !prev), []);
+  const toggleDarkMode = useCallback(async () => {
+    const newDarkMode = !isDarkMode;
+    setIsDarkMode(newDarkMode);
+    
+    // Save to API if authenticated
+    if (status === 'authenticated') {
+      try {
+        await fetch('/api/user/preferences', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ theme: newDarkMode ? 'dark' : 'light' }),
+        });
+      } catch (e) {
+        console.error('Failed to save theme preference', e);
+      }
+    }
+  }, [isDarkMode, status]);
 
   const createTeam = async (name: string) => {
     try {
@@ -283,9 +382,13 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
       if (res.ok) {
         const newPaddler = await res.json();
         setPaddlers(prev => [...prev, newPaddler]);
+      } else {
+        const err = await res.json();
+        throw new Error(err.error || 'Failed to add paddler');
       }
     } catch (e) {
       console.error('Failed to add paddler', e);
+      throw e;
     }
   }, [currentTeam]);
 
@@ -298,9 +401,13 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
       });
       if (res.ok) {
         setPaddlers(prev => prev.map(p => p.id === id ? { ...p, ...data } : p));
+      } else {
+        const err = await res.json();
+        throw new Error(err.error || 'Failed to update paddler');
       }
     } catch (e) {
       console.error('Failed to update paddler', e);
+      throw e;
     }
   }, []);
 
@@ -502,45 +609,55 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
         }));
       } else {
         const err = await res.json();
-        alert(err.error || 'Fehler beim Löschen');
+        console.error('Canister removal failed:', err.error || 'Unknown error');
       }
     } catch(e) { console.error(e); }
   }, []);
 
-  const value = useMemo(() => ({
-    teams,
-    currentTeam,
-    createTeam,
-    updateTeam,
-    deleteTeam,
-    switchTeam,
-    paddlers,
-    events,
-    assignmentsByEvent,
-    targetTrim,
-    setTargetTrim,
-    isDarkMode,
-    toggleDarkMode,
-    isLoading,
-    addPaddler,
-    updatePaddler,
-    deletePaddler,
-    createEvent,
-    deleteEvent,
-    updateEvent,
-    updateAttendance,
-    updateAssignments,
-    addGuest,
-    removeGuest,
-    addCanister,
-    removeCanister,
-    setPaddlers,
-    setEvents
-  }), [
+  const value = useMemo(() => {
+    let role: 'CAPTAIN' | 'PADDLER' | null = 'PADDLER';
+    if (session?.user?.id && paddlers.length) {
+      const myPaddler = paddlers.find(p => p.userId === session.user.id);
+      role = (myPaddler as any)?.role || 'PADDLER';
+    }
+
+    return {
+      teams,
+      currentTeam,
+      createTeam,
+      updateTeam,
+      deleteTeam,
+      switchTeam,
+      paddlers,
+      events,
+      assignmentsByEvent,
+      targetTrim,
+      setTargetTrim,
+      isDarkMode,
+      toggleDarkMode,
+      isLoading,
+      addPaddler,
+      updatePaddler,
+      deletePaddler,
+      createEvent,
+      deleteEvent,
+      updateEvent,
+      updateAttendance,
+      updateAssignments,
+      addGuest,
+      removeGuest,
+      addCanister,
+      removeCanister,
+      setPaddlers,
+      setEvents,
+      userRole: role
+    };
+  }, [
     teams, currentTeam, createTeam, switchTeam,
     paddlers, events, assignmentsByEvent, targetTrim, isDarkMode, isLoading,
     toggleDarkMode, addPaddler, updatePaddler, deletePaddler, createEvent, deleteEvent, updateEvent,
-    updateAttendance, updateAssignments, addGuest, removeGuest, addCanister, removeCanister
+    updateAttendance, updateAssignments, addGuest, removeGuest, addCanister, removeCanister,
+    session, paddlers // Added dependencies
   ]);
 
   return (

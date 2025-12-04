@@ -1224,6 +1224,24 @@
                     "updatedAt": {
                         "type": "string",
                         "format": "date-time"
+                    },
+                    "user": {
+                        "type": "object",
+                        "properties": {
+                            "name": {
+                                "type": "string",
+                                "nullable": true
+                            },
+                            "email": {
+                                "type": "string",
+                                "nullable": true
+                            },
+                            "image": {
+                                "type": "string",
+                                "nullable": true
+                            }
+                        },
+                        "nullable": true
                     }
                 },
                 "required": [
@@ -1467,8 +1485,21 @@
                     "error"
                 ]
             }
+        },
+        "securitySchemes": {
+            "sessionAuth": {
+                "type": "apiKey",
+                "in": "cookie",
+                "name": "authjs.session-token",
+                "description": "Session-based authentication using NextAuth.js. Requires active login session."
+            }
         }
     },
+    "security": [
+        {
+            "sessionAuth": []
+        }
+    ],
     "tags": [
         {
             "name": "Teams",

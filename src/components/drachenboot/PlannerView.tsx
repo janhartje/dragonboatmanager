@@ -10,6 +10,7 @@ import { useDrachenboot } from '@/context/DrachenbootContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { AddGuestModal, HelpModal, ConfirmModal } from '../ui/Modals';
 import Header from '../ui/Header';
+import { UserMenu } from '@/components/auth/UserMenu';
 import Footer from '../ui/Footer';
 import { useTour } from '@/context/TourContext';
 
@@ -412,7 +413,10 @@ const PlannerView: React.FC<PlannerViewProps> = ({ eventId }) => {
         >
           <div className="text-center px-2"><div className="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-bold">{t('total')}</div><div className="font-bold text-sm">{stats.t} kg</div></div>
           <div className="w-px h-8 bg-slate-100 dark:bg-slate-800"></div>
+
           <div className="text-center px-2"><div className="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-bold">{t('assigned')}</div><div className="font-bold text-sm text-blue-600 dark:text-blue-400">{stats.c} / 22</div></div>
+          <div className="w-px h-8 bg-slate-100 dark:bg-slate-800"></div>
+          <UserMenu />
         </Header>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

@@ -82,6 +82,36 @@ const HelpModal: React.FC<HelpModalProps> = ({ onClose }) => {
       );
     }
 
+    if (pathname?.includes('/app/teams/')) {
+      return (
+        <div className="space-y-6">
+          <section>
+            <h3 className="font-bold text-slate-900 dark:text-white mb-2 flex items-center gap-2">
+              <span className="bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 p-1 rounded">⚙️</span> {t('helpTeamEditGeneral')}
+            </h3>
+            <p className="text-slate-600 dark:text-slate-400 ml-1 text-sm mb-2">{t('helpTeamEditGeneralDesc')}</p>
+            <ul className="list-disc list-inside space-y-1 text-slate-600 dark:text-slate-400 ml-1">
+              <li>{t('helpTeamEditGeneral1')}</li>
+              <li>{t('helpTeamEditGeneral2')}</li>
+              <li>{t('helpTeamEditGeneral3')}</li>
+            </ul>
+          </section>
+
+          <section>
+            <h3 className="font-bold text-slate-900 dark:text-white mb-2 flex items-center gap-2">
+              <span className="bg-indigo-100 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-300 p-1 rounded">👥</span> {t('helpTeamEditMembers')}
+            </h3>
+            <p className="text-slate-600 dark:text-slate-400 ml-1 text-sm mb-2">{t('helpTeamEditMembersDesc')}</p>
+            <ul className="list-disc list-inside space-y-1 text-slate-600 dark:text-slate-400 ml-1">
+              <li>{t('helpTeamEditMembers1')}</li>
+              <li>{t('helpTeamEditMembers2')}</li>
+              <li>{t('helpTeamEditMembers3')}</li>
+            </ul>
+          </section>
+        </div>
+      );
+    }
+
     // Default: Home / Team View
     return (
       <div className="space-y-6">
@@ -110,28 +140,45 @@ const HelpModal: React.FC<HelpModalProps> = ({ onClose }) => {
     );
   };
 
+  const getContextTitle = () => {
+    if (pathname?.includes('/planner')) return ` - ${t('helpContextPlanner')}`;
+    if (pathname?.includes('/app/teams/')) return ` - ${t('editTeam')}`;
+    if (pathname === '/') return ` - ${t('helpContextHome')}`;
+    return '';
+  };
+
   return (
   <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
     <div className="bg-white dark:bg-slate-900 w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
       <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-slate-800/50">
-        <h2 className="text-lg font-bold flex items-center gap-2 text-slate-900 dark:text-white"><Info size={20} className="text-blue-500" /> {t('helpTitle')}</h2>
+        <h2 className="text-lg font-bold flex items-center gap-2 text-slate-900 dark:text-white">
+          <Info size={20} className="text-blue-500" /> 
+          {t('helpTitle')}{getContextTitle()}
+        </h2>
         <button onClick={onClose}><X size={20} className="text-slate-500" /></button>
       </div>
       
       <div className="p-6 overflow-y-auto text-sm">
         {renderContent()}
         
-        <section className="mt-8 pt-6 border-t border-slate-100 dark:border-slate-800">
-          <h3 className="font-bold text-slate-900 dark:text-white mb-1">🛠 {t('helpTools')}</h3>
-          <p className="text-slate-600 dark:text-slate-400 mb-4">{t('helpToolsDesc')}</p>
-          <h3 className="font-bold text-slate-900 dark:text-white mb-3">🎓 {t('helpInteractiveTour')}</h3>
-          <button 
-            onClick={handleStartTour} 
-            className="w-full flex items-center justify-center gap-2 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/40 text-blue-700 dark:text-blue-300 py-3 rounded-xl transition-colors font-medium border border-blue-100 dark:border-blue-800"
-          >
-            <PlayCircle size={18} /> {t('helpStartTour')}
-          </button>
-        </section>
+        {pathname?.includes('/planner') && (
+          <section className="mt-8 pt-6 border-t border-slate-100 dark:border-slate-800">
+            <h3 className="font-bold text-slate-900 dark:text-white mb-1">🛠 {t('helpTools')}</h3>
+            <p className="text-slate-600 dark:text-slate-400 mb-4">{t('helpToolsDesc')}</p>
+          </section>
+        )}
+
+        {(pathname === '/' || pathname?.includes('/planner')) && (
+          <section className="mt-8 pt-6 border-t border-slate-100 dark:border-slate-800">
+            <h3 className="font-bold text-slate-900 dark:text-white mb-3">🎓 {t('helpInteractiveTour')}</h3>
+            <button 
+              onClick={handleStartTour} 
+              className="w-full flex items-center justify-center gap-2 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/40 text-blue-700 dark:text-blue-300 py-3 rounded-xl transition-colors font-medium border border-blue-100 dark:border-blue-800"
+            >
+              <PlayCircle size={18} /> {t('helpStartTour')}
+            </button>
+          </section>
+        )}
       </div>
 
       <div className="p-4 border-t border-slate-100 dark:border-slate-800 text-center bg-slate-50 dark:bg-slate-800/50">
