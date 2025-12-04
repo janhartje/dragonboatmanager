@@ -1,6 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, useMemo, useCallback } from 'react';
+import { useSession } from "next-auth/react";
 import { Paddler, Event, Assignments, Team } from '@/types';
 
 interface DrachenbootContextType {
@@ -18,8 +19,8 @@ interface DrachenbootContextType {
   isDarkMode: boolean;
   toggleDarkMode: () => void;
   isLoading: boolean;
-  addPaddler: (paddler: Omit<Paddler, 'id'>) => void;
-  updatePaddler: (id: number | string, data: Partial<Paddler>) => void;
+  addPaddler: (paddler: Omit<Paddler, 'id'>) => Promise<void>;
+  updatePaddler: (id: number | string, data: Partial<Paddler>) => Promise<void>;
   deletePaddler: (id: number | string) => void;
   createEvent: (title: string, date: string, type?: 'training' | 'regatta', boatSize?: 'standard' | 'small') => Promise<void>;
   deleteEvent: (id: string) => Promise<void>;
@@ -32,6 +33,7 @@ interface DrachenbootContextType {
   removeCanister: (eid: string, canisterId: string) => Promise<void>;
   setPaddlers: React.Dispatch<React.SetStateAction<Paddler[]>>;
   setEvents: React.Dispatch<React.SetStateAction<Event[]>>;
+  userRole: 'CAPTAIN' | 'PADDLER' | null;
 }
 
 const DrachenbootContext = createContext<DrachenbootContextType | undefined>(undefined);
@@ -45,6 +47,7 @@ export const useDrachenboot = () => {
 };
 
 export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { data: session, status } = useSession();
   // --- STATE ---
   const [teams, setTeams] = useState<Team[]>([]);
   const [currentTeam, setCurrentTeam] = useState<Team | null>(null);
@@ -59,6 +62,11 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
   const fetchTeams = async () => {
     try {
       const res = await fetch('/api/teams');
+      if (res.status === 401) {
+        setTeams([]);
+        setCurrentTeam(null);
+        return;
+      }
       if (res.ok) {
         const data = await res.json();
         setTeams(data);
@@ -146,7 +154,9 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
   // --- INITIAL LOAD ---
   useEffect(() => {
     const init = async () => {
-      await fetchTeams();
+      if (status === 'authenticated') {
+        await fetchTeams();
+      }
       
       // Load local preferences
       if (typeof window !== 'undefined') {
@@ -174,7 +184,7 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
       mediaQuery.addEventListener('change', handleChange);
       return () => mediaQuery.removeEventListener('change', handleChange);
     }
-  }, []);
+  }, [status]);
 
   // --- TEAM DATA LOAD ---
   useEffect(() => {
@@ -283,9 +293,13 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
       if (res.ok) {
         const newPaddler = await res.json();
         setPaddlers(prev => [...prev, newPaddler]);
+      } else {
+        const err = await res.json();
+        throw new Error(err.error || 'Failed to add paddler');
       }
     } catch (e) {
       console.error('Failed to add paddler', e);
+      throw e;
     }
   }, [currentTeam]);
 
@@ -298,9 +312,13 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
       });
       if (res.ok) {
         setPaddlers(prev => prev.map(p => p.id === id ? { ...p, ...data } : p));
+      } else {
+        const err = await res.json();
+        throw new Error(err.error || 'Failed to update paddler');
       }
     } catch (e) {
       console.error('Failed to update paddler', e);
+      throw e;
     }
   }, []);
 
@@ -507,40 +525,50 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
     } catch(e) { console.error(e); }
   }, []);
 
-  const value = useMemo(() => ({
-    teams,
-    currentTeam,
-    createTeam,
-    updateTeam,
-    deleteTeam,
-    switchTeam,
-    paddlers,
-    events,
-    assignmentsByEvent,
-    targetTrim,
-    setTargetTrim,
-    isDarkMode,
-    toggleDarkMode,
-    isLoading,
-    addPaddler,
-    updatePaddler,
-    deletePaddler,
-    createEvent,
-    deleteEvent,
-    updateEvent,
-    updateAttendance,
-    updateAssignments,
-    addGuest,
-    removeGuest,
-    addCanister,
-    removeCanister,
-    setPaddlers,
-    setEvents
-  }), [
+  const value = useMemo(() => {
+    let role: 'CAPTAIN' | 'PADDLER' | null = 'PADDLER';
+    if (session?.user?.id && paddlers.length) {
+      const myPaddler = paddlers.find(p => p.userId === session.user.id);
+      role = (myPaddler as any)?.role || 'PADDLER';
+    }
+
+    return {
+      teams,
+      currentTeam,
+      createTeam,
+      updateTeam,
+      deleteTeam,
+      switchTeam,
+      paddlers,
+      events,
+      assignmentsByEvent,
+      targetTrim,
+      setTargetTrim,
+      isDarkMode,
+      toggleDarkMode,
+      isLoading,
+      addPaddler,
+      updatePaddler,
+      deletePaddler,
+      createEvent,
+      deleteEvent,
+      updateEvent,
+      updateAttendance,
+      updateAssignments,
+      addGuest,
+      removeGuest,
+      addCanister,
+      removeCanister,
+      setPaddlers,
+      setEvents,
+      userRole: role
+    };
+  }, [
     teams, currentTeam, createTeam, switchTeam,
     paddlers, events, assignmentsByEvent, targetTrim, isDarkMode, isLoading,
     toggleDarkMode, addPaddler, updatePaddler, deletePaddler, createEvent, deleteEvent, updateEvent,
-    updateAttendance, updateAssignments, addGuest, removeGuest, addCanister, removeCanister
+    updateAttendance, updateAssignments, addGuest, removeGuest, addCanister, removeCanister,
+    session, paddlers // Added dependencies
   ]);
 
   return (

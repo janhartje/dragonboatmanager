@@ -1224,6 +1224,24 @@
                     "updatedAt": {
                         "type": "string",
                         "format": "date-time"
+                    },
+                    "user": {
+                        "type": "object",
+                        "properties": {
+                            "name": {
+                                "type": "string",
+                                "nullable": true
+                            },
+                            "email": {
+                                "type": "string",
+                                "nullable": true
+                            },
+                            "image": {
+                                "type": "string",
+                                "nullable": true
+                            }
+                        },
+                        "nullable": true
                     }
                 },
                 "required": [

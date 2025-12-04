@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Calendar, Plus } from 'lucide-react';
 
+import { FormInput } from '@/components/ui/FormInput';
+
 interface NewEventFormProps {
   onCreate: (title: string, date: string, type: 'training' | 'regatta', boatSize: 'standard' | 'small') => void;
   t: (key: string) => string;
@@ -11,13 +13,21 @@ const NewEventForm: React.FC<NewEventFormProps> = ({ onCreate, t }) => {
   const [date, setDate] = useState<string>('');
   const [type, setType] = useState<'training' | 'regatta'>('training');
 
+  const [touched, setTouched] = useState(false);
+
+  const isFormValid = title.trim() !== '' && date.trim() !== '';
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title || !date) return;
+    setTouched(true);
+    
+    if (!isFormValid) return;
+
     onCreate(title, date, type, 'standard');
     setTitle('');
     setDate('');
     setType('training');
+    setTouched(false);
   };
 
   return (
@@ -28,24 +38,32 @@ const NewEventForm: React.FC<NewEventFormProps> = ({ onCreate, t }) => {
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400 mb-1 block">{t('title')}</label>
-          <input 
-            className="w-full p-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-sm outline-none text-slate-800 dark:text-white placeholder:text-slate-400" 
+          <FormInput
             placeholder={t('eventPlaceholder')} 
             value={title} 
-            onChange={(e) => setTitle(e.target.value)} 
+            onChange={(e) => setTitle(e.target.value)}
+            error={touched && !title.trim()}
           />
         </div>
         <div>
           <label className="text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400 mb-1 block">{t('date')}</label>
-          <input 
+          <FormInput
             type="date" 
-            className={`w-full p-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-sm outline-none dark:[color-scheme:dark] ${date ? 'text-slate-800 dark:text-white' : 'text-slate-400'} [&::-webkit-calendar-picker-indicator]:opacity-60 hover:[&::-webkit-calendar-picker-indicator]:opacity-100 transition-opacity`} 
+            className={`dark:[color-scheme:dark] ${date ? 'text-slate-800 dark:text-white' : 'text-slate-400'} [&::-webkit-calendar-picker-indicator]:opacity-60 hover:[&::-webkit-calendar-picker-indicator]:opacity-100 transition-opacity`} 
             value={date} 
-            onChange={(e) => setDate(e.target.value)} 
+            onChange={(e) => setDate(e.target.value)}
+            error={touched && !date.trim()}
           />
         </div>
         <div className="pt-2">
-          <button type="submit" className="w-full h-9 bg-blue-600 text-white py-2 rounded text-sm font-medium hover:bg-blue-700 flex items-center justify-center gap-2">
+          <button 
+            type="submit" 
+            className={`w-full h-9 text-white py-2 rounded text-sm font-medium flex items-center justify-center gap-2 transition-all
+              ${isFormValid 
+                ? 'bg-blue-600 hover:bg-blue-700' 
+                : 'bg-slate-200 dark:bg-slate-800 text-slate-400 cursor-not-allowed opacity-70'
+              }`}
+          >
             <Plus size={16} /> {t('add')}
           </button>
         </div>

@@ -18,6 +18,13 @@ export interface Paddler {
   isGuest?: boolean;
   isCanister?: boolean;
   teamId?: string;
+  userId?: string;
+  role?: 'CAPTAIN' | 'PADDLER';
+  user?: {
+    email?: string | null;
+    name?: string | null;
+    image?: string | null;
+  };
 }
 
 export interface Event {

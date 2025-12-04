@@ -15,8 +15,33 @@ export async function PUT(
         side: body.side,
         skills: body.skills,
         isGuest: body.isGuest,
+        role: body.role,
       },
     });
+
+    // If the paddler is linked to a user, sync changes to the user profile and other paddler entries
+    if (paddler.userId) {
+      // Update User profile
+      await prisma.user.update({
+        where: { id: paddler.userId },
+        data: {
+          name: paddler.name,
+          weight: paddler.weight,
+        },
+      });
+
+      // Update other Paddler records for this user
+      await prisma.paddler.updateMany({
+        where: { 
+          userId: paddler.userId,
+          id: { not: paddler.id } 
+        },
+        data: {
+          name: paddler.name,
+          weight: paddler.weight,
+        },
+      });
+    }
     return NextResponse.json(paddler);
   } catch (error) {
     return NextResponse.json({ error: 'Failed to update paddler' }, { status: 500 });

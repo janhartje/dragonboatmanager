@@ -3,11 +3,13 @@ import { useDrachenboot } from '@/context/DrachenbootContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { ChevronDown, Plus, Users, Check, Settings } from 'lucide-react';
 import { CreateTeamModal } from '../ui/modals/CreateTeamModal';
+import { useSession } from 'next-auth/react';
 
 import { useRouter } from 'next/navigation';
 
 const TeamSwitcher: React.FC = () => {
   const router = useRouter();
+  const { data: session } = useSession();
   const { teams, currentTeam, switchTeam, createTeam } = useDrachenboot();
   const { t } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
@@ -31,6 +33,8 @@ const TeamSwitcher: React.FC = () => {
   };
 
   if (!currentTeam && teams.length === 0) {
+    if (!session) return null; // Don't show create button if not logged in
+
     return (
       <>
         <button
@@ -102,13 +106,15 @@ const TeamSwitcher: React.FC = () => {
             
             <div className="h-px bg-slate-200 dark:bg-slate-700 my-2"></div>
             
-            <button
-              onClick={() => setShowCreateModal(true)}
-              className="w-full text-left px-3 py-2 rounded-lg flex items-center gap-2 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
-            >
-              <Plus size={16} />
-              <span>{t('createTeam') || 'Create Team'}</span>
-            </button>
+            {session && (
+              <button
+                onClick={() => setShowCreateModal(true)}
+                className="w-full text-left px-3 py-2 rounded-lg flex items-center gap-2 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
+              >
+                <Plus size={16} />
+                <span>{t('createTeam') || 'Create Team'}</span>
+              </button>
+            )}
           </div>
         </div>
       )}

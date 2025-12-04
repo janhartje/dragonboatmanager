@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { LanguageProvider } from "@/context/LanguageContext";
 import { DrachenbootProvider } from "@/context/DrachenbootContext";
+import { SessionProvider } from "next-auth/react";
 
 import { Analytics } from "@vercel/analytics/next"
 import { SpeedInsights } from "@vercel/speed-insights/next"
@@ -81,13 +82,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="de">
       <body className={inter.className} suppressHydrationWarning>
-        <LanguageProvider>
-          <DrachenbootProvider>
-            {children}
-            <Analytics />
-            <SpeedInsights />
-          </DrachenbootProvider>
-        </LanguageProvider>
+        <SessionProvider>
+          <LanguageProvider>
+            <DrachenbootProvider>
+              {children}
+              <Analytics />
+              <SpeedInsights />
+            </DrachenbootProvider>
+          </LanguageProvider>
+        </SessionProvider>
       </body>
     </html>
   );

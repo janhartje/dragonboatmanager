@@ -17,6 +17,16 @@ const ChangelogModal: React.FC<ChangelogModalProps> = ({ onClose }) => {
       </div>
       <div className="p-6 overflow-y-auto space-y-4">
         <div>
+          <h3 className="font-bold text-slate-900 dark:text-white text-base mb-2">{t('clV190Title')}</h3>
+          <ul className="list-disc list-inside text-sm text-slate-700 dark:text-slate-300 space-y-1">
+            <li>{t('clV190Item1')}</li>
+            <li>{t('clV190Item2')}</li>
+            <li>{t('clV190Item3')}</li>
+            <li>{t('clV190Item4')}</li>
+            <li>{t('clV190Item5')}</li>
+          </ul>
+        </div>
+        <div>
           <h3 className="font-bold text-slate-900 dark:text-white text-base mb-2">{t('clV200Title')}</h3>
           <ul className="list-disc list-inside text-sm text-slate-700 dark:text-slate-300 space-y-1">
             <li>{t('clV200Item1')}</li>

@@ -14,6 +14,9 @@ erDiagram
     Event ||--o{ Assignment : "has"
     Paddler ||--o{ Attendance : "attends"
     Paddler ||--o{ Assignment : "is assigned"
+    User ||--o{ Account : "has"
+    User ||--o{ Session : "has"
+    User ||--o{ Paddler : "is linked to"
     
     Team {
         string id PK
@@ -26,6 +29,7 @@ erDiagram
         string id PK
         string name
         string teamId FK
+        string userId FK
         float weight
         string side
         string[] skills
@@ -60,6 +64,38 @@ erDiagram
         string paddlerId FK
         boolean isCanister
     }
+
+    User {
+        string id PK
+        string name
+        string email
+        datetime emailVerified
+        string image
+        float weight
+        datetime createdAt
+        datetime updatedAt
+    }
+
+    Account {
+        string id PK
+        string userId FK
+        string type
+        string provider
+        string providerAccountId
+    }
+
+    Session {
+        string id PK
+        string sessionToken
+        string userId FK
+        datetime expires
+    }
+
+    VerificationToken {
+        string identifier
+        string token
+        datetime expires
+    }
 ```
 
 ## Entities
@@ -88,6 +124,7 @@ Ein Mitglied eines Teams mit definierten Eigenschaften für die Bootsplanung.
 | `id` | string (CUID) | Eindeutige Paddler-ID |
 | `name` | string | Name des Paddlers |
 | `teamId` | string? | Team-Zugehörigkeit (FK zu Team) |
+| `userId` | string? | Verknüpftes Benutzerkonto (FK zu User) |
 | `weight` | float | Gewicht in kg |
 | `side` | string? | Bevorzugte Seite: `'left'`, `'right'`, `'both'` |
 | `skills` | string[] | Fähigkeiten: `['drum', 'steer']` |
@@ -97,8 +134,63 @@ Ein Mitglied eines Teams mit definierten Eigenschaften für die Bootsplanung.
 
 **Beziehungen:**
 - Gehört zu einem `Team` (onDelete: Cascade)
+- Kann zu einem `User` gehören (optional)
 - Hat viele `Attendance`s
 - Hat viele `Assignment`s
+
+### User (Auth)
+
+Ein registrierter Benutzer der Anwendung (für Login/Authentifizierung).
+
+| Feld | Typ | Beschreibung |
+|------|-----|--------------|
+| `id` | string (CUID) | Eindeutige User-ID |
+| `name` | string? | Name des Benutzers |
+| `email` | string? | E-Mail-Adresse (Unique) |
+| `emailVerified` | datetime? | Zeitpunkt der E-Mail-Verifizierung |
+| `image` | string? | URL zum Profilbild |
+| `weight` | float? | Gewicht des Benutzers (für Sync mit Paddler) |
+| `createdAt` | datetime | Erstellungszeitpunkt |
+| `updatedAt` | datetime | Letztes Update |
+
+**Beziehungen:**
+- Hat viele `Account`s (OAuth Provider)
+- Hat viele `Session`s
+- Hat viele `Paddler` (ein User kann in mehreren Teams als Paddler existieren)
+
+### Account (Auth)
+
+Speichert OAuth-Verbindungen (z.B. Google, GitHub) für einen Benutzer.
+
+| Feld | Typ | Beschreibung |
+|------|-----|--------------|
+| `id` | string (CUID) | Eindeutige Account-ID |
+| `userId` | string | User-Referenz (FK zu User) |
+| `type` | string | Account-Typ (z.B. "oauth") |
+| `provider` | string | Provider-Name (z.B. "google") |
+| `providerAccountId` | string | ID beim Provider |
+| ... | ... | Weitere OAuth-Token-Felder |
+
+### Session (Auth)
+
+Speichert aktive Login-Sitzungen.
+
+| Feld | Typ | Beschreibung |
+|------|-----|--------------|
+| `id` | string (CUID) | Eindeutige Session-ID |
+| `sessionToken` | string | Session-Token (Unique) |
+| `userId` | string | User-Referenz (FK zu User) |
+| `expires` | datetime | Ablaufzeitpunkt |
+
+### VerificationToken (Auth)
+
+Speichert Tokens für E-Mail-Verifizierung (Magic Links).
+
+| Feld | Typ | Beschreibung |
+|------|-----|--------------|
+| `identifier` | string | E-Mail-Adresse |
+| `token` | string | Verifizierungs-Token (Unique) |
+| `expires` | datetime | Ablaufzeitpunkt |
 
 ### Event
 

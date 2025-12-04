@@ -3,6 +3,8 @@ import { UserPlus } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { Paddler } from '@/types';
 
+import { FormInput } from '@/components/ui/FormInput';
+
 interface AddGuestModalProps {
   onClose: () => void;
   onAdd: (guest: Pick<Paddler, 'name' | 'weight' | 'skills'>) => void;
@@ -40,11 +42,21 @@ const AddGuestModal: React.FC<AddGuestModalProps> = ({ onClose, onAdd }) => {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase">{t('name')}</label>
-            <input autoFocus className="w-full p-2 border rounded bg-slate-50 dark:bg-slate-800 dark:border-slate-700 dark:text-white" value={name} onChange={(e) => setName(e.target.value)} placeholder={t('guestName')} />
+            <FormInput 
+              autoFocus 
+              value={name} 
+              onChange={(e) => setName(e.target.value)} 
+              placeholder={t('guestName')} 
+            />
           </div>
           <div>
             <label className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase">{t('weightKg')}</label>
-            <input type="number" className="w-full p-2 border rounded bg-slate-50 dark:bg-slate-800 dark:border-slate-700 dark:text-white" value={weight} onChange={(e) => setWeight(e.target.value)} placeholder="0" />
+            <FormInput 
+              type="number" 
+              value={weight} 
+              onChange={(e) => setWeight(e.target.value)} 
+              placeholder="0" 
+            />
           </div>
           <div>
             <label className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase mb-2 block">{t('skills')}</label>

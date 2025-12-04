@@ -10,6 +10,15 @@ export async function GET(request: Request) {
     const paddlers = await prisma.paddler.findMany({
       where,
       orderBy: { name: 'asc' },
+      include: {
+        user: {
+          select: {
+            email: true,
+            name: true,
+            image: true,
+          },
+        },
+      },
     });
     return NextResponse.json(paddlers);
   } catch (error) {
