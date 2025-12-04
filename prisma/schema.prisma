@@ -73,4 +73,12 @@ model Team {
 
   paddlers Paddler[]
   events   Event[]
+
+  // Metadata
+  website   String?
+  icon      String?  @db.Text
+  instagram String?
+  facebook  String?
+  twitter   String?
+  email     String?
 }

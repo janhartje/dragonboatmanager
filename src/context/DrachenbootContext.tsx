@@ -7,7 +7,7 @@ interface DrachenbootContextType {
   teams: Team[];
   currentTeam: Team | null;
   createTeam: (name: string) => Promise<void>;
-  updateTeam: (id: string, name: string) => Promise<void>;
+  updateTeam: (id: string, data: Partial<Team>) => Promise<void>;
   deleteTeam: (id: string) => Promise<void>;
   switchTeam: (teamId: string) => void;
   paddlers: Paddler[];
@@ -225,12 +225,12 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
     }
   };
 
-  const updateTeam = async (id: string, name: string) => {
+  const updateTeam = async (id: string, data: Partial<Team>) => {
     try {
       const res = await fetch(`/api/teams/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name }),
+        body: JSON.stringify(data),
       });
       if (res.ok) {
         const updatedTeam = await res.json();

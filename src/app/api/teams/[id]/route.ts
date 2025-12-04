@@ -6,10 +6,18 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
-    const { name } = await request.json();
+    const body = await request.json();
+    const { name, website, icon, instagram, facebook, twitter, email } = body;
+
+    // Check payload size (approximate)
+    const payloadSize = JSON.stringify(body).length;
+    if (payloadSize > 5 * 1024 * 1024) { // 5MB limit
+      return NextResponse.json({ error: 'Payload too large (max 5MB)' }, { status: 413 });
+    }
+
     const team = await prisma.team.update({
       where: { id: params.id },
-      data: { name },
+      data: { name, website, icon, instagram, facebook, twitter, email },
     });
     return NextResponse.json(team);
   } catch (error) {

@@ -200,5 +200,8 @@
     "saved": "Saved",
     "dangerZone": "Danger Zone",
     "confirmDelete": "Yes, delete team",
-    "deleteTeam": "Delete Team"
+    "deleteTeam": "Delete Team",
+    "generalSettings": "General Settings",
+    "imageTooLarge": "Image too large (max 5MB)",
+    "teamSettings": "Team Settings"
 }
