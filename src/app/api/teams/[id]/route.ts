@@ -6,10 +6,10 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
-    const { name } = await request.json();
+    const { name, website, icon, instagram, facebook, twitter, email } = await request.json();
     const team = await prisma.team.update({
       where: { id: params.id },
-      data: { name },
+      data: { name, website, icon, instagram, facebook, twitter, email },
     });
     return NextResponse.json(team);
   } catch (error) {

@@ -1,6 +1,12 @@
 export interface Team {
   id: string;
   name: string;
+  website?: string;
+  icon?: string;
+  instagram?: string;
+  facebook?: string;
+  twitter?: string;
+  email?: string;
 }
 
 export interface Paddler {

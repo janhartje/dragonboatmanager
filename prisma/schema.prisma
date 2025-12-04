@@ -73,4 +73,12 @@ model Team {
 
   paddlers Paddler[]
   events   Event[]
+
+  // Metadata
+  website   String?
+  icon      String?
+  instagram String?
+  facebook  String?
+  twitter   String?
+  email     String?
 }

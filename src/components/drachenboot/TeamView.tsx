@@ -8,6 +8,9 @@ import DragonLogo from '../ui/DragonLogo';
 import Header from '../ui/Header';
 import Footer from '../ui/Footer';
 import TeamSwitcher from './TeamSwitcher';
+import TeamSettingsModal from './team/TeamSettingsModal';
+import { Settings, Globe, Instagram, Facebook, Twitter, Mail } from 'lucide-react';
+import { Team } from '@/types';
 
 // Sub-components
 import NewEventForm from './team/NewEventForm';
@@ -22,6 +25,8 @@ const TeamView: React.FC = () => {
   const { 
     events, 
     paddlers, 
+    currentTeam,
+    updateTeam,
     createEvent, 
     deleteEvent,
     updateAttendance, 
@@ -35,6 +40,7 @@ const TeamView: React.FC = () => {
   // --- LOCAL UI STATE ---
   const [editingPaddlerId, setEditingPaddlerId] = useState<number | string | null>(null);
   const [showHelp, setShowHelp] = useState<boolean>(false);
+  const [showSettings, setShowSettings] = useState<boolean>(false);
 
   // --- COMPUTED ---
   const sortedPaddlers = useMemo(() => 
@@ -81,9 +87,24 @@ const TeamView: React.FC = () => {
     setEditingPaddlerId(null);
   };
 
+  const handleUpdateTeam = async (data: Partial<Team>) => {
+    if (currentTeam) {
+      await updateTeam(currentTeam.id, data);
+    }
+  };
+
   return (
     <div className="min-h-screen font-sans text-slate-800 dark:text-slate-100 transition-colors duration-300 bg-slate-100 dark:bg-slate-950 p-2 md:p-4 pb-20">
       {showHelp && <HelpModal onClose={() => setShowHelp(false)} />}
+      {currentTeam && (
+        <TeamSettingsModal 
+          team={currentTeam} 
+          isOpen={showSettings} 
+          onClose={() => setShowSettings(false)} 
+          onSave={handleUpdateTeam}
+          t={t}
+        />
+      )}
       
       <div className="max-w-6xl mx-auto">
         <Header 
@@ -91,7 +112,11 @@ const TeamView: React.FC = () => {
           subtitle={t('teamManager')}
           logo={
             <Link href="/" className="cursor-pointer hover:opacity-80 transition-opacity">
-              <DragonLogo className="w-10 h-10" />
+              {currentTeam?.icon ? (
+                <img src={currentTeam.icon} alt="Team Icon" className="w-10 h-10 rounded-full object-cover" />
+              ) : (
+                <DragonLogo className="w-10 h-10" />
+              )}
             </Link>
           }
           showHelp={true}
@@ -102,7 +127,46 @@ const TeamView: React.FC = () => {
           showInstallButton={true}
         >
           <TeamSwitcher />
+          <button 
+            onClick={() => setShowSettings(true)}
+            className="p-2 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-blue-50 dark:hover:bg-slate-700 transition-colors"
+            title={t('settings') || 'Einstellungen'}
+          >
+            <Settings size={20} />
+          </button>
         </Header>
+
+        {/* Team Metadata / Social Links */}
+        {currentTeam && (
+          <div className="mb-6 flex flex-wrap items-center gap-4 px-2">
+            {currentTeam.website && (
+              <a href={currentTeam.website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 transition-colors">
+                <Globe size={16} />
+                <span className="hidden sm:inline">{new URL(currentTeam.website).hostname}</span>
+              </a>
+            )}
+            {currentTeam.instagram && (
+              <a href={currentTeam.instagram.startsWith('http') ? currentTeam.instagram : `https://instagram.com/${currentTeam.instagram}`} target="_blank" rel="noopener noreferrer" className="text-slate-600 dark:text-slate-400 hover:text-pink-600 transition-colors">
+                <Instagram size={20} />
+              </a>
+            )}
+            {currentTeam.facebook && (
+              <a href={currentTeam.facebook} target="_blank" rel="noopener noreferrer" className="text-slate-600 dark:text-slate-400 hover:text-blue-600 transition-colors">
+                <Facebook size={20} />
+              </a>
+            )}
+            {currentTeam.twitter && (
+              <a href={currentTeam.twitter} target="_blank" rel="noopener noreferrer" className="text-slate-600 dark:text-slate-400 hover:text-sky-500 transition-colors">
+                <Twitter size={20} />
+              </a>
+            )}
+            {currentTeam.email && (
+              <a href={`mailto:${currentTeam.email}`} className="text-slate-600 dark:text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 transition-colors">
+                <Mail size={20} />
+              </a>
+            )}
+          </div>
+        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Neuer Termin */}
