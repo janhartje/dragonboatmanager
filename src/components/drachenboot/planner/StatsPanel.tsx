@@ -16,6 +16,7 @@ interface StatsPanelProps {
   t: (key: string) => string;
   boatSize: 'standard' | 'small';
   setBoatSize: (size: 'standard' | 'small') => void;
+  isLoading?: boolean;
 }
 
 const StatsPanel: React.FC<StatsPanelProps> = ({ 
@@ -30,13 +31,14 @@ const StatsPanel: React.FC<StatsPanelProps> = ({
   confirmClear, 
   t,
   boatSize,
-  setBoatSize
+  setBoatSize,
+  isLoading
 }) => {
   return (
     <div id="tour-planner-stats" className="bg-white dark:bg-slate-900 p-4 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800">
       <div className="flex items-center justify-between mb-3">
         <h2 className="font-bold text-sm text-slate-700 dark:text-slate-200 uppercase tracking-wide flex items-center gap-2">
-          <ArrowRightLeft size={16} /> {t('balance')}
+          <ArrowRightLeft size={16} /> {t('balance')} {isLoading && <RefreshCw size={14} className="animate-spin text-blue-500" />}
         </h2>
         
         <div id="tour-planner-boat-size" className="flex bg-slate-100 dark:bg-slate-800 rounded-lg p-1">

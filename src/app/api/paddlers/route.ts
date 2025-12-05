@@ -12,63 +12,68 @@ export async function GET(request: Request) {
   const teamId = searchParams.get('teamId');
 
   try {
-    // If teamId is provided, verify membership
+    let paddlers;
+    let roleMap = new Map<string, string>();
+
+    // OPTIMIZATION: Parallelize fetches
     if (teamId) {
-      const membership = await prisma.paddler.findFirst({
-        where: {
-          teamId,
-          userId: session.user.id,
-        },
-      });
+      const [membership, fetchedPaddlers] = await Promise.all([
+        prisma.paddler.findFirst({
+          where: { teamId, userId: session.user.id },
+          select: { role: true }
+        }),
+        prisma.paddler.findMany({
+          where: { teamId },
+          orderBy: { name: 'asc' },
+          include: {
+            user: { select: { email: true, name: true, image: true } }
+          }
+        })
+      ]);
 
       if (!membership) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
       }
-    } else {
-      // If no teamId, only return paddlers from teams the user is a member of
-      // This is a bit complex, so for now we might just require teamId or return empty if no teamId
-      // But let's stick to the pattern: find teams user is in, then find paddlers in those teams
-      const userTeams = await prisma.paddler.findMany({
-        where: { userId: session.user.id },
-        select: { teamId: true },
-      });
-      const teamIds = userTeams.map(t => t.teamId).filter(Boolean) as string[];
       
-      if (teamIds.length === 0) {
-        return NextResponse.json([]);
-      }
+      paddlers = fetchedPaddlers;
+      roleMap.set(teamId, membership.role);
 
-      // Update query to filter by these teamIds
-      // However, the original code used `const where = teamId ? { teamId } : {};`
-      // We should change it to:
-      // const where = teamId ? { teamId } : { teamId: { in: teamIds } };
+    } else {
+      // Logic for multi-team fetch
+      // 1. Get user's team IDs
+      const userMemberships = await prisma.paddler.findMany({
+         where: { userId: session.user.id },
+         select: { teamId: true, role: true }
+      });
+      
+      const teamIds = userMemberships.map(m => m.teamId).filter(Boolean) as string[];
+      
+      if (teamIds.length === 0) return NextResponse.json([]);
+
+      userMemberships.forEach(m => {
+          if (m.teamId) roleMap.set(m.teamId, m.role);
+      });
+
+      // 2. Fetch all paddlers in these teams
+      paddlers = await prisma.paddler.findMany({
+        where: { teamId: { in: teamIds } },
+        orderBy: { name: 'asc' },
+        include: {
+            user: { select: { email: true, name: true, image: true } }
+        }
+      });
     }
 
-    const where = teamId 
-      ? { teamId } 
-      : { 
-          teamId: { 
-            in: (await prisma.paddler.findMany({
-              where: { userId: session.user.id },
-              select: { teamId: true }
-            })).map(p => p.teamId).filter(Boolean) as string[]
-          } 
-        };
-
-    const paddlers = await prisma.paddler.findMany({
-      where,
-      orderBy: { name: 'asc' },
-      include: {
-        user: {
-          select: {
-            email: true,
-            name: true,
-            image: true,
-          },
-        },
-      },
+    // Redact weight if not CAPTAIN
+    const redactedPaddlers = paddlers.map(p => {
+      const requesterRole = p.teamId ? roleMap.get(p.teamId) : null;
+      if (requesterRole !== 'CAPTAIN') {
+        return { ...p, weight: 0 }; 
+      }
+      return p;
     });
-    return NextResponse.json(paddlers);
+
+    return NextResponse.json(redactedPaddlers);
   } catch (error) {
     return NextResponse.json({ error: 'Failed to fetch paddlers' }, { status: 500 });
   }

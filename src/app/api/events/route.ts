@@ -52,12 +52,48 @@ export async function GET(request: Request) {
     const events = await prisma.event.findMany({
       where,
       include: {
-        attendances: true,
+        attendances: {
+          include: {
+            paddler: true
+          }
+        },
         assignments: true,
       },
       orderBy: { date: 'asc' },
     });
-    return NextResponse.json(events);
+
+    // Check permissions
+    const teamIdsToCheck = Array.from(new Set(events.map(e => e.teamId).filter(Boolean) as string[]));
+    const requesterMemberships = await prisma.paddler.findMany({
+      where: {
+        userId: session.user.id,
+        teamId: { in: teamIdsToCheck }
+      },
+      select: { teamId: true, role: true }
+    });
+    const roleMap = new Map<string, string>();
+    requesterMemberships.forEach(m => { if (m.teamId) roleMap.set(m.teamId, m.role); });
+
+    const eventsWithGuests = events.map(event => {
+      const isCaptain = event.teamId && roleMap.get(event.teamId) === 'CAPTAIN';
+      
+      const guests = event.attendances
+        .filter(a => a.paddler && a.paddler.isGuest)
+        .map(a => {
+          const p = a.paddler;
+          if (!isCaptain) {
+            return { ...p, weight: 0 };
+          }
+          return p;
+        });
+      
+      return {
+        ...event,
+        guests
+      };
+    });
+
+    return NextResponse.json(eventsWithGuests);
   } catch (error) {
     return NextResponse.json({ error: 'Failed to fetch events' }, { status: 500 });
   }

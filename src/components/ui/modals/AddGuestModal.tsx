@@ -1,10 +1,8 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { UserPlus } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
-import { useAlert } from '@/context/AlertContext';
 import { Paddler } from '@/types';
-
-import { FormInput } from '@/components/ui/FormInput';
+import PaddlerForm from '../../drachenboot/team/PaddlerForm';
 
 interface AddGuestModalProps {
   onClose: () => void;
@@ -13,22 +11,13 @@ interface AddGuestModalProps {
 
 const AddGuestModal: React.FC<AddGuestModalProps> = ({ onClose, onAdd }) => {
   const { t } = useLanguage();
-  const { showAlert } = useAlert();
-  const [name, setName] = useState<string>('');
-  const [weight, setWeight] = useState<string>('');
-  const [skills, setSkills] = useState({ left: false, right: false, drum: false, steer: false });
 
-  const toggleSkill = (s: keyof typeof skills) => setSkills((prev) => ({ ...prev, [s]: !prev[s] }));
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!name || !weight) return;
-    const skillsArr = (Object.keys(skills) as Array<keyof typeof skills>).filter((k) => skills[k]);
-    if (skillsArr.length === 0) {
-      showAlert(t('pleaseChooseRole'), 'warning');
-      return;
-    }
-    onAdd({ name, weight: parseFloat(weight), skills: skillsArr });
+  const handleSave = (data: any) => {
+    onAdd({
+      name: data.name,
+      weight: data.weight,
+      skills: data.skills,
+    });
     onClose();
   };
 
@@ -40,47 +29,14 @@ const AddGuestModal: React.FC<AddGuestModalProps> = ({ onClose, onAdd }) => {
             <UserPlus size={20} className="text-blue-500" /> {t('guestAddTitle')}
           </h3>
         </div>
-        <div className="p-6">
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase">{t('name')}</label>
-            <FormInput 
-              autoFocus 
-              value={name} 
-              onChange={(e) => setName(e.target.value)} 
-              placeholder={t('guestName')} 
-            />
-          </div>
-          <div>
-            <label className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase">{t('weightKg')}</label>
-            <FormInput 
-              type="number" 
-              value={weight} 
-              onChange={(e) => setWeight(e.target.value)} 
-              placeholder="0" 
-            />
-          </div>
-          <div>
-            <label className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase mb-2 block">{t('skills')}</label>
-            <div className="flex gap-2 flex-wrap">
-              {['left', 'right', 'drum', 'steer'].map(skill => (
-                <button
-                  key={skill}
-                  type="button"
-                  onClick={() => toggleSkill(skill as keyof typeof skills)}
-                  className={`px-3 py-1.5 rounded border text-sm capitalize ${skills[skill as keyof typeof skills] ? 'bg-blue-500 text-white border-blue-600' : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500'}`}
-                >
-                  {skill === 'steer' ? t('steer') : skill === 'drum' ? t('drum') : t(skill)}
-                </button>
-              ))}
-            </div>
-          </div>
-          <div className="flex gap-2 pt-2">
-            <button type="button" onClick={onClose} className="flex-1 py-2 border rounded text-slate-500 hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-800">{t('cancel')}</button>
-            <button type="submit" className="flex-1 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 font-medium">{t('add')}</button>
-          </div>
-        </form>
-        </div>
+        <PaddlerForm 
+          paddlerToEdit={null}
+          onSave={handleSave}
+          onCancel={onClose}
+          t={t}
+          isModal={true}
+          isGuest={true}
+        />
       </div>
     </div>
   );

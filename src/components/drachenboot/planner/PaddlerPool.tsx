@@ -2,6 +2,7 @@ import React from 'react';
 import { User, Box, UserPlus, X } from 'lucide-react';
 import SkillBadges from '../../ui/SkillBadges';
 import { Paddler, Assignments, Event } from '@/types';
+import PoolPaddlerItem from './PoolPaddlerItem';
 
 interface PaddlerPoolProps {
   activePaddlerPool: Paddler[];
@@ -51,7 +52,8 @@ const PaddlerPool: React.FC<PaddlerPoolProps> = ({
         </div>
       </div>
       {activePaddlerPool.length === 0 && <div className="text-center p-8 text-slate-500 dark:text-slate-400 italic text-sm border-2 border-dashed border-slate-100 dark:border-slate-800 rounded-xl">{t('noPromises')}</div>}
-      <div className="flex-1 overflow-y-auto pr-1 space-y-2">
+      <div className="flex-1 overflow-y-auto p-2 scrollbar-thin">
+        <div className="flex flex-wrap gap-2 justify-center content-start pb-4">
         {activePaddlerPool.map((p) => {
           const isAssigned = Object.values(assignments).includes(p.id);
           const isSelected = selectedPaddlerId === p.id;
@@ -60,45 +62,20 @@ const PaddlerPool: React.FC<PaddlerPoolProps> = ({
           const isConfirming = deleteConfirmId === String(p.id);
 
           return (
-            <div key={p.id} onClick={() => setSelectedPaddlerId(isSelected ? null : p.id)} className={`p-3 rounded-xl border cursor-pointer transition-all flex justify-between items-center group ${isSelected ? 'bg-blue-600 border-blue-700 text-white shadow-md transform scale-[1.02]' : 'bg-slate-50 dark:bg-slate-800 border-slate-100 dark:border-slate-700 hover:border-blue-300 dark:hover:border-blue-600'} ${isAssigned ? 'opacity-40 grayscale' : ''} ${isMaybe ? 'border-yellow-300 bg-yellow-50 dark:bg-yellow-900/20 dark:border-yellow-700' : ''}`}>
-              <div>
-                <div className={`text-base font-bold ${isSelected ? 'text-white' : 'text-slate-800 dark:text-slate-200'}`}>
-                  {p.name}
-                  {isMaybe && <span className="text-xs opacity-70">(?)</span>}
-                  {p.isGuest && <span className="text-xs opacity-70 ml-1">({t('guest')})</span>}
-                </div>
-                <div className={`text-sm mt-0.5 flex items-center gap-2 ${isSelected ? 'text-blue-100' : 'text-slate-600 dark:text-slate-400'}`}><span>{p.weight} kg</span></div>
-              </div>
-              {p.isCanister ? (
-                <div className="flex items-center gap-2">
-                  <Box size={16} className={isSelected ? 'text-white' : 'text-amber-500'} />
-                  {!isAssigned && (
-                    <button 
-                      onClick={(e) => { e.stopPropagation(); triggerDelete(String(p.id), 'canister'); }}
-                      className={`p-1 rounded transition-colors ${isConfirming ? 'bg-red-600 text-white hover:bg-red-700' : 'hover:bg-red-100 text-slate-400 hover:text-red-500'}`}
-                    >
-                      <X size={14} />
-                    </button>
-                  )}
-                </div>
-              ) : p.isGuest ? (
-                <div className="flex items-center gap-2">
-                  <SkillBadges skills={p.skills} />
-                  {!isAssigned && (
-                    <button 
-                      onClick={(e) => { e.stopPropagation(); triggerDelete(String(p.id), 'guest'); }}
-                      className={`p-1 rounded transition-colors ${isConfirming ? 'bg-red-600 text-white hover:bg-red-700' : 'hover:bg-red-100 text-slate-400 hover:text-red-500'}`}
-                    >
-                      <X size={14} />
-                    </button>
-                  )}
-                </div>
-              ) : (
-                <SkillBadges skills={p.skills} />
-              )}
-            </div>
+            <PoolPaddlerItem
+              key={p.id}
+              paddler={p}
+              isAssigned={isAssigned}
+              isSelected={isSelected}
+              isMaybe={isMaybe}
+              isConfirming={isConfirming}
+              onClick={() => setSelectedPaddlerId(isSelected ? null : p.id)}
+              triggerDelete={triggerDelete}
+              t={t}
+            />
           );
         })}
+        </div>
       </div>
     </div>
   );

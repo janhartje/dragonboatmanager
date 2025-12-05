@@ -221,7 +221,7 @@
         "/api/paddlers": {
             "get": {
                 "summary": "Get Paddlers",
-                "description": "Fetches all paddlers for a specific team.",
+                "description": "Fetches all paddlers for a specific team. Weights are redacted (0) for non-captains.",
                 "tags": [
                     "Paddlers"
                 ],
@@ -432,7 +432,7 @@
         "/api/events": {
             "get": {
                 "summary": "Get Events",
-                "description": "Fetches all events for a specific team with attendances and assignments.",
+                "description": "Fetches all events for a specific team with attendances and assignments. Guest weights are redacted (0) for non-captains.",
                 "tags": [
                     "Events"
                 ],
@@ -1034,33 +1034,34 @@
                             "schema": {
                                 "type": "object",
                                 "properties": {
-                                    "activePaddlerPool": {
-                                        "type": "array",
-                                        "items": {
-                                            "$ref": "#/components/schemas/Paddler"
-                                        }
+                                    "eventId": {
+                                        "type": "string",
+                                        "description": "Event ID to fetch config and pool"
                                     },
                                     "assignments": {
                                         "type": "object",
                                         "additionalProperties": {
                                             "type": "string"
-                                        }
+                                        },
+                                        "description": "Current assignments (optional overrides)",
+                                        "nullable": true
                                     },
                                     "lockedSeats": {
                                         "type": "array",
                                         "items": {
                                             "type": "string"
-                                        }
+                                        },
+                                        "description": "List of locked seat IDs",
+                                        "nullable": true
                                     },
                                     "targetTrim": {
-                                        "type": "number"
+                                        "type": "number",
+                                        "description": "Target trim (defaults to 0)",
+                                        "nullable": true
                                     }
                                 },
                                 "required": [
-                                    "activePaddlerPool",
-                                    "assignments",
-                                    "lockedSeats",
-                                    "targetTrim"
+                                    "eventId"
                                 ]
                             }
                         }
@@ -1090,6 +1091,79 @@
                     },
                     "500": {
                         "description": "Internal server error"
+                    }
+                }
+            }
+        },
+        "/api/stats": {
+            "post": {
+                "summary": "Calculate Boat Statistics",
+                "description": "Calculates boat statistics (weight distribution, trim, center of gravity) based on event and assignments. Weights are fetched from server database.",
+                "tags": [
+                    "Planner"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "eventId": {
+                                        "type": "string",
+                                        "description": "Event ID to fetch boat configuration and default assignments"
+                                    },
+                                    "assignments": {
+                                        "type": "object",
+                                        "additionalProperties": {
+                                            "type": "string"
+                                        },
+                                        "description": "Optional map of seat IDs to paddler IDs (overrides DB assignments)",
+                                        "nullable": true
+                                    },
+                                    "targetTrim": {
+                                        "type": "number",
+                                        "description": "Target trim value in kg (optional)",
+                                        "nullable": true
+                                    }
+                                },
+                                "required": [
+                                    "eventId"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Statistics calculated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BoatStats"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Missing eventId",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Calculation failed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -1141,7 +1215,8 @@
                         "description": "Associated team ID"
                     },
                     "weight": {
-                        "type": "number"
+                        "type": "number",
+                        "description": "Weight in kg (redacted/0 for non-captains)"
                     },
                     "side": {
                         "type": "string",
@@ -1193,7 +1268,7 @@
                     },
                     "weight": {
                         "type": "number",
-                        "description": "Weight in kg"
+                        "description": "Weight in kg (redacted/0 for non-captains)"
                     },
                     "side": {
                         "type": "string",
@@ -1472,6 +1547,65 @@
                     "seatId",
                     "isCanister"
                 ]
+            },
+            "BoatStats": {
+                "type": "object",
+                "properties": {
+                    "stats": {
+                        "type": "object",
+                        "properties": {
+                            "l": {
+                                "type": "number",
+                                "description": "Left side weight"
+                            },
+                            "r": {
+                                "type": "number",
+                                "description": "Right side weight"
+                            },
+                            "t": {
+                                "type": "number",
+                                "description": "Total weight"
+                            },
+                            "diffLR": {
+                                "type": "number",
+                                "description": "Difference Left-Right"
+                            },
+                            "f": {
+                                "type": "number",
+                                "description": "Front weight"
+                            },
+                            "b": {
+                                "type": "number",
+                                "description": "Back weight"
+                            },
+                            "diffFB": {
+                                "type": "number",
+                                "description": "Difference Front-Back"
+                            },
+                            "c": {
+                                "type": "integer",
+                                "description": "Count of paddlers"
+                            }
+                        }
+                    },
+                    "cgStats": {
+                        "type": "object",
+                        "properties": {
+                            "x": {
+                                "type": "number",
+                                "description": "Center of Gravity X (0-100)"
+                            },
+                            "y": {
+                                "type": "number",
+                                "description": "Center of Gravity Y (0-100)"
+                            },
+                            "targetY": {
+                                "type": "number",
+                                "description": "Target CG Y based on trim"
+                            }
+                        }
+                    }
+                }
             },
             "Error": {
                 "type": "object",

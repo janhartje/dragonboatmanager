@@ -138,7 +138,7 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
             boatSize: apiEvent.boatSize || 'standard',
             canisterCount: apiEvent.canisterCount || 0,
             attendance,
-            guests: [], // Guests are loaded via separate logic or need to be fetched/filtered
+            guests: apiEvent.guests || [],
           });
         });
 
@@ -546,7 +546,11 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
         setPaddlers(prev => [...prev, newGuest]);
         setEvents(prev => prev.map(ev => {
            if (ev.id === eid) {
-             return { ...ev, attendance: { ...ev.attendance, [newGuest.id]: 'yes' } };
+             return { 
+               ...ev, 
+               guests: [...(ev.guests || []), newGuest],
+               attendance: { ...ev.attendance, [newGuest.id]: 'yes' } 
+             };
            }
            return ev;
         }));

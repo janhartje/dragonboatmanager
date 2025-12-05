@@ -11,9 +11,10 @@ interface PaddlerFormProps {
   t: (key: string) => string;
   teamMembers?: any[];
   isModal?: boolean;
+  isGuest?: boolean;
 }
 
-const PaddlerForm: React.FC<PaddlerFormProps> = ({ paddlerToEdit, onSave, onCancel, t, teamMembers = [], isModal = false }) => {
+const PaddlerForm: React.FC<PaddlerFormProps> = ({ paddlerToEdit, onSave, onCancel, t, teamMembers = [], isModal = false, isGuest = false }) => {
   const [name, setName] = useState<string>('');
   const [weight, setWeight] = useState<string>('');
   const [skills, setSkills] = useState({ left: false, right: false, drum: false, steer: false });
@@ -102,6 +103,7 @@ const PaddlerForm: React.FC<PaddlerFormProps> = ({ paddlerToEdit, onSave, onCanc
         </div>
         
         {/* Account Linking */}
+        {!isGuest && (
         <div>
            <label className="text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400 mb-1 block flex items-center gap-1">
              <LinkIcon size={12} /> {t('linkedAccount') || 'Linked Account'}
@@ -119,6 +121,7 @@ const PaddlerForm: React.FC<PaddlerFormProps> = ({ paddlerToEdit, onSave, onCanc
              ))}
            </select>
         </div>
+        )}
 
         <div>
           <label className="text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400 mb-2 block">{t('skills')}</label>
@@ -129,12 +132,12 @@ const PaddlerForm: React.FC<PaddlerFormProps> = ({ paddlerToEdit, onSave, onCanc
             <button type="button" onClick={() => toggleSkill('steer')} className={`px-3 py-1.5 rounded-lg border text-sm font-medium transition-all flex items-center gap-1 ${skills.steer ? 'bg-purple-500 border-purple-600 text-white' : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400'}`}><ShipWheel size={12} /> {t('steer')}</button>
           </div>
         </div>
-        <div className="flex gap-2 pt-2 justify-end">
-          {(!isModal && paddlerToEdit) && <button type="button" onClick={onCancel} className="bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 px-4 py-2 rounded text-sm">{t('cancel')}</button>}
-          {isModal && <button type="button" onClick={onCancel} className="bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 px-4 py-2 rounded text-sm">{t('cancel')}</button>}
+        <div className="flex flex-col-reverse sm:flex-row gap-2 pt-2 justify-end">
+          {(!isModal && paddlerToEdit) && <button type="button" onClick={onCancel} className="w-full sm:w-auto bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 px-4 py-2 rounded text-sm">{t('cancel')}</button>}
+          {isModal && <button type="button" onClick={onCancel} className="w-full sm:w-auto bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 px-4 py-2 rounded text-sm">{t('cancel')}</button>}
           <button 
             type="submit" 
-            className={`h-9 px-6 py-2 rounded text-sm font-medium flex items-center gap-2 transition-all
+            className={`w-full sm:w-auto h-9 px-6 py-2 rounded text-sm font-medium flex items-center justify-center gap-2 transition-all
               ${isFormValid 
                 ? (paddlerToEdit ? 'bg-orange-500 hover:bg-orange-600 text-white' : 'bg-blue-600 hover:bg-blue-700 text-white') 
                 : 'bg-slate-200 dark:bg-slate-800 text-slate-400 cursor-not-allowed opacity-70'
