@@ -1,5 +1,6 @@
 import { Resend } from 'resend';
 import prisma from '@/lib/prisma';
+import { Prisma } from '@prisma/client';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -30,7 +31,7 @@ export const sendEmail = async ({
         to: recipients,
         subject,
         template,
-        props,
+        props: props as Prisma.InputJsonValue,
         status: 'failed',
         error: 'Missing API Key',
       },
@@ -54,7 +55,7 @@ export const sendEmail = async ({
           to: recipients,
           subject,
           template,
-          props,
+          props: props as Prisma.InputJsonValue,
           status: 'failed',
           error: JSON.stringify(error),
         },
@@ -68,7 +69,7 @@ export const sendEmail = async ({
         to: recipients,
         subject,
         template,
-        props,
+        props: props as Prisma.InputJsonValue,
         resendId: data?.id,
         status: 'sent',
       },
@@ -83,7 +84,7 @@ export const sendEmail = async ({
         to: recipients,
         subject,
         template,
-        props,
+        props: props as Prisma.InputJsonValue,
         status: 'failed',
         error: error instanceof Error ? error.message : String(error),
       },
