@@ -96,6 +96,18 @@ erDiagram
         string token
         datetime expires
     }
+
+    SentEmail {
+        string id PK
+        string[] to
+        string subject
+        string template
+        json props
+        string resendId
+        string status
+        string error
+        datetime createdAt
+    }
 ```
 
 ## Entities
@@ -191,6 +203,22 @@ Speichert Tokens für E-Mail-Verifizierung (Magic Links).
 | `identifier` | string | E-Mail-Adresse |
 | `token` | string | Verifizierungs-Token (Unique) |
 | `expires` | datetime | Ablaufzeitpunkt |
+
+### SentEmail
+
+Loggt alle gesendeten E-Mails für Debugging und Auditing.
+
+| Feld | Typ | Beschreibung |
+|------|-----|--------------|
+| `id` | string (CUID) | Eindeutige E-Mail-ID |
+| `to` | string[] | Empfänger-Adressen |
+| `subject` | string | Betreff |
+| `template` | string | Template-Name (z.B. "WelcomeEmail") |
+| `props` | json? | Template-Props für Debugging |
+| `resendId` | string? | ID von Resend API |
+| `status` | string | Status: `"sent"` oder `"failed"` |
+| `error` | string? | Fehlermeldung (bei Fehler) |
+| `createdAt` | datetime | Versandzeitpunkt |
 
 ### Event
 

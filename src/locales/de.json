@@ -315,5 +315,13 @@
     "disclaimerTitle": "Haftungsausschluss & Technische Hinweise",
     "disclaimerSafety": "Sicherheitshinweis: Die in dieser Applikation bereitgestellten Berechnungen (z.B. zur Balance und Trimmung) dienen ausschließlich zur Unterstützung und Orientierung. Sie ersetzen nicht die fachliche Einschätzung und Verantwortung des Bootsführers/Kapitäns. Die Nutzung erfolgt auf eigene Gefahr.",
     "disclaimerWarranty": "Software-Gewährleistung: Die Software wird 'wie besehen' (as-is) ohne jegliche Gewährleistung, weder ausdrücklich noch stillschweigend, bereitgestellt. Es wird keine Garantie für Fehlerfreiheit oder ständige Verfügbarkeit übernommen.",
-    "techInfo": "Realisiert mit Next.js, Vercel, Prisma & Resend."
+    "techInfo": "Realisiert mit Next.js, Vercel, Prisma & Resend.",
+    "emailWelcomeSubject": "Willkommen beim Drachenboot Manager!",
+    "emailWelcomeGreeting": "Hallo",
+    "emailWelcomeIntro": "Herzlich willkommen beim Drachenboot Manager. Wir freuen uns, dich an Bord zu haben!",
+    "emailWelcomeBody": "Mit dem Drachenboot Manager kannst du dein Team verwalten, Trainings planen und die perfekte Bootsaufstellung finden.",
+    "emailWelcomeCTA": "Jetzt loslegen",
+    "emailWelcomeLinkHint": "Falls der Button nicht funktioniert, kopiere diesen Link in deinen Browser:",
+    "emailFooterMadeWith": "Made with ❤️ in Hannover.",
+    "emailFooterAuto": "Diese E-Mail wurde automatisch generiert. Bitte antworte nicht direkt auf diese Nachricht."
 }
