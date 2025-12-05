@@ -1,7 +1,7 @@
 'use client';
 
 import Link from "next/link";
-import { ArrowRight, Smartphone, Zap, Users, Sun, Moon } from "lucide-react";
+import { ArrowRight, Smartphone, Zap, Users, Sun, Moon, Scale, MousePointerClick, Save, ShieldCheck, Heart, Ship } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import DragonBoatAnimation from "@/components/ui/DragonBoatAnimation";
 import DragonLogo from "@/components/ui/DragonLogo";
@@ -68,14 +68,12 @@ export default function LandingPage() {
               "Team Management",
               "Terminplanung",
               "Optimale Bootsbesetzung mit KI",
-              "Offline-Funktionalität",
               "Gewichtstrimmung und Balance"
             ]
           : [
               "Team Management",
               "Event Planning",
               "Optimal Boat Lineup with AI",
-              "Offline Functionality",
               "Weight Trimming and Balance"
             ],
         "inLanguage": ["en", "de"],
@@ -96,7 +94,14 @@ export default function LandingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-50 font-sans">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-50 font-sans selection:bg-blue-200 dark:selection:bg-blue-900 overflow-x-hidden">
+      {/* Background Gradients & Grid */}
+      <div className="fixed inset-0 z-0 pointer-events-none">
+        <div className="absolute top-[-20%] right-[-10%] w-[50%] h-[50%] bg-blue-400/10 rounded-full blur-[100px] animate-pulse-slow" />
+        <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] bg-indigo-400/10 rounded-full blur-[100px] animate-pulse-slow delay-1000" />
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
+      </div>
+
       {/* JSON-LD Structured Data */}
       <script
         type="application/ld+json"
@@ -104,117 +109,190 @@ export default function LandingPage() {
       />
       
       {/* Navigation */}
-      <nav className="fixed w-full z-50 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800" role="navigation" aria-label="Main navigation">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16 items-center">
-            <div className="flex items-center gap-2">
-              <DragonLogo className="w-8 h-8" />
-              <span className="font-bold text-xl tracking-tight">{t('appTitle')}</span>
-            </div>
-            <div className="flex gap-2 sm:gap-3 items-center">
-              <button 
-                onClick={toggleDarkMode} 
-                className="p-2.5 sm:p-2 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-blue-50 dark:hover:bg-slate-700 transition-colors min-w-[44px] min-h-[44px] sm:min-w-0 sm:min-h-0 flex items-center justify-center"
-                aria-label="Toggle dark mode"
-              >
-                {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
-              </button>
-              <button 
-                onClick={() => changeLanguage(language === 'de' ? 'en' : 'de')} 
-                className="p-2.5 sm:p-2 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-blue-50 dark:hover:bg-slate-700 transition-colors font-bold text-sm min-w-[44px] min-h-[44px] sm:min-w-0 sm:min-h-0 flex items-center justify-center"
-                aria-label="Toggle language"
-              >
-                {language.toUpperCase()}
-              </button>
-              <Link 
-                href="/app" 
-                className="bg-blue-600 hover:bg-blue-700 text-white px-4 sm:px-5 py-2.5 sm:py-2 rounded-full font-medium transition-all shadow-lg shadow-blue-600/20 hover:shadow-blue-600/40 flex items-center gap-1.5 sm:gap-2 whitespace-nowrap text-sm sm:text-base min-h-[44px] sm:min-h-0"
-              >
-                <span className="hidden xs:inline">{t('landingStartApp')}</span>
-                <span className="xs:hidden">{t('landingStartApp').split(' ')[0]}</span>
-                <ArrowRight className="w-4 h-4 flex-shrink-0" />
-              </Link>
+      <nav className="fixed w-full z-50 top-0 sm:top-4 px-0 sm:px-6">
+        <div className="max-w-7xl mx-auto backdrop-blur-xl bg-white/70 dark:bg-slate-950/70 border-b sm:border border-slate-200/50 dark:border-slate-800/50 sm:rounded-2xl transition-all shadow-sm">
+          <div className="px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between h-16 sm:h-20 items-center">
+              <div className="flex items-center gap-3">
+                <div className="relative group">
+                  <div className="absolute inset-0 bg-blue-500/20 blur-lg rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <DragonLogo className="w-9 h-9 relative z-10 transition-transform group-hover:scale-110 duration-300" />
+                </div>
+                <span className="font-bold text-xl sm:text-2xl tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-700 dark:from-white dark:to-slate-300">
+                  {t('appTitle')}
+                </span>
+              </div>
+              <div className="flex gap-2 sm:gap-3 items-center">
+                <button 
+                  onClick={toggleDarkMode} 
+                  className="p-2.5 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400 transition-all hover:scale-105"
+                  aria-label="Toggle dark mode"
+                >
+                  {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
+                </button>
+                <button 
+                  onClick={() => changeLanguage(language === 'de' ? 'en' : 'de')} 
+                  className="p-2.5 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400 transition-all hover:scale-105 font-bold text-sm"
+                  aria-label="Toggle language"
+                >
+                  {language.toUpperCase()}
+                </button>
+                <Link 
+                  href="/app" 
+                  className="bg-slate-900 dark:bg-white hover:bg-slate-800 dark:hover:bg-slate-100 text-white dark:text-slate-900 px-5 sm:px-7 py-2.5 rounded-full font-medium transition-all shadow-lg shadow-slate-900/10 hover:shadow-slate-900/20 hover:-translate-y-0.5 flex items-center gap-2 whitespace-nowrap text-sm sm:text-base mr-2 sm:mr-0"
+                >
+                  <span className="hidden xs:inline">{t('landingStartApp')}</span>
+                  <span className="xs:hidden">{t('landingStartApp').split(' ')[0]}</span>
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
+              </div>
             </div>
           </div>
         </div>
       </nav>
 
       {/* Hero Section */}
-      <section className="pt-24 pb-16 sm:pt-32 sm:pb-20 lg:pt-48 lg:pb-32 overflow-hidden" aria-label="Hero">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-          <div className="grid lg:grid-cols-2 gap-8 sm:gap-12 lg:gap-8 items-center">
-            <div className="relative z-10">
-              <div className="inline-block px-3 sm:px-4 py-1.5 rounded-full bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 font-medium text-xs sm:text-sm mb-4 sm:mb-6 border border-blue-100 dark:border-blue-800">
-                {t('landingBadge')}
-              </div>
-              <h1 className="text-4xl sm:text-5xl lg:text-7xl font-extrabold tracking-tight leading-[1.1] mb-4 sm:mb-6 bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-400">
-                {t('landingHeroTitle').split('\\n').map((line, i) => (
-                  <span key={i}>
-                    {line}
-                    {i === 0 && <br />}
+      <main className="relative z-10">
+        <section className="pt-32 pb-16 sm:pt-40 sm:pb-24 lg:pt-52 lg:pb-32 overflow-hidden px-4" aria-label="Hero">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+            <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+              <div className="relative z-10 flex flex-col items-center lg:items-start text-center lg:text-left">
+                
+                <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.1] mb-6 sm:mb-8">
+                  <span className="bg-clip-text text-transparent bg-gradient-to-r from-slate-900 via-blue-800 to-slate-900 dark:from-white dark:via-blue-200 dark:to-white">
+                    {t('landingHeroTitle').split('\\n').map((line, i) => (
+                      <span key={i} className="block">
+                        {line}
+                      </span>
+                    ))}
                   </span>
-                ))}
-              </h1>
-              <p className="text-base sm:text-lg text-slate-600 dark:text-slate-400 mb-6 sm:mb-8 leading-relaxed max-w-lg">
-                {t('landingHeroSubtitle')}
+                </h1>
+
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/50 dark:bg-slate-800/50 backdrop-blur-md border border-slate-200 dark:border-slate-700 shadow-sm mb-8 animate-fade-in-up">
+                  <span className="relative flex h-2.5 w-2.5">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-blue-500"></span>
+                  </span>
+                  <span className="text-sm font-medium text-slate-600 dark:text-slate-300">
+                    {t('landingBadge')}
+                  </span>
+                </div>
+                
+                <p className="text-lg sm:text-xl text-slate-600 dark:text-slate-400 mb-8 sm:mb-10 leading-relaxed max-w-lg">
+                  {t('landingHeroSubtitle')}
+                </p>
+                
+                <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+                  <Link 
+                    href="/app" 
+                    className="group bg-blue-600 hover:bg-blue-500 text-white px-8 py-4 rounded-full font-bold text-lg transition-all shadow-xl shadow-blue-600/20 hover:shadow-blue-600/40 hover:-translate-y-1 flex items-center justify-center gap-3"
+                  >
+                    <span>{t('landingCTA')}</span>
+                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                  </Link>
+                  <a 
+                    href="#features" 
+                    className="px-8 py-4 rounded-full font-bold text-lg text-slate-700 dark:text-slate-200 bg-white/50 dark:bg-slate-800/50 hover:bg-white dark:hover:bg-slate-800 backdrop-blur-sm transition-all border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 flex items-center justify-center hover:-translate-y-1"
+                  >
+                    {t('landingLearnMore')}
+                  </a>
+                </div>
+              </div>
+              
+              <div className="relative h-[350px] sm:h-[600px] w-full flex items-center justify-center lg:ml-auto [perspective:1000px]">
+                <div className="relative w-full max-w-lg lg:max-w-full h-full rounded-[2.5rem] overflow-hidden shadow-2xl bg-white/10 dark:bg-slate-900/40 backdrop-blur-sm border border-white/20 dark:border-slate-700/50 transition-transform hover:scale-[1.02] duration-500 ring-1 ring-slate-900/5">
+                   <div className="absolute inset-0 bg-gradient-to-br from-blue-100/30 to-purple-100/30 dark:from-blue-900/20 dark:to-purple-900/20" />
+                   <div className="relative h-full w-full p-8 flex items-center justify-center">
+                      <DragonBoatAnimation />
+                   </div>
+                </div>
+                
+                {/* Decorative Elements around image */}
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[140%] h-[140%] bg-blue-500/5 rounded-full blur-3xl pointer-events-none" />
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Features Section */}
+        <section id="features" className="py-24 sm:py-32 relative overflow-hidden" aria-label="Features">
+          <div className="absolute inset-0 bg-slate-50/50 dark:bg-slate-900/30 skew-y-3 transform origin-top-left scale-110" />
+          
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+            <div className="text-center max-w-3xl mx-auto mb-16 sm:mb-24">
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6 tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-400">
+                {t('landingFeaturesTitle')}
+              </h2>
+              <p className="text-slate-600 dark:text-slate-400 text-lg sm:text-xl leading-relaxed">
+                {t('landingFeaturesSubtitle')}
               </p>
-              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+            </div>
+            
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 lg:gap-10">
+              <FeatureCard 
+                icon={<Zap className="w-6 h-6 text-white" />}
+                iconBg="bg-amber-500"
+                title={t('landingFeature1Title')}
+                description={t('landingFeature1Desc')}
+              />
+              <FeatureCard 
+                icon={<Ship className="w-6 h-6 text-white" />}
+                iconBg="bg-blue-600"
+                title={t('landingFeature2Title')}
+                description={t('landingFeature2Desc')}
+              />
+              <FeatureCard 
+                icon={<Smartphone className="w-6 h-6 text-white" />}
+                iconBg="bg-indigo-500"
+                title={t('landingFeature3Title')}
+                description={t('landingFeature3Desc')}
+              />
+              <FeatureCard 
+                icon={<Users className="w-6 h-6 text-white" />}
+                iconBg="bg-emerald-500"
+                title={t('landingFeature4Title')}
+                description={t('landingFeature4Desc')}
+              />
+              <FeatureCard 
+                icon={<ShieldCheck className="w-6 h-6 text-white" />}
+                iconBg="bg-slate-600"
+                title={t('landingFeature5Title')}
+                description={t('landingFeature5Desc')}
+              />
+              <FeatureCard 
+                icon={<Heart className="w-6 h-6 text-white" />}
+                iconBg="bg-rose-500"
+                title={t('landingFeature6Title')}
+                description={t('landingFeature6Desc')}
+              />
+            </div>
+          </div>
+        </section>
+
+        {/* New CTA Section */}
+        <section className="py-24 px-4">
+          <div className="max-w-5xl mx-auto">
+            <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-3xl p-8 sm:p-16 text-center text-white shadow-2xl shadow-blue-600/30 relative overflow-hidden">
+              <div className="absolute top-0 right-0 -mt-10 -mr-10 w-64 h-64 bg-white/10 rounded-full blur-3xl" />
+              <div className="absolute bottom-0 left-0 -mb-10 -ml-10 w-64 h-64 bg-black/10 rounded-full blur-3xl" />
+              
+              <div className="relative z-10">
+                <h2 className="text-3xl sm:text-4xl font-bold mb-6">{t('landingStartApp')}</h2>
+                <p className="text-blue-100 text-lg sm:text-xl mb-10 max-w-2xl mx-auto">
+                  {t('landingHeroSubtitle')}
+                </p>
                 <Link 
                   href="/app" 
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 sm:px-8 py-3.5 sm:py-4 rounded-xl font-bold text-base sm:text-lg transition-all shadow-xl shadow-blue-600/20 hover:shadow-blue-600/40 hover:-translate-y-0.5 active:translate-y-0 text-center flex items-center justify-center gap-2 min-h-[52px] sm:min-h-[56px]"
+                  className="inline-flex items-center justify-center gap-2 bg-white text-blue-600 px-8 py-4 rounded-full font-bold text-lg hover:bg-blue-50 transition-all shadow-lg hover:shadow-xl hover:-translate-y-1"
                 >
-                  <span>{t('landingCTA')}</span>
-                  <ArrowRight className="w-5 h-5 flex-shrink-0" />
+                  {t('landingCTA')}
+                  <ArrowRight className="w-5 h-5" />
                 </Link>
-                <a 
-                  href="#features" 
-                  className="px-6 sm:px-8 py-3.5 sm:py-4 rounded-xl font-bold text-base sm:text-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all text-center border-2 border-transparent hover:border-slate-200 dark:hover:border-slate-700 min-h-[52px] sm:min-h-[56px] flex items-center justify-center"
-                >
-                  {t('landingLearnMore')}
-                </a>
               </div>
             </div>
-            <div className="relative h-[400px] sm:h-[500px] lg:h-[600px] w-full flex items-center justify-center">
-              <div className="relative w-full h-full rounded-2xl sm:rounded-3xl overflow-hidden shadow-xl sm:shadow-2xl border border-slate-200 dark:border-slate-800 bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-slate-900 dark:to-slate-800">
-                <DragonBoatAnimation />
-              </div>
-              {/* Decorative Elements */}
-              <div className="absolute -top-8 sm:-top-12 -right-8 sm:-right-12 w-48 sm:w-64 h-48 sm:h-64 bg-blue-400/20 rounded-full blur-3xl" />
-              <div className="absolute -bottom-8 sm:-bottom-12 -left-8 sm:-left-12 w-48 sm:w-64 h-48 sm:h-64 bg-purple-400/20 rounded-full blur-3xl" />
-            </div>
           </div>
-        </div>
-      </section>
-
-      {/* Features Section */}
-      <section id="features" className="py-16 sm:py-20 lg:py-24 bg-slate-50 dark:bg-slate-900/50" aria-label="Features">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
-            <h2 className="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4">{t('landingFeaturesTitle')}</h2>
-            <p className="text-slate-600 dark:text-slate-400 text-base sm:text-lg">
-              {t('landingFeaturesSubtitle')}
-            </p>
-          </div>
-          
-          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
-            <FeatureCard 
-              icon={<Smartphone className="w-6 h-6 text-blue-600" />}
-              title={t('landingFeature1Title')}
-              description={t('landingFeature1Desc')}
-            />
-            <FeatureCard 
-              icon={<Zap className="w-6 h-6 text-amber-500" />}
-              title={t('landingFeature2Title')}
-              description={t('landingFeature2Desc')}
-            />
-            <FeatureCard 
-              icon={<Users className="w-6 h-6 text-emerald-500" />}
-              title={t('landingFeature3Title')}
-              description={t('landingFeature3Desc')}
-            />
-          </div>
-        </div>
-      </section>
+        </section>
+      </main>
 
       {/* Footer */}
       <Footer variant="compact" />
@@ -222,14 +300,14 @@ export default function LandingPage() {
   );
 }
 
-function FeatureCard({ icon, title, description }: { icon: React.ReactNode, title: string, description: string }) {
+function FeatureCard({ icon, title, description, iconBg }: { icon: React.ReactNode, title: string, description: string, iconBg: string }) {
   return (
-    <div className="bg-white dark:bg-slate-950 p-6 sm:p-8 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow">
-      <div className="w-12 h-12 bg-slate-100 dark:bg-slate-900 rounded-xl flex items-center justify-center mb-4 sm:mb-6">
+    <div className="group p-8 rounded-3xl bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 hover:border-blue-500/30 dark:hover:border-blue-400/30 transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/5 hover:-translate-y-1">
+      <div className={`w-14 h-14 ${iconBg} rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-blue-900/5 group-hover:scale-110 transition-transform duration-300`}>
         {icon}
       </div>
-      <h3 className="text-lg sm:text-xl font-bold mb-2 sm:mb-3">{title}</h3>
-      <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400 leading-relaxed">
+      <h3 className="text-xl font-bold mb-3 text-slate-900 dark:text-slate-100">{title}</h3>
+      <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
         {description}
       </p>
     </div>

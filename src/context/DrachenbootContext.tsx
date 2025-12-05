@@ -19,6 +19,7 @@ interface DrachenbootContextType {
   isDarkMode: boolean;
   toggleDarkMode: () => void;
   isLoading: boolean;
+  isDataLoading: boolean;
   addPaddler: (paddler: Omit<Paddler, 'id'>) => Promise<void>;
   updatePaddler: (id: number | string, data: Partial<Paddler>) => Promise<void>;
   deletePaddler: (id: number | string) => void;
@@ -57,6 +58,7 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
   const [targetTrim, setTargetTrim] = useState<number>(0);
   const [isDarkMode, setIsDarkMode] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isDataLoading, setIsDataLoading] = useState<boolean>(true);
 
   // --- API HELPERS ---
   const fetchTeams = async () => {
@@ -74,6 +76,7 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
         if (data.length > 0 && !currentTeam) {
             const storedTeamId = localStorage.getItem('drachenboot_team_id');
             const teamToSelect = data.find((t: Team) => t.id === storedTeamId) || data[0];
+            setIsDataLoading(true);
             setCurrentTeam(teamToSelect);
         }
       }
@@ -138,7 +141,7 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
             boatSize: apiEvent.boatSize || 'standard',
             canisterCount: apiEvent.canisterCount || 0,
             attendance,
-            guests: [], // Guests are loaded via separate logic or need to be fetched/filtered
+            guests: apiEvent.guests || [],
           });
         });
 
@@ -154,6 +157,7 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
   // --- INITIAL LOAD ---
   useEffect(() => {
     const init = async () => {
+      if (status === 'loading') return;
       if (status === 'authenticated') {
         // Load user preferences from API first
         try {
@@ -240,6 +244,7 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
           if (!teamToSelect) {
             teamToSelect = data[0];
           }
+          setIsDataLoading(true);
           setCurrentTeam(teamToSelect);
         }
       }
@@ -250,7 +255,10 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
 
   // --- TEAM DATA LOAD ---
   useEffect(() => {
+    let isMounted = true;
+
     if (currentTeam) {
+        setIsDataLoading(true);
         localStorage.setItem('drachenboot_team_id', currentTeam.id);
         
         // Save to API if authenticated
@@ -262,11 +270,24 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
           }).catch(e => console.error('Failed to save active team preference', e));
         }
         
-        Promise.all([fetchPaddlers(), fetchEvents()]);
+        Promise.all([fetchPaddlers(), fetchEvents()]).finally(() => {
+          if (isMounted) {
+            setIsDataLoading(false);
+            // Initial load is also done when data is loaded
+            setIsLoading(false); 
+          }
+        });
     } else {
         setPaddlers([]);
         setEvents([]);
+        if (isMounted) {
+          setIsDataLoading(false);
+        }
     }
+
+    return () => {
+      isMounted = false;
+    };
   }, [currentTeam, fetchPaddlers, fetchEvents, status]);
 
   // --- THEME EFFECT ---
@@ -316,6 +337,7 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
         const newTeam = await res.json();
         setTeams(prev => [...prev, newTeam]);
         // Automatically switch to new team
+        setIsDataLoading(true);
         setCurrentTeam(newTeam);
         localStorage.setItem('drachenboot_team', newTeam.id);
       }
@@ -353,6 +375,7 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
         if (currentTeam?.id === id) {
           const remainingTeams = teams.filter(t => t.id !== id);
           if (remainingTeams.length > 0) {
+            setIsDataLoading(true);
             setCurrentTeam(remainingTeams[0]);
             localStorage.setItem('drachenboot_team', remainingTeams[0].id);
           } else {
@@ -368,7 +391,10 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
 
   const switchTeam = useCallback((teamId: string) => {
     const team = teams.find(t => t.id === teamId);
-    if (team) setCurrentTeam(team);
+    if (team) {
+      setIsDataLoading(true);
+      setCurrentTeam(team);
+    }
   }, [teams]);
 
   const addPaddler = useCallback(async (paddler: Omit<Paddler, 'id'>) => {
@@ -546,7 +572,11 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
         setPaddlers(prev => [...prev, newGuest]);
         setEvents(prev => prev.map(ev => {
            if (ev.id === eid) {
-             return { ...ev, attendance: { ...ev.attendance, [newGuest.id]: 'yes' } };
+             return { 
+               ...ev, 
+               guests: [...(ev.guests || []), newGuest],
+               attendance: { ...ev.attendance, [newGuest.id]: 'yes' } 
+             };
            }
            return ev;
         }));
@@ -636,6 +666,7 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
       isDarkMode,
       toggleDarkMode,
       isLoading,
+      isDataLoading,
       addPaddler,
       updatePaddler,
       deletePaddler,

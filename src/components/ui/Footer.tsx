@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
 import { useDrachenboot } from '@/context/DrachenbootContext';
-import { ImprintModal, ChangelogModal } from './Modals';
+import { ImprintModal, ChangelogModal, PrivacyModal } from './Modals';
 import { usePWAInstall } from '@/hooks/usePWAInstall';
 
 interface FooterProps {
@@ -13,6 +13,7 @@ interface FooterProps {
 const Footer: React.FC<FooterProps> = ({ variant = 'full' }) => {
   const { t } = useLanguage();
   const [showImprint, setShowImprint] = useState<boolean>(false);
+  const [showPrivacy, setShowPrivacy] = useState<boolean>(false);
   const [showChangelog, setShowChangelog] = useState<boolean>(false);
   const { canInstall, promptInstall } = usePWAInstall();
 
@@ -30,6 +31,10 @@ const Footer: React.FC<FooterProps> = ({ variant = 'full' }) => {
                 {t('imprint')}
               </button>
               <span className="text-slate-300 dark:text-slate-600">•</span>
+              <button onClick={() => setShowPrivacy(true)} className="text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-colors">
+                {t('privacy')}
+              </button>
+              <span className="text-slate-300 dark:text-slate-600">•</span>
               <button onClick={() => setShowChangelog(true)} className="text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-colors">
                 {t('changelog')}
               </button>
@@ -42,6 +47,7 @@ const Footer: React.FC<FooterProps> = ({ variant = 'full' }) => {
         </footer>
 
         {showImprint && <ImprintModal onClose={() => setShowImprint(false)} />}
+        {showPrivacy && <PrivacyModal onClose={() => setShowPrivacy(false)} />}
         {showChangelog && <ChangelogModal onClose={() => setShowChangelog(false)} />}
       </>
     );
@@ -52,6 +58,8 @@ const Footer: React.FC<FooterProps> = ({ variant = 'full' }) => {
       <footer className="mt-12 text-center text-xs text-slate-500 dark:text-slate-400 pb-8">
         <div className="flex flex-wrap justify-center gap-3 sm:gap-4 mb-2 items-center">
           <button onClick={() => setShowImprint(true)} className="hover:text-slate-800 dark:hover:text-slate-200 transition-colors">{t('imprint')}</button>
+          <span>•</span>
+          <button onClick={() => setShowPrivacy(true)} className="hover:text-slate-800 dark:hover:text-slate-200 transition-colors">{t('privacy')}</button>
           <span>•</span>
           <button onClick={() => setShowChangelog(true)} className="hover:text-slate-800 dark:hover:text-slate-200 transition-colors">{t('changelog')}</button>
           <span>•</span>
@@ -69,6 +77,7 @@ const Footer: React.FC<FooterProps> = ({ variant = 'full' }) => {
       </footer>
 
       {showImprint && <ImprintModal onClose={() => setShowImprint(false)} />}
+      {showPrivacy && <PrivacyModal onClose={() => setShowPrivacy(false)} />}
       {showChangelog && <ChangelogModal onClose={() => setShowChangelog(false)} />}
     </>
   );

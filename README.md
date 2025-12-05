@@ -27,7 +27,8 @@ Der **Drachenboot Manager** ist eine Progressive Web App (PWA) zur Verwaltung vo
 *   **Styling**: [Tailwind CSS](https://tailwindcss.com/)
 *   **Icons**: [Lucide React](https://lucide.dev/)
 *   **State Management**: React Context API (`DrachenbootContext`, `LanguageContext`)
-*   **Export**: `html2canvas` für Bild-Export der Aufstellung
+*   **Drag & Drop**: [@dnd-kit](https://dndkit.com/) (Modern, lightweight DnD library)
+*   **Export**: `html-to-image` für hochauflösenden Bild-Export der Aufstellung (unterstützt moderne CSS-Features)
 
 ## 📂 Projektstruktur
 

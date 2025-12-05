@@ -45,6 +45,19 @@ const ImprintModal: React.FC<ImprintModalProps> = ({ onClose }) => {
           <h3 className="font-bold text-slate-900 dark:text-white mb-2 text-base">{t('imprintCopyright')}</h3>
           <p className="text-sm">{t('imprintCopyrightText')}</p>
         </section>
+
+        <section className="pt-6 border-t border-slate-100 dark:border-slate-800">
+          <h3 className="font-bold text-slate-900 dark:text-white mb-2 text-base">{t('disclaimerTitle')}</h3>
+          <div className="space-y-4">
+             <div className="bg-yellow-50 dark:bg-yellow-900/20 p-3 rounded-lg border border-yellow-200 dark:border-yellow-900/50">
+               <p className="text-sm text-yellow-800 dark:text-yellow-200 font-medium">⚠️ {t('disclaimerSafety')}</p>
+             </div>
+             <p className="text-xs text-slate-500 dark:text-slate-400">{t('disclaimerWarranty')}</p>
+             <div className="text-xs text-slate-400 dark:text-slate-500 pt-2 border-t border-slate-100 dark:border-slate-800/50">
+               {t('techInfo')}
+             </div>
+          </div>
+        </section>
       </div>
       <div className="p-4 border-t border-slate-100 dark:border-slate-800 text-center bg-slate-50 dark:bg-slate-800/50">
         <button onClick={onClose} className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-2.5 rounded-lg font-medium transition-colors shadow-sm">{t('close')}</button>

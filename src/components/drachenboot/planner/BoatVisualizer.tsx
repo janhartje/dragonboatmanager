@@ -37,8 +37,8 @@ const BoatVisualizer = React.forwardRef<HTMLDivElement, BoatVisualizerProps>(({
 }, ref) => {
 
   return (
-    <div id="tour-planner-boat" className="lg:col-span-2 pb-10">
-      <div className="bg-blue-100/30 dark:bg-blue-900/20 p-4 md:p-8 rounded-3xl border border-blue-100 dark:border-blue-800 flex justify-center items-start overflow-y-auto relative">
+    <div id="tour-planner-boat" className="lg:col-span-2 h-full flex flex-col">
+      <div className="bg-blue-100/30 dark:bg-blue-900/20 p-4 md:p-8 rounded-3xl border border-blue-100 dark:border-blue-800 flex justify-center items-start overflow-y-auto relative flex-1 min-h-[600px]">
         <div className="absolute inset-0 opacity-10 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at 10px 10px, #3b82f6 1px, transparent 0)', backgroundSize: '30px 30px' }}></div>
         <div ref={ref} className="relative w-[360px] flex flex-col items-center">
           <div className="z-20 mb-[-15px] relative drop-shadow-xl filter" style={{ zIndex: 30 }}>
@@ -47,19 +47,17 @@ const BoatVisualizer = React.forwardRef<HTMLDivElement, BoatVisualizerProps>(({
           <div className="relative bg-amber-50 dark:bg-amber-900 border-4 border-amber-800 dark:border-amber-950 shadow-xl w-full px-4 py-12 z-10" style={{ clipPath: 'polygon(50% 0%, 80% 2%, 95% 10%, 100% 45%, 100% 55%, 95% 90%, 80% 98%, 50% 100%, 20% 98%, 5% 90%, 0% 55%, 0% 45%, 5% 10%, 20% 2%)', borderRadius: '40px' }}>
             
             {/* CG Dot */}
-            <div className="absolute pointer-events-none z-0 transition-all duration-500 ease-out" style={{ left: `${cgStats.x}%`, top: `${cgStats.y}%`, transform: 'translate(-50%, -50%)' }}>
-              <div className="absolute w-px h-full bg-slate-300 left-1/2 top-0 -translate-x-1/2 opacity-30"></div>
-              <div className="absolute w-full h-px bg-slate-300 top-1/2 left-0 -translate-y-1/2 opacity-30"></div>
-              {!isExporting && (
-                <>
-                  <div className="w-6 h-6 rounded-full bg-red-500/30 animate-ping absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"></div>
-                  <div className="w-3 h-3 rounded-full bg-red-600 border-2 border-white shadow-sm absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center">
-                    <Target size={10} className="text-white" />
-                  </div>
-                  <div className="absolute top-4 left-1/2 -translate-x-1/2 whitespace-nowrap text-[8px] font-bold uppercase text-red-500 bg-white/80 px-1 rounded shadow-sm border border-red-100">Schwerpunkt</div>
-                </>
-              )}
-            </div>
+            {!isExporting && (
+              <div className="absolute pointer-events-none z-0 transition-all duration-500 ease-out" style={{ left: `${cgStats.x}%`, top: `${cgStats.y}%`, transform: 'translate(-50%, -50%)' }}>
+                <div className="absolute w-px h-full bg-slate-300 left-1/2 top-0 -translate-x-1/2 opacity-30"></div>
+                <div className="absolute w-full h-px bg-slate-300 top-1/2 left-0 -translate-y-1/2 opacity-30"></div>
+                <div className="w-6 h-6 rounded-full bg-red-500/30 animate-ping absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"></div>
+                <div className="w-3 h-3 rounded-full bg-red-600 border-2 border-white shadow-sm absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center">
+                  <Target size={10} className="text-white" />
+                </div>
+                <div className="absolute top-4 left-1/2 -translate-x-1/2 whitespace-nowrap text-[8px] font-bold uppercase text-red-500 bg-white/80 px-1 rounded shadow-sm border border-red-100">Schwerpunkt</div>
+              </div>
+            )}
 
             <div className="space-y-3 pt-6 pb-6 relative z-10">
               {/* Drummer */}

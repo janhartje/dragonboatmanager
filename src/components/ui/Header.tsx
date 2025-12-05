@@ -34,7 +34,7 @@ const Header: React.FC<HeaderProps> = ({
   const { language, changeLanguage } = useLanguage();
 
   return (
-    <header className="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-4 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 sticky top-0 z-30">
+    <header className="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-4 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 sticky top-0 z-50">
       <div className="flex items-center gap-3">
         {leftAction && (
           <>

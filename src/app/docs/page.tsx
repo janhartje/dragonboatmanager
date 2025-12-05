@@ -9,6 +9,7 @@ import Footer from '@/components/ui/Footer';
 import { Home } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/context/LanguageContext';
+import PageTransition from '@/components/ui/PageTransition';
 
 const DocsPage = () => {
   const router = useRouter();
@@ -29,6 +30,7 @@ const DocsPage = () => {
   }, []);
 
   return (
+    <PageTransition>
     <div className="min-h-screen font-sans text-slate-800 dark:text-slate-100 transition-colors duration-300 bg-slate-100 dark:bg-slate-950 p-2 md:p-4 pb-20">
       <div className="max-w-6xl mx-auto">
         <Header
@@ -51,6 +53,7 @@ const DocsPage = () => {
         <Footer />
       </div>
     </div>
+    </PageTransition>
   );
 };
 

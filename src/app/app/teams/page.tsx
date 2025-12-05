@@ -10,6 +10,7 @@ import Header from '@/components/ui/Header';
 import Footer from '@/components/ui/Footer';
 import DragonLogo from '@/components/ui/DragonLogo';
 import { CreateTeamModal } from '@/components/ui/modals/CreateTeamModal';
+import PageTransition from '@/components/ui/PageTransition';
 
 export default function TeamManagementPage() {
   const router = useRouter();
@@ -23,6 +24,7 @@ export default function TeamManagementPage() {
   };
 
   return (
+    <PageTransition>
     <div className="min-h-screen font-sans text-slate-800 dark:text-slate-100 transition-colors duration-300 bg-slate-100 dark:bg-slate-950 p-2 md:p-4 pb-20">
       <div className="max-w-6xl mx-auto">
         <Header
@@ -129,5 +131,6 @@ export default function TeamManagementPage() {
         />
       )}
     </div>
+    </PageTransition>
   );
 }

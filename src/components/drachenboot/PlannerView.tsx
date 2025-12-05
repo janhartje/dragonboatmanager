@@ -1,8 +1,9 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft } from 'lucide-react';
-import html2canvas from 'html2canvas';
+import { ArrowLeft, User, Box } from 'lucide-react';
+import { toPng } from 'html-to-image';
+import { DndContext, DragEndEvent, DragStartEvent, DragOverlay, useSensor, useSensors, PointerSensor, TouchSensor } from '@dnd-kit/core';
 import DragonLogo from '../ui/DragonLogo';
 
 import { useDrachenboot } from '@/context/DrachenbootContext';
@@ -13,6 +14,10 @@ import Header from '../ui/Header';
 import { UserMenu } from '@/components/auth/UserMenu';
 import Footer from '../ui/Footer';
 import { useTour } from '@/context/TourContext';
+import { useDebounce } from '@/hooks/useDebounce';
+
+import LoadingSkeleton from '../ui/LoadingScreens';
+import PageTransition from '../ui/PageTransition';
 
 // Sub-components
 import StatsPanel from './planner/StatsPanel';
@@ -29,13 +34,6 @@ const PlannerView: React.FC<PlannerViewProps> = ({ eventId }) => {
   const { t } = useLanguage();
   const { checkAndStartTour } = useTour();
 
-  useEffect(() => {
-    // Small delay to ensure elements are rendered
-    setTimeout(() => {
-      checkAndStartTour('planner');
-    }, 500);
-  }, []);
-
   const { 
     events, 
     paddlers, 
@@ -51,11 +49,24 @@ const PlannerView: React.FC<PlannerViewProps> = ({ eventId }) => {
     isDarkMode,
     toggleDarkMode,
     setPaddlers, // needed for canister
-    currentTeam
+    currentTeam,
+    isLoading,
+    isDataLoading
   } = useDrachenboot();
+
+  useEffect(() => {
+    // Only start tour if data is loaded
+    if (!isDataLoading && !isLoading) {
+      setTimeout(() => {
+        checkAndStartTour('planner');
+      }, 500);
+    }
+  }, [isDataLoading, isLoading]);
 
   // --- LOCAL UI STATE ---
   const [activeEventId, setActiveEventId] = useState<string>(eventId);
+
+
 
   useEffect(() => {
     setActiveEventId(eventId);
@@ -75,6 +86,7 @@ const PlannerView: React.FC<PlannerViewProps> = ({ eventId }) => {
   // --- COMPUTED ---
   const activeEvent = useMemo(() => events.find((e) => e.id === activeEventId) || null, [activeEventId, events]);
   const activeEventTitle = activeEvent ? activeEvent.title : t('unknownEvent');
+  const eventDate = activeEvent?.date ? new Date(activeEvent.date).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '';
   const boatSize = activeEvent?.boatSize || 'standard';
 
   // Assignments are always keyed by the event ID
@@ -115,91 +127,43 @@ const PlannerView: React.FC<PlannerViewProps> = ({ eventId }) => {
     return s;
   }, [rows]);
 
-  // --- STATS ---
-  const stats = useMemo(() => {
-    let l = 0, r = 0, t = 0, f = 0, b = 0, c = 0;
-    const mid = (rows + 1) / 2;
-    Object.entries(assignments).forEach(([sid, pid]) => {
-      // Filter out assignments that are not in the current boat config
-      if (sid.includes('row')) {
-        const match = sid.match(/row-(\d+)/);
-        if (match && parseInt(match[1]) > rows) return;
-      }
+  // --- STATS (Server Side Calculation) ---
+  const [stats, setStats] = useState({ l: 0, r: 0, t: 0, diffLR: 0, f: 0, b: 0, diffFB: 0, c: 0 });
+  const [cgStats, setCgStats] = useState({ x: 50, y: 50, targetY: 50 });
+  const [isCalculating, setIsCalculating] = useState(false);
 
-      const p = activePaddlerPool.find((x) => x.id === pid) || paddlers.find((x) => x.id === pid);
-      if (!p) return;
-      t += p.weight; c++;
-      if (sid === 'drummer') {
-        f += p.weight;
-      } else if (sid === 'steer') {
-        b += p.weight;
-      } else if (sid.includes('row')) {
-        if (sid.includes('left')) l += p.weight; else r += p.weight;
-        const match = sid.match(/row-(\d+)/);
-        // Adjust front/back calculation based on rows
-        if (match) {
-          const rowNum = parseInt(match[1]);
-          if (rowNum < mid) f += p.weight;
-          else if (rowNum > mid) b += p.weight;
+  // Debounce inputs to avoid flooding API
+  const debouncedAssignments = useDebounce(assignments, 300);
+  const debouncedTargetTrim = useDebounce(targetTrim, 300);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      setIsCalculating(true);
+      try {
+        const response = await fetch('/api/stats', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            eventId: activeEventId,
+            assignments: debouncedAssignments,
+            targetTrim: debouncedTargetTrim
+          }),
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          setStats(data.stats);
+          setCgStats(data.cgStats);
         }
+      } catch (error) {
+        console.error('Failed to fetch stats', error);
+      } finally {
+        setIsCalculating(false);
       }
-    });
-    return { l, r, t, diffLR: l - r, f, b, diffFB: f - b, c };
-  }, [assignments, paddlers, activePaddlerPool, rows]);
+    };
 
-  const cgStats = useMemo(() => {
-    let totalWeight = 0, weightedSumX = 0, weightedSumY = 0;
-    Object.entries(assignments).forEach(([sid, pid]) => {
-      // Filter out assignments that are not in the current boat config
-      if (sid.includes('row')) {
-        const match = sid.match(/row-(\d+)/);
-        if (match && parseInt(match[1]) > rows) return;
-      }
-
-      const p = activePaddlerPool.find((x) => x.id === pid) || paddlers.find((x) => x.id === pid);
-      if (!p) return;
-      totalWeight += p.weight;
-      let xPos = 50; if (sid.includes('left')) xPos = 25; else if (sid.includes('right')) xPos = 75;
-      
-      // Dynamic Y position calculation based on rows
-      // Precise calculation based on CSS:
-      // Container Padding: 48px (py-12) + 24px (pt-6) = 72px top offset
-      // Drummer: 56px (h-14) + 32px (mb-8) = 88px
-      // Row Start (Top of Row 1): 72 + 88 = 160px
-      // Row Height: 56px (h-14) + 12px (space-y-3) = 68px stride
-      // Row 1 Center: 160 + 28 = 188px
-      // Bottom Offset: 40px (mt-10) + 56px (Steer) + 24px (pb-6) + 48px (py-12) = 168px
-      // Total Height = 160 + (rows * 68 - 12) + 168 = 316 + rows * 68
-      
-      const totalHeight = 316 + rows * 68;
-      const row1Center = 188;
-      const rowLastCenter = 188 + (rows - 1) * 68;
-      
-      const yStart = (row1Center / totalHeight) * 100;
-      const yEnd = (rowLastCenter / totalHeight) * 100;
-      
-      let yPos = 50; 
-      if (sid === 'drummer') yPos = (100 / totalHeight) * 100; // Approx center of drummer
-      else if (sid === 'steer') yPos = ((totalHeight - 100) / totalHeight) * 100; // Approx center of steer
-      else if (sid.includes('row')) { 
-        const match = sid.match(/row-(\d+)/); 
-        if (match) { 
-          const r = parseInt(match[1]); 
-          // Linear interpolation between first and last row
-          if (rows > 1) {
-            const rowStep = (yEnd - yStart) / (rows - 1); 
-            yPos = yStart + (r - 1) * rowStep;
-          } else {
-            yPos = yStart;
-          }
-        } 
-      }
-      weightedSumX += p.weight * xPos; weightedSumY += p.weight * yPos;
-    });
-    const cgX = totalWeight > 0 ? weightedSumX / totalWeight : 50;
-    const cgY = totalWeight > 0 ? weightedSumY / totalWeight : 50;
-    return { x: cgX, y: cgY, targetY: 50 - targetTrim * 0.1 };
-  }, [assignments, paddlers, targetTrim, activePaddlerPool, rows]);
+    fetchStats();
+  }, [debouncedAssignments, rows, debouncedTargetTrim]);
 
   // --- ACTIONS ---
   const goHome = () => router.push('/app');
@@ -321,11 +285,10 @@ const PlannerView: React.FC<PlannerViewProps> = ({ eventId }) => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          activePaddlerPool,
+          eventId: activeEventId,
           assignments,
           lockedSeats,
-          targetTrim,
-          rows
+          targetTrim
         }),
       });
 
@@ -348,20 +311,100 @@ const PlannerView: React.FC<PlannerViewProps> = ({ eventId }) => {
     setIsExporting(true);
     setTimeout(() => {
       if (boatRef.current) {
-        html2canvas(boatRef.current, { backgroundColor: null, scale: 3, useCORS: true })
-          .then((canvas) => {
-            const link = document.createElement('a');
-            link.download = `drachenboot-${activeEventTitle.replace(/\s+/g, '-')}.png`;
-            link.href = canvas.toDataURL();
-            link.click();
+        console.log('Starting export capture...');
+        // Using html-to-image for better support of modern CSS (oklch etc.)
+        toPng(boatRef.current, { 
+            cacheBust: true, 
+            pixelRatio: 2,
+            backgroundColor: 'transparent' // Explicitly transparent or null
+        })
+          .then((dataUrl) => {
+            console.log('Canvas captured, generating link...');
+            try {
+                const link = document.createElement('a');
+                const safeTitle = (activeEventTitle || 'plan').replace(/[^a-z0-9\u00C0-\u00FF]+/gi, '-').toLowerCase().replace(/(^-|-$)/g, '');
+                const datePrefix = activeEvent?.date ? new Date(activeEvent.date).toISOString().split('T')[0] : '';
+                link.download = `drachenboot-${datePrefix ? datePrefix + '-' : ''}${safeTitle || 'export'}.png`;
+                link.href = dataUrl;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                console.log('Download click triggered');
+            } catch (innerErr) {
+                console.error('Link generation failed', innerErr);
+            }
             setIsExporting(false);
           })
-          .catch((err) => { console.error('Export failed', err); setIsExporting(false); });
+          .catch((err) => { 
+              console.error('Export failed', err); 
+              setIsExporting(false); 
+          });
+      } else {
+        console.error('boatRef is null');
+        setIsExporting(false);
       }
     }, 150);
   };
 
+  // --- DnD ---
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 250, tolerance: 5 } })
+  );
+
+  const [activeDragData, setActiveDragData] = useState<any>(null);
+
+  const handleDragStart = (event: DragStartEvent) => {
+      setActiveDragData(event.active.data.current);
+  };
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    setActiveDragData(null); // Clear overlay
+    const { active, over } = event;
+    if (!over) return;
+
+    const activeData = active.data.current;
+    const overData = over.data.current;
+
+    if (!activeData || !overData) return;
+
+    if (overData.type === 'seat') {
+         const targetSeatId = overData.id;
+         if (lockedSeats.includes(targetSeatId)) return;
+
+         const nAss = { ...assignments };
+         const paddlerId = activeData.id;
+         
+         if (activeData.source === 'seat') {
+             const sourceSeatId = activeData.seatId;
+             const targetPaddlerId = nAss[targetSeatId];
+             
+             if (targetPaddlerId) {
+                  // Swap
+                  nAss[sourceSeatId] = targetPaddlerId;
+                  nAss[targetSeatId] = paddlerId;
+             } else {
+                  // Move
+                  delete nAss[sourceSeatId];
+                  nAss[targetSeatId] = paddlerId;
+             }
+         } else {
+             // From Pool
+             // Remove from other seats if present (safety check)
+             Object.keys(nAss).forEach(k => { if (nAss[k] === paddlerId) delete nAss[k]; });
+             nAss[targetSeatId] = paddlerId;
+         }
+         updateAssignments(assignmentKey, nAss);
+    }
+  };
+
+  if (isLoading || isDataLoading) {
+    return <LoadingSkeleton />;
+  }
+
   return (
+    <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+    <PageTransition>
     <div className="min-h-screen font-sans text-slate-800 dark:text-slate-100 transition-colors duration-300 bg-slate-100 dark:bg-slate-950 p-2 md:p-4 pb-20">
       {showHelp && <HelpModal onClose={() => setShowHelp(false)} />}
       {showGuestModal && <AddGuestModal onClose={() => setShowGuestModal(false)} onAdd={handleAddGuest} />}
@@ -381,7 +424,10 @@ const PlannerView: React.FC<PlannerViewProps> = ({ eventId }) => {
               <div className="text-blue-500">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
               </div>
-              <span className="font-bold text-slate-800 dark:text-white text-sm">{activeEventTitle}</span>
+              <span className="font-bold text-slate-800 dark:text-white text-sm">
+                {activeEventTitle}
+                {eventDate && <span className="font-normal text-slate-500 dark:text-slate-400 text-xs ml-2">({eventDate})</span>}
+              </span>
             </div>
           }
           subtitle={t('plannerMode')}
@@ -435,6 +481,7 @@ const PlannerView: React.FC<PlannerViewProps> = ({ eventId }) => {
               t={t} 
               boatSize={boatSize}
               setBoatSize={handleUpdateBoatSize}
+              isLoading={isCalculating}
             />
 
             {/* Paddler Pool */}
@@ -473,6 +520,22 @@ const PlannerView: React.FC<PlannerViewProps> = ({ eventId }) => {
         <Footer />
       </div>
     </div>
+    </PageTransition>
+    <DragOverlay dropAnimation={null}>
+      {activeDragData ? (
+        <div className="bg-white dark:bg-slate-800 rounded-lg shadow-2xl border-2 border-blue-500 w-28 h-16 flex flex-col items-center justify-center opacity-90 cursor-grabbing scale-105 touch-none relative z-50">
+           <div className="font-bold text-sm text-slate-800 dark:text-slate-200 truncate w-full text-center px-1">
+             {activeDragData.name}
+             {activeDragData.isGuest && <span className="text-[10px] opacity-80 ml-1 font-normal">{t('guestSuffix')}</span>}
+           </div>
+           <div className="text-[10px] text-slate-500 font-mono flex items-center gap-1">
+             {activeDragData.weight > 0 && <span>{activeDragData.weight} kg</span>}
+             {activeDragData.isCanister && <Box size={10} />}
+           </div>
+        </div>
+      ) : null}
+    </DragOverlay>
+    </DndContext>
   );
 };
 

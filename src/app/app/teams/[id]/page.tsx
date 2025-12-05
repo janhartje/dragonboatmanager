@@ -12,6 +12,7 @@ import DragonLogo from '@/components/ui/DragonLogo';
 import TeamSettingsForm from '@/components/drachenboot/team/TeamSettingsForm';
 import { InviteMemberForm } from '@/components/drachenboot/team/InviteMemberForm';
 import { HelpModal, AlertModal } from '@/components/ui/Modals';
+import PageTransition from '@/components/ui/PageTransition';
 
 export default function TeamDetailPage({ params }: { params: { id: string } }) {
   const router = useRouter();
@@ -75,6 +76,7 @@ export default function TeamDetailPage({ params }: { params: { id: string } }) {
   }
 
   return (
+    <PageTransition>
     <div className="min-h-screen font-sans text-slate-800 dark:text-slate-100 transition-colors duration-300 bg-slate-100 dark:bg-slate-950 p-2 md:p-4 pb-20">
       <div className="max-w-6xl mx-auto">
         <Header
@@ -263,5 +265,6 @@ export default function TeamDetailPage({ params }: { params: { id: string } }) {
         />
       </div>
     </div>
+    </PageTransition>
   );
 }
