@@ -142,3 +142,16 @@ model Team {
   twitter   String?
   email     String?
 }
+
+model SentEmail {
+  id        String   @id @default(cuid())
+  to        String[]
+  subject   String
+  template  String   // e.g., "WelcomeEmail"
+  props     Json?    // Template props for debugging
+  resendId  String?  // ID returned by Resend API
+  status    String   @default("sent") // "sent", "failed"
+  error     String?  @db.Text
+  createdAt DateTime @default(now())
+}
+

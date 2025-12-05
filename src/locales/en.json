@@ -315,5 +315,13 @@
     "disclaimerTitle": "Disclaimer & Technical Notices",
     "disclaimerSafety": "Safety Notice: The calculations provided in this application (e.g., for balance and trim) are for assistance and guidance only. They do not replace the professional judgment and responsibility of the boat captain. Use at your own risk.",
     "disclaimerWarranty": "Software Warranty: The software is provided 'as is', without warranty of any kind, express or implied. No guarantee is made for error-free operation or continuous availability.",
-    "techInfo": "Built with Next.js, Vercel, Prisma & Resend."
+    "techInfo": "Built with Next.js, Vercel, Prisma & Resend.",
+    "emailWelcomeSubject": "Welcome to Drachenboot Manager!",
+    "emailWelcomeGreeting": "Hello",
+    "emailWelcomeIntro": "Welcome to Drachenboot Manager. We're excited to have you on board!",
+    "emailWelcomeBody": "With the Drachenboot Manager, you can manage your team, plan trainings, and find the perfect boat lineup.",
+    "emailWelcomeCTA": "Get Started",
+    "emailWelcomeLinkHint": "If the button doesn't work, copy this link into your browser:",
+    "emailFooterMadeWith": "Made with ❤️ in Hannover.",
+    "emailFooterAuto": "This email was generated automatically. Please do not reply directly to this message."
 }

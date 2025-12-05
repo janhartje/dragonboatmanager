@@ -146,6 +146,27 @@ Jedes neue Feature und jeder Bugfix sollte von Tests begleitet werden.
 *   **Logik**: Unit Tests in `src/utils/__tests__`
 *   **UI**: Component Tests in `src/components/**/__tests__`
 
+### E-Mail System
+Wir nutzen **Resend** und **React Email** für den Versand von transaktionalen E-Mails.
+
+*   **Templates**: Zu finden in `src/emails/templates`.
+*   **Komponenten**: Wiederverwendbare E-Mail-Komponenten in `src/emails/components`.
+*   **Layout**: Neue Templates immer mit `<EmailLayout>` umschließen, um ein einheitliches Branding und den rechtlichen Footer sicherzustellen.
+*   **i18n**: Alle Templates unterstützen Deutsch und Englisch via `lang` Prop (`'de'` | `'en'`).
+*   **Versand**: Nutze die Helper-Funktion `src/lib/email.ts`.
+*   **Logging**: Alle E-Mails werden in der `SentEmail`-Tabelle gespeichert (inkl. Status, Fehler, Props).
+
+#### Entwicklung & Testing
+Du kannst E-Mail-Templates lokal im Browser entwickeln und testen, ohne sie versenden zu müssen:
+
+```bash
+npm run email
+```
+
+Dies startet einen lokalen Server unter `http://localhost:3010`, auf dem du alle Templates live sehen und bearbeiten kannst. Änderungen am Code werden sofort reflektiert.
+
+Benötigte Node.js Version: **18+** (nutze `nvm use`, falls nötig).
+
 ## 🧠 Key Concepts
 
 *   **Team**: Eine Gruppe mit eigenem Kader und Terminkalender. Mehrere Teams können parallel verwaltet werden.
