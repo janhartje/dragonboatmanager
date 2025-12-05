@@ -4,7 +4,18 @@ import SeatBox from '../SeatBox';
 import { BoatConfigItem, Paddler } from '@/types';
 
 // Mock SkillBadges to simplify test
+// Mock SkillBadges to simplify test
 jest.mock('../../ui/SkillBadges', () => () => <div data-testid="skill-badges" />);
+
+// Mock LanguageContext
+jest.mock('@/context/LanguageContext', () => ({
+  useLanguage: () => ({
+    t: (key: string) => {
+      if (key === 'available') return 'Frei';
+      return key;
+    },
+  }),
+}));
 
 describe('SeatBox', () => {
   const mockSeat: BoatConfigItem = { id: 'row-1-left', type: 'paddler', side: 'left', row: 1 };
@@ -18,7 +29,7 @@ describe('SeatBox', () => {
   it('renders paddler info when assigned', () => {
     render(<SeatBox seat={mockSeat} paddler={mockPaddler} />);
     expect(screen.getByText('Test Paddler')).toBeInTheDocument();
-    expect(screen.getByText('80')).toBeInTheDocument();
+    expect(screen.getByText(/80/)).toBeInTheDocument();
   });
 
   it('renders canister state correctly', () => {
