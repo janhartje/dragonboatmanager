@@ -43,8 +43,16 @@ const TeamView: React.FC = () => {
     toggleDarkMode,
     userRole,
     isLoading,
-    isDataLoading
+    isDataLoading,
+    refetchPaddlers,
+    refetchEvents
   } = useDrachenboot();
+
+  // --- REFRESH DATA ON MOUNT ---
+  React.useEffect(() => {
+    refetchPaddlers();
+    refetchEvents();
+  }, []);
 
   // --- LOCAL UI STATE ---
   const [editingPaddlerId, setEditingPaddlerId] = useState<number | string | null>(null);

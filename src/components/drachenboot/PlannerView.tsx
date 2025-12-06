@@ -51,8 +51,20 @@ const PlannerView: React.FC<PlannerViewProps> = ({ eventId }) => {
     setPaddlers, // needed for canister
     currentTeam,
     isLoading,
-    isDataLoading
+    isDataLoading,
+    userRole,
+    refetchPaddlers,
+    refetchEvents
   } = useDrachenboot();
+
+  const isReadOnly = userRole === 'PADDLER';
+
+  // --- REFRESH DATA ON MOUNT ---
+  useEffect(() => {
+    // Ensure we have the latest data when entering planner
+    refetchPaddlers();
+    refetchEvents();
+  }, []);
 
   useEffect(() => {
     // Only start tour if data is loaded
@@ -169,25 +181,30 @@ const PlannerView: React.FC<PlannerViewProps> = ({ eventId }) => {
   const goHome = () => router.push('/app');
 
   const handleAddCanister = async () => {
+    if (isReadOnly) return;
     const canisterId = await addCanister(activeEventId);
     if (canisterId) setSelectedPaddlerId(canisterId);
   };
 
   const handleRemoveCanister = async (canisterId: string) => {
+    if (isReadOnly) return;
     await removeCanister(activeEventId, canisterId);
   };
 
   const handleAddGuest = async (guestData: Pick<Paddler, 'name' | 'weight' | 'skills'>) => {
+    if (isReadOnly) return;
     const guestId = await addGuest(activeEventId, guestData);
     if (guestId) setSelectedPaddlerId(guestId);
     setShowGuestModal(false);
   };
 
   const handleRemoveGuest = async (guestId: string) => {
+    if (isReadOnly) return;
     await removeGuest(activeEventId, guestId);
   };
 
   const handleUpdateBoatSize = (size: 'standard' | 'small') => {
+    if (isReadOnly) return;
     if (size === boatSize) return;
 
     // Check if boat has assignments
@@ -210,6 +227,7 @@ const PlannerView: React.FC<PlannerViewProps> = ({ eventId }) => {
   };
 
   const handleSeatClick = (sid: string) => {
+    if (isReadOnly) return;
     if (lockedSeats.includes(sid)) return;
     
     if (selectedPaddlerId) {
@@ -224,17 +242,23 @@ const PlannerView: React.FC<PlannerViewProps> = ({ eventId }) => {
         
         if (targetPaddlerId) {
           // Target is occupied -> Swap
+          // Remove both from their original spots first to be clean
+          delete nAss[sourceSeatId];
+          delete nAss[sid]; 
+          
           nAss[sourceSeatId] = targetPaddlerId;
           nAss[sid] = selectedPaddlerId;
         } else {
-          // Target is empty -> Move (standard behavior)
+          // Target is empty -> Move
           delete nAss[sourceSeatId];
           nAss[sid] = selectedPaddlerId;
         }
       } else {
         // Standard assignment from pool
-        // Remove paddler from any other seat if they were somehow assigned (though sourceSeatId check covers most)
-        Object.keys(nAss).forEach((k) => { if (nAss[k] === selectedPaddlerId) delete nAss[k]; });
+        // CRITICAL FIX: Ensure paddler is not already in another seat (Ghost Fix)
+        Object.keys(nAss).forEach((k) => { 
+            if (nAss[k] === selectedPaddlerId) delete nAss[k]; 
+        });
         nAss[sid] = selectedPaddlerId;
       }
       
@@ -247,6 +271,7 @@ const PlannerView: React.FC<PlannerViewProps> = ({ eventId }) => {
 
   const handleUnassign = (sid: string, e: React.MouseEvent) => {
     e.stopPropagation();
+    if (isReadOnly) return;
     if (lockedSeats.includes(sid)) return;
     const paddlerId = assignments[sid];
     const paddler = activePaddlerPool.find((p) => p.id === paddlerId);
@@ -262,11 +287,13 @@ const PlannerView: React.FC<PlannerViewProps> = ({ eventId }) => {
 
   const toggleLock = (sid: string, e: React.MouseEvent) => {
     e.stopPropagation();
+    if (isReadOnly) return;
     if (!assignments[sid]) return;
     setLockedSeats((prev) => prev.includes(sid) ? prev.filter((i) => i !== sid) : [...prev, sid]);
   };
 
   const clearBoat = () => {
+    if (isReadOnly) return;
     if (confirmClear) {
       const nAss = { ...assignments };
       Object.keys(nAss).forEach((s) => { if (!lockedSeats.includes(s)) delete nAss[s]; });
@@ -279,6 +306,7 @@ const PlannerView: React.FC<PlannerViewProps> = ({ eventId }) => {
   };
 
   const runAutoFill = async () => {
+    if (isReadOnly) return;
     setIsSimulating(true);
     try {
       const response = await fetch('/api/autofill', {
@@ -360,6 +388,7 @@ const PlannerView: React.FC<PlannerViewProps> = ({ eventId }) => {
 
   const handleDragEnd = (event: DragEndEvent) => {
     setActiveDragData(null); // Clear overlay
+    if (isReadOnly) return;
     const { active, over } = event;
     if (!over) return;
 
@@ -381,6 +410,9 @@ const PlannerView: React.FC<PlannerViewProps> = ({ eventId }) => {
              
              if (targetPaddlerId) {
                   // Swap
+                  delete nAss[sourceSeatId];
+                  delete nAss[targetSeatId];
+
                   nAss[sourceSeatId] = targetPaddlerId;
                   nAss[targetSeatId] = paddlerId;
              } else {
@@ -390,7 +422,7 @@ const PlannerView: React.FC<PlannerViewProps> = ({ eventId }) => {
              }
          } else {
              // From Pool
-             // Remove from other seats if present (safety check)
+             // CRITICAL FIX: Ensure paddler is not already in another seat
              Object.keys(nAss).forEach(k => { if (nAss[k] === paddlerId) delete nAss[k]; });
              nAss[targetSeatId] = paddlerId;
          }
@@ -482,6 +514,7 @@ const PlannerView: React.FC<PlannerViewProps> = ({ eventId }) => {
               boatSize={boatSize}
               setBoatSize={handleUpdateBoatSize}
               isLoading={isCalculating}
+              isReadOnly={isReadOnly}
             />
 
             {/* Paddler Pool */}
@@ -496,6 +529,7 @@ const PlannerView: React.FC<PlannerViewProps> = ({ eventId }) => {
               onRemoveGuest={handleRemoveGuest}
               setShowGuestModal={setShowGuestModal} 
               t={t} 
+              isReadOnly={isReadOnly}
             />
           </div>
 
@@ -514,7 +548,8 @@ const PlannerView: React.FC<PlannerViewProps> = ({ eventId }) => {
             handleSeatClick={handleSeatClick} 
             handleUnassign={handleUnassign} 
             toggleLock={toggleLock} 
-            rows={rows}
+             rows={rows}
+             isReadOnly={isReadOnly}
           />
         </div>
         <Footer />

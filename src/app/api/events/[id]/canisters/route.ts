@@ -32,8 +32,8 @@ export async function POST(
       },
     });
 
-    if (!membership) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+    if (!membership || membership.role !== 'CAPTAIN') {
+      return NextResponse.json({ error: 'Unauthorized: Only captains can manage canisters' }, { status: 403 });
     }
     
     // Transaction to safely increment
@@ -91,8 +91,8 @@ export async function DELETE(
       },
     });
 
-    if (!membership) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+    if (!membership || membership.role !== 'CAPTAIN') {
+      return NextResponse.json({ error: 'Unauthorized: Only captains can manage canisters' }, { status: 403 });
     }
 
     const { searchParams } = new URL(request.url);

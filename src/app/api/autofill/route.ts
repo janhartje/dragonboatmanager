@@ -34,6 +34,17 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Event not found' }, { status: 404 });
     }
 
+    const membership = await prisma.paddler.findFirst({
+      where: {
+        teamId: event.teamId,
+        userId: session.user.id,
+      },
+    });
+
+    if (!membership || membership.role !== 'CAPTAIN') {
+      return NextResponse.json({ error: 'Unauthorized: Only captains can use auto-fill' }, { status: 403 });
+    }
+
     // Determine config
     const rows = event.boatSize === 'small' ? 5 : 10;
     

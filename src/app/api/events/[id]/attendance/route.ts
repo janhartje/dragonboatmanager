@@ -36,8 +36,19 @@ export async function POST(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
 
-    const body = await request.json();
+    let body;
+    try {
+      body = await request.json();
+    } catch (e) {
+      return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
+    }
+
     const { paddlerId, status } = body;
+
+    // Security Check: Only Captains can update others
+    if (membership.role !== 'CAPTAIN' && String(paddlerId) !== membership.id) {
+      return NextResponse.json({ error: 'Unauthorized: You can only update your own attendance' }, { status: 403 });
+    }
 
     const attendance = await prisma.attendance.upsert({
       where: {

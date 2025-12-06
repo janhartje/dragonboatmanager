@@ -32,8 +32,8 @@ export async function POST(
       },
     });
 
-    if (!membership) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+    if (!membership || membership.role !== 'CAPTAIN') {
+      return NextResponse.json({ error: 'Unauthorized: Only captains can manage guests' }, { status: 403 });
     }
 
     const body = await request.json(); // { name, weight, skills }

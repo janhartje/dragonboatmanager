@@ -14,6 +14,7 @@ interface PoolPaddlerItemProps {
   onClick: () => void;
   triggerDelete: (id: string, type: 'canister' | 'guest') => void;
   t: (key: string) => string;
+  isReadOnly?: boolean;
 }
 
 const PoolPaddlerItem: React.FC<PoolPaddlerItemProps> = ({
@@ -24,7 +25,8 @@ const PoolPaddlerItem: React.FC<PoolPaddlerItemProps> = ({
   isConfirming,
   onClick,
   triggerDelete,
-  t
+  t,
+  isReadOnly
 }) => {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: `pool-paddler-${paddler.id}`,
@@ -37,7 +39,7 @@ const PoolPaddlerItem: React.FC<PoolPaddlerItemProps> = ({
       isGuest: paddler.isGuest,
       isCanister: paddler.isCanister
     },
-    disabled: isAssigned // Cannot drag if already assigned from pool (though typically removed from list if assigned? No, checks isAssigned class)
+    disabled: isAssigned || isReadOnly // Cannot drag if already assigned from pool (though typically removed from list if assigned? No, checks isAssigned class)
   });
 
   const style = {
@@ -70,7 +72,8 @@ const PoolPaddlerItem: React.FC<PoolPaddlerItemProps> = ({
       style={style}
       {...listeners}
       {...attributes}
-      onClick={onClick}
+      {...attributes}
+      onClick={isReadOnly ? undefined : onClick}
       className={`w-28 h-16 rounded-lg border-2 flex flex-col items-center justify-center cursor-grab active:cursor-grabbing transition-all relative group touch-none
         ${base} ${active} ${assignedStyle}
         ${isDragging ? 'opacity-0' : ''} 
@@ -92,7 +95,8 @@ const PoolPaddlerItem: React.FC<PoolPaddlerItemProps> = ({
 
        {/* Delete Action - Top Right corner, visible on group hover or if confirming */}
        {/* Only for canister/guest */}
-       {(paddler.isCanister || paddler.isGuest) && !isAssigned && (
+       {/* Only for canister/guest */}
+       {(paddler.isCanister || paddler.isGuest) && !isAssigned && !isReadOnly && (
          <button
             onPointerDown={(e) => e.stopPropagation()} 
             onClick={(e) => { e.stopPropagation(); triggerDelete(String(paddler.id), paddler.isCanister ? 'canister' : 'guest'); }}

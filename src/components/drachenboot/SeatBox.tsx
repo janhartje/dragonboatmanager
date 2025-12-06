@@ -16,6 +16,7 @@ interface SeatBoxProps {
   onLock?: (e: React.MouseEvent) => void;
   hideWeight?: boolean;
   isMaybe?: boolean;
+  isReadOnly?: boolean;
 }
 
 const SeatBox: React.FC<SeatBoxProps> = ({
@@ -28,6 +29,7 @@ const SeatBox: React.FC<SeatBoxProps> = ({
   onLock,
   hideWeight,
   isMaybe,
+  isReadOnly,
 }) => {
   const { t } = useLanguage();
   const side = seat.id.includes('left') ? 'left' : seat.id.includes('right') ? 'right' : null;
@@ -57,7 +59,7 @@ const SeatBox: React.FC<SeatBoxProps> = ({
       isGuest: paddler?.isGuest,
       isCanister: paddler?.isCanister
     },
-    disabled: !paddler || isLocked,
+    disabled: !paddler || isLocked || isReadOnly,
   });
 
   const dragStyle = {
@@ -131,14 +133,14 @@ const SeatBox: React.FC<SeatBoxProps> = ({
           <button 
             onPointerDown={(e) => e.stopPropagation()}
             onClick={onUnassign} 
-            className={`absolute -top-1 -right-1 bg-white dark:bg-slate-700 text-slate-400 hover:text-red-500 rounded-full p-0.5 shadow border dark:border-slate-600 z-20 transition-all ${isLocked || hideWeight ? 'hidden' : 'scale-0 group-hover:scale-100'}`}
+            className={`absolute -top-1 -right-1 bg-white dark:bg-slate-700 text-slate-400 hover:text-red-500 rounded-full p-0.5 shadow border dark:border-slate-600 z-20 transition-all ${isLocked || hideWeight || isReadOnly ? 'hidden' : 'scale-0 group-hover:scale-100'}`}
           >
             <X size={10} />
           </button>
           <button 
             onPointerDown={(e) => e.stopPropagation()}
             onClick={onLock} 
-            className={`absolute top-0.5 left-0.5 p-0.5 rounded z-20 ${hideWeight ? 'hidden' : ''} ${isLocked ? 'text-slate-700 dark:text-slate-300' : 'text-slate-300 hover:text-slate-500'}`}
+            className={`absolute top-0.5 left-0.5 p-0.5 rounded z-20 ${hideWeight || isReadOnly ? 'hidden' : ''} ${isLocked ? 'text-slate-700 dark:text-slate-300' : 'text-slate-300 hover:text-slate-500'}`}
           >
             <Pin size={12} fill={isLocked ? 'currentColor' : 'none'} />
           </button>

@@ -35,7 +35,9 @@ interface DrachenbootContextType {
   setPaddlers: React.Dispatch<React.SetStateAction<Paddler[]>>;
   setEvents: React.Dispatch<React.SetStateAction<Event[]>>;
   userRole: 'CAPTAIN' | 'PADDLER' | null;
+  currentPaddler: Paddler | null;
   refetchPaddlers: () => Promise<void>;
+  refetchEvents: () => Promise<void>;
 }
 
 const DrachenbootContext = createContext<DrachenbootContextType | undefined>(undefined);
@@ -665,8 +667,9 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
 
   const value = useMemo(() => {
     let role: 'CAPTAIN' | 'PADDLER' | null = 'PADDLER';
+    let myPaddler = null;
     if (session?.user?.id && paddlers.length) {
-      const myPaddler = paddlers.find(p => p.userId === session.user.id);
+      myPaddler = paddlers.find(p => p.userId === session.user.id) || null;
       role = (myPaddler as any)?.role || 'PADDLER';
     }
 
@@ -701,7 +704,9 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
       setPaddlers,
       setEvents,
       userRole: role,
-      refetchPaddlers: fetchPaddlers
+      currentPaddler: myPaddler,
+      refetchPaddlers: fetchPaddlers,
+      refetchEvents: fetchEvents
     };
   }, [
     teams, currentTeam, createTeam, switchTeam,

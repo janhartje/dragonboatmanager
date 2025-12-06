@@ -47,7 +47,7 @@
             },
             "post": {
                 "summary": "Create Team",
-                "description": "Creates a new team.",
+                "description": "Creates a new team. Authenticated users only.",
                 "tags": [
                     "Teams"
                 ],
@@ -107,7 +107,7 @@
         "/api/teams/{id}": {
             "put": {
                 "summary": "Update Team",
-                "description": "Updates a team's name.",
+                "description": "Updates a team's name. Requires CAPTAIN role.",
                 "tags": [
                     "Teams"
                 ],
@@ -176,7 +176,7 @@
             },
             "delete": {
                 "summary": "Delete Team",
-                "description": "Deletes a team and all its related data (paddlers, events, attendances, assignments). This is a cascade delete operation.",
+                "description": "Deletes a team (Cascade). Requires CAPTAIN role.",
                 "tags": [
                     "Teams"
                 ],
@@ -274,7 +274,7 @@
             },
             "post": {
                 "summary": "Create Paddler",
-                "description": "Creates a new paddler.",
+                "description": "Creates a new paddler. Requires CAPTAIN role.",
                 "tags": [
                     "Paddlers"
                 ],
@@ -405,7 +405,7 @@
             },
             "delete": {
                 "summary": "Delete Paddler",
-                "description": "Deletes a paddler.",
+                "description": "Deletes a paddler. Requires CAPTAIN role.",
                 "tags": [
                     "Paddlers"
                 ],
@@ -495,7 +495,7 @@
             },
             "post": {
                 "summary": "Create Event",
-                "description": "Creates a new event (training or regatta).",
+                "description": "Creates a new event. Requires CAPTAIN role.",
                 "tags": [
                     "Events"
                 ],
@@ -659,7 +659,7 @@
         "/api/events/{id}/assignments": {
             "post": {
                 "summary": "Save Boat Assignments",
-                "description": "Replaces all seat assignments for an event. Deletes existing assignments and creates new ones.",
+                "description": "Replaces assignments. Requires CAPTAIN role.",
                 "tags": [
                     "Events"
                 ],
@@ -728,7 +728,7 @@
         "/api/events/{id}/attendance": {
             "post": {
                 "summary": "Update Attendance",
-                "description": "Creates or updates a paddler's attendance status for an event.",
+                "description": "Updates attendance. Captains can update anyone; Paddlers can only update themselves.",
                 "tags": [
                     "Events"
                 ],

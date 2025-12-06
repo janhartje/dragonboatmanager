@@ -116,8 +116,8 @@ export async function POST(request: Request) {
       },
     });
 
-    if (!membership) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+    if (!membership || membership.role !== 'CAPTAIN') {
+      return NextResponse.json({ error: 'Unauthorized: Only captains can create events' }, { status: 403 });
     }
 
     const event = await prisma.event.create({

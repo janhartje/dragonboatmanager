@@ -32,8 +32,8 @@ export async function PUT(
       },
     });
 
-    if (!membership) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+    if (!membership || membership.role !== 'CAPTAIN') {
+      return NextResponse.json({ error: 'Unauthorized: Only captains can update events' }, { status: 403 });
     }
 
     const body = await request.json();
@@ -83,8 +83,8 @@ export async function DELETE(
       },
     });
 
-    if (!membership) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+    if (!membership || membership.role !== 'CAPTAIN') {
+      return NextResponse.json({ error: 'Unauthorized: Only captains can delete events' }, { status: 403 });
     }
 
     // Use transaction to delete guests and then the event

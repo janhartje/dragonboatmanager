@@ -1,6 +1,7 @@
 import React from 'react';
 import { Calendar, ChevronRight, Check, HelpCircle, X, Trash2 } from 'lucide-react';
 import { Event, Paddler } from '@/types';
+import { useDrachenboot } from '@/context/DrachenbootContext';
 
 interface EventListProps {
   events: Event[];
@@ -12,6 +13,7 @@ interface EventListProps {
 }
 
 const EventList: React.FC<EventListProps> = ({ events, sortedPaddlers, onPlan, onDelete, onUpdateAttendance, t }) => {
+  const { userRole, currentPaddler } = useDrachenboot();
   const [deleteConfirmId, setDeleteConfirmId] = React.useState<string | null>(null);
 
   const triggerDelete = (id: string) => {
@@ -44,6 +46,7 @@ const EventList: React.FC<EventListProps> = ({ events, sortedPaddlers, onPlan, o
             <div className="flex justify-between items-center mt-4 pb-4 border-b border-slate-100 dark:border-slate-800">
               <div className="text-sm font-medium text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-lg"><span className="text-green-600 dark:text-green-400 font-bold">{yesCount}</span> {t('promises')}</div>
               <div className="flex gap-2">
+                {userRole === 'CAPTAIN' && (
                 <button 
                   onClick={() => triggerDelete(evt.id)} 
                   className={`text-sm px-3 py-2 rounded-lg transition-colors ${isConfirming ? 'bg-red-600 text-white hover:bg-red-700' : 'bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/40'}`} 
@@ -51,19 +54,49 @@ const EventList: React.FC<EventListProps> = ({ events, sortedPaddlers, onPlan, o
                 >
                   <Trash2 size={16} />
                 </button>
-                <button onClick={() => onPlan(evt.id)} className="text-sm bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-1">{t('plan')} <ChevronRight size={16} /></button>
+                )}
+                <button onClick={() => onPlan(evt.id)} className="text-sm bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-1">{userRole === 'CAPTAIN' ? t('plan') : t('viewPlan')} <ChevronRight size={16} /></button>
               </div>
             </div>
             <div className="mt-2 max-h-60 overflow-y-auto space-y-1 pt-2">
               {sortedPaddlers.map((p) => {
                 const status = evt.attendance[p.id];
+                const canEdit = userRole === 'CAPTAIN' || (currentPaddler && currentPaddler.id === p.id);
+                const containerClass = canEdit ? '' : 'pointer-events-none cursor-not-allowed';
+                
+                const getButtonStyle = (btnStatus: 'yes' | 'maybe' | 'no') => {
+                    const isSelected = status === btnStatus;
+                    const base = "w-8 h-8 flex items-center justify-center rounded-lg border transition-all";
+                    
+                    // If read-only and this button is NOT selected, fade it out significantly
+                    // If read-only and selected, keep it visible (but maybe slight visual cue it's locked? User asked for "same color", so keep it standard)
+                    const opacity = (!canEdit && !isSelected) ? 'opacity-20' : ''; 
+                    
+                    let colors = "";
+                    if (btnStatus === 'yes') {
+                        colors = isSelected 
+                            ? 'bg-green-500 text-white border-green-600' 
+                            : 'bg-white dark:bg-slate-800 text-slate-300 dark:text-slate-600 border-slate-200 dark:border-slate-700 hover:border-slate-300';
+                    } else if (btnStatus === 'maybe') {
+                         colors = isSelected 
+                            ? 'bg-yellow-400 text-white border-yellow-500' 
+                            : 'bg-white dark:bg-slate-800 text-slate-300 dark:text-slate-600 border-slate-200 dark:border-slate-700 hover:border-slate-300';
+                    } else { // no
+                         colors = isSelected 
+                            ? 'bg-red-500 text-white border-red-600' 
+                            : 'bg-white dark:bg-slate-800 text-slate-300 dark:text-slate-600 border-slate-200 dark:border-slate-700 hover:border-slate-300';
+                    }
+                    
+                    return `${base} ${colors} ${opacity}`;
+                };
+
                 return (
                   <div key={p.id} className="flex justify-between items-center py-1 text-sm border-b border-slate-50 dark:border-slate-800 last:border-0 hover:bg-slate-50 dark:hover:bg-slate-800 px-1 rounded">
                     <span className={`font-medium ${status === 'no' ? 'text-slate-400 dark:text-slate-600 line-through' : 'text-slate-700 dark:text-slate-200'}`}>{p.name}</span>
-                    <div className="flex gap-1">
-                      <button onClick={() => onUpdateAttendance(evt.id, p.id, 'yes')} className={`w-8 h-8 flex items-center justify-center rounded-lg border transition-all ${status === 'yes' ? 'bg-green-500 text-white border-green-600' : 'bg-white dark:bg-slate-800 text-slate-300 dark:text-slate-600 border-slate-200 dark:border-slate-700 hover:border-slate-300'}`}><Check size={16} /></button>
-                      <button onClick={() => onUpdateAttendance(evt.id, p.id, 'maybe')} className={`w-8 h-8 flex items-center justify-center rounded-lg border transition-all ${status === 'maybe' ? 'bg-yellow-400 text-white border-yellow-500' : 'bg-white dark:bg-slate-800 text-slate-300 dark:text-slate-600 border-slate-200 dark:border-slate-700 hover:border-slate-300'}`}><HelpCircle size={16} /></button>
-                      <button onClick={() => onUpdateAttendance(evt.id, p.id, 'no')} className={`w-8 h-8 flex items-center justify-center rounded-lg border transition-all ${status === 'no' ? 'bg-red-500 text-white border-red-600' : 'bg-white dark:bg-slate-800 text-slate-300 dark:text-slate-600 border-slate-200 dark:border-slate-700 hover:border-slate-300'}`}><X size={16} /></button>
+                    <div className={`flex gap-1 ${containerClass}`}>
+                      <button disabled={!canEdit} onClick={() => onUpdateAttendance(evt.id, p.id, 'yes')} className={getButtonStyle('yes')}><Check size={16} /></button>
+                      <button disabled={!canEdit} onClick={() => onUpdateAttendance(evt.id, p.id, 'maybe')} className={getButtonStyle('maybe')}><HelpCircle size={16} /></button>
+                      <button disabled={!canEdit} onClick={() => onUpdateAttendance(evt.id, p.id, 'no')} className={getButtonStyle('no')}><X size={16} /></button>
                     </div>
                   </div>
                 );

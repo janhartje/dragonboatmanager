@@ -46,11 +46,11 @@ export async function GET(request: Request) {
          select: { teamId: true, role: true }
       });
       
-      const teamIds = userMemberships.map(m => m.teamId).filter(Boolean) as string[];
+      const teamIds = userMemberships.map((m: { teamId: string | null }) => m.teamId).filter(Boolean) as string[];
       
       if (teamIds.length === 0) return NextResponse.json([]);
 
-      userMemberships.forEach(m => {
+      userMemberships.forEach((m: { teamId: string | null, role: string }) => {
           if (m.teamId) roleMap.set(m.teamId, m.role);
       });
 
@@ -65,7 +65,7 @@ export async function GET(request: Request) {
     }
 
     // Redact weight if not CAPTAIN and not own record
-    const redactedPaddlers = paddlers.map(p => {
+    const redactedPaddlers = paddlers.map((p: any) => {
       const requesterRole = p.teamId ? roleMap.get(p.teamId) : null;
       const isOwnRecord = p.userId === session.user.id;
       if (requesterRole !== 'CAPTAIN' && !isOwnRecord) {
@@ -97,8 +97,8 @@ export async function POST(request: Request) {
       },
     });
 
-    if (!membership) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+    if (!membership || membership.role !== 'CAPTAIN') {
+      return NextResponse.json({ error: 'Unauthorized: Only captains can add members' }, { status: 403 });
     }
 
     const paddler = await prisma.paddler.create({

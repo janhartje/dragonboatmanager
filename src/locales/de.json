@@ -24,6 +24,7 @@
     "training": "Training",
     "promises": "Zusagen",
     "plan": "Planen",
+    "viewPlan": "Plan",
     "squad": "Kader",
     "available": "Verfügbar",
     "guest": "Gast",
@@ -126,6 +127,20 @@
     "clTechnical": "Technische Änderungen",
     "clBugfixes": "Fehlerbehebungen",
     "changelogData": [
+        {
+            "version": "2.4.0",
+            "date": "Dezember 2025",
+            "features": [
+                "UI-Optimierung: 'Planen' Button für Paddler in 'Plan' bzw. 'Plan ansehen' umbenannt."
+            ],
+            "technical": [
+                "Sicherheits-Update: Umfangreiche Rechteprüfung für alle API-Endpunkte.",
+                "Ghost-Placement Fix: Verhindert doppelte Zuweisungen durch strikte Prüfung."
+            ],
+            "bugfixes": [
+                "Planer: Automatische Aktualisierung der Daten beim Öffnen zur Vermeidung veralteter Ansichten."
+            ]
+        },
         {
             "version": "2.3.1",
             "date": "Dezember 2025",

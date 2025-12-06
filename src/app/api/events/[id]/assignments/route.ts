@@ -32,8 +32,8 @@ export async function POST(
       },
     });
 
-    if (!membership) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+    if (!membership || membership.role !== 'CAPTAIN') {
+      return NextResponse.json({ error: 'Unauthorized: Only captains can modify assignments' }, { status: 403 });
     }
 
     const body = await request.json();

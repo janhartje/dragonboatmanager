@@ -23,8 +23,8 @@ Der **Drachenboot Manager** ist eine Progressive Web App (PWA) zur Verwaltung vo
 
 ### 🔒 Rollen & Berechtigungen
 
-*   **Captain**: Voller Zugriff. Kann Teams erstellen/löschen, Einstellungen ändern, Mitglieder verwalten (einladen/entfernen/befördern) und Termine planen.
-*   **Paddler**: Eingeschränkter Zugriff. Kann nur das eigene Profil (Gewicht, Seite, Skills) bearbeiten und Zu/Absagen für Termine geben. Kein Zugriff auf Teameinstellungen.
+*   **Captain**: Voller Zugriff. Kann Teams erstellen/löschen, Einstellungen ändern, Mitglieder verwalten (einladen/entfernen/befördern) und Termine planen. Alle schreibenden API-Endpunkte sind serverseitig geschützt.
+*   **Paddler**: Eingeschränkter Zugriff. Kann nur das eigene Profil (Gewicht, Seite, Skills) bearbeiten und Zu/Absagen für Termine geben. Kein Zugriff auf Teameinstellungen. Schreibzugriffe auf fremde Daten werden blockiert.
 
 ## 🛠 Tech Stack
 
