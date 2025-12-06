@@ -1,31 +1,34 @@
 import React, { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useSession } from "next-auth/react";
 import { useDrachenboot } from '@/context/DrachenbootContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { HelpModal } from '../ui/Modals';
+import { OnboardingModal } from '../auth/OnboardingModal';
 import DragonLogo from '../ui/DragonLogo';
 import Header from '../ui/Header';
 import Footer from '../ui/Footer';
 import TeamSwitcher from './TeamSwitcher';
 import { UserMenu } from '@/components/auth/UserMenu';
+import { updateProfile } from '@/app/actions/user';
+
 import { Settings, Globe, Instagram, Facebook, Twitter, Mail, Plus } from 'lucide-react';
 import { Team } from '@/types';
-
-// Sub-components
 import NewEventForm from './team/NewEventForm';
 import PaddlerModal from './team/PaddlerModal';
 import EventList from './team/EventList';
 import PaddlerGrid from './team/PaddlerGrid';
 import { Paddler } from '@/types';
-
 import LoadingSkeleton from '../ui/LoadingScreens';
 import PageTransition from '../ui/PageTransition';
+import WelcomeView from './WelcomeView';
 
 const TeamView: React.FC = () => {
   const router = useRouter();
   const { t } = useLanguage();
   const { 
+    teams,
     events, 
     paddlers, 
     currentTeam,
@@ -58,7 +61,59 @@ const TeamView: React.FC = () => {
     editingPaddlerId ? paddlers.find(p => p.id === editingPaddlerId) || null : null,
   [editingPaddlerId, paddlers]);
 
+  const { data: session } = useSession(); // Get session to identify current user
+  
+  // --- ONBOARDING LOGIC ---
+  const myPaddler = useMemo(() => {
+    if (session?.user?.id && paddlers.length) {
+      return paddlers.find(p => p.userId === session.user.id);
+    }
+    return null;
+  }, [session, paddlers]);
+
+  const showOnboarding = useMemo(() => {
+    if (!myPaddler) return false;
+    // Check if critical data is missing: Name, Weight (<=0), or Skills (empty)
+    // We ignore Guest/Canister (they don't log in anyway)
+    // We only force onboarding if they are actual members (userId exists, which myPaddler implies)
+    
+    // Check missing name
+    if (!myPaddler.name || myPaddler.name.trim() === '') return true;
+
+    // Check missing weight
+    if (!myPaddler.weight || myPaddler.weight <= 0) return true;
+    
+    // Check missing skills (optional, but requested by user)
+    // A user might legit have no skills preference, but usually left/right is min.
+    // Let's enforce at least one skill to ensure seat planning works.
+    if (!myPaddler.skills || myPaddler.skills.length === 0) return true;
+
+    return false;
+  }, [myPaddler]);
+
+
   // --- ACTIONS ---
+  const handleOnboardingSave = async (data: any) => {
+    if (!myPaddler) return;
+    try {
+      // Use updateProfile to sync Name/Weight globally and set Skills efficiently
+      // Pass currentTeam.id to ensure skills are updated for this team context
+      await updateProfile(
+        { 
+          name: data.name, 
+          weight: data.weight, 
+          skills: data.skills 
+        }, 
+        currentTeam?.id
+      );
+      
+      // Refresh local data
+      await updatePaddler(myPaddler.id, data); // Keep this to trigger context refresh if needed, roughly redundant but safe
+    } catch (e: any) {
+      setErrorMessage(e.message || t('errorSavingPaddler'));
+    }
+  };
+
   const handleCreateEvent = (title: string, date: string, type: 'training' | 'regatta', boatSize: 'standard' | 'small') => {
     createEvent(title, date, type, boatSize);
   };
@@ -107,6 +162,11 @@ const TeamView: React.FC = () => {
 
   if (isLoading || isDataLoading) {
     return <LoadingSkeleton />;
+  }
+
+  // Show welcome page for users with no teams
+  if (teams.length === 0) {
+    return <WelcomeView />;
   }
 
   return (
@@ -171,34 +231,34 @@ const TeamView: React.FC = () => {
             </div>
           )}
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Neuer Termin */}
-            <div className="lg:col-span-1 lg:order-1 flex flex-col">
-              {userRole === 'CAPTAIN' && <NewEventForm onCreate={handleCreateEvent} t={t} />}
-            </div>
+          {userRole === 'CAPTAIN' ? (
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Neuer Termin */}
+              <div className="lg:col-span-1 lg:order-1 flex flex-col">
+                <NewEventForm onCreate={handleCreateEvent} t={t} />
+              </div>
 
-            {/* Event Liste */}
-            <div className="lg:col-span-1 lg:order-3 flex flex-col">
-              <EventList 
-                events={events} 
-                sortedPaddlers={sortedPaddlers} 
-                onPlan={handlePlanEvent} 
-                onDelete={handleDeleteEvent}
-                onUpdateAttendance={updateAttendance} 
-                t={t} 
-              />
-            </div>
+              {/* Event Liste */}
+              <div className="lg:col-span-1 lg:order-3 flex flex-col">
+                <EventList 
+                  events={events} 
+                  sortedPaddlers={sortedPaddlers} 
+                  onPlan={handlePlanEvent} 
+                  onDelete={handleDeleteEvent}
+                  onUpdateAttendance={updateAttendance} 
+                  t={t} 
+                />
+              </div>
 
-            {/* Paddler Grid */}
-            <div className="lg:col-span-2 lg:order-2 lg:row-span-2 flex flex-col">
-              <PaddlerGrid 
-                paddlers={sortedPaddlers} 
-                editingId={editingPaddlerId === 'new' ? null : editingPaddlerId} 
-                onEdit={handleEditPaddler} 
-                onDelete={handleDeletePaddler} 
-                t={t}
-                headerAction={
-                  userRole === 'CAPTAIN' && (
+              {/* Paddler Grid */}
+              <div className="lg:col-span-2 lg:order-2 lg:row-span-2 flex flex-col">
+                <PaddlerGrid 
+                  paddlers={sortedPaddlers} 
+                  editingId={editingPaddlerId === 'new' ? null : editingPaddlerId} 
+                  onEdit={handleEditPaddler} 
+                  onDelete={handleDeletePaddler} 
+                  t={t}
+                  headerAction={
                     <button 
                       onClick={() => setEditingPaddlerId('new')}
                       className="bg-blue-600 hover:bg-blue-700 text-white px-3 h-8 rounded text-sm font-medium flex items-center gap-2 shadow-sm transition-colors"
@@ -206,11 +266,36 @@ const TeamView: React.FC = () => {
                       <Plus size={16} />
                       {t('addPaddler')}
                     </button>
-                  )
-                }
-              />
+                  }
+                />
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Event Liste */}
+              <div className="lg:col-span-1 flex flex-col">
+                <EventList 
+                  events={events} 
+                  sortedPaddlers={sortedPaddlers} 
+                  onPlan={handlePlanEvent} 
+                  onDelete={handleDeleteEvent}
+                  onUpdateAttendance={updateAttendance} 
+                  t={t} 
+                />
+              </div>
+
+              {/* Paddler Grid */}
+              <div className="lg:col-span-2 flex flex-col">
+                <PaddlerGrid 
+                  paddlers={sortedPaddlers} 
+                  editingId={null} 
+                  onEdit={handleEditPaddler} 
+                  onDelete={handleDeletePaddler} 
+                  t={t}
+                />
+              </div>
+            </div>
+          )}
           
           {/* Paddler Modal */}
           {userRole === 'CAPTAIN' && (
@@ -227,6 +312,15 @@ const TeamView: React.FC = () => {
           <Footer />
         </div>
       </div>
+      
+      {/* Onboarding Modal */}
+      {showOnboarding && myPaddler && (
+        <OnboardingModal
+          paddler={myPaddler}
+          onClose={() => {}} // Mandatory modal, cannot be closed without saving
+          onSave={handleOnboardingSave}
+        />
+      )}
     </PageTransition>
   );
 };

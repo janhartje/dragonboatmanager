@@ -64,10 +64,11 @@ export async function GET(request: Request) {
       });
     }
 
-    // Redact weight if not CAPTAIN
+    // Redact weight if not CAPTAIN and not own record
     const redactedPaddlers = paddlers.map(p => {
       const requesterRole = p.teamId ? roleMap.get(p.teamId) : null;
-      if (requesterRole !== 'CAPTAIN') {
+      const isOwnRecord = p.userId === session.user.id;
+      if (requesterRole !== 'CAPTAIN' && !isOwnRecord) {
         return { ...p, weight: 0 }; 
       }
       return p;

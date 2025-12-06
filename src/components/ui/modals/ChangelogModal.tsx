@@ -15,7 +15,7 @@ interface VersionData {
 
 const ChangelogModal: React.FC<ChangelogModalProps> = ({ onClose }) => {
   const { t } = useLanguage();
-  const [expandedVersions, setExpandedVersions] = useState<Set<string>>(new Set(['2.2.0']));
+  const [expandedVersions, setExpandedVersions] = useState<Set<string>>(new Set(['2.3.0']));
 
   const toggleVersion = (version: string) => {
     const newExpanded = new Set(expandedVersions);
@@ -28,6 +28,12 @@ const ChangelogModal: React.FC<ChangelogModalProps> = ({ onClose }) => {
   };
 
   const versions: VersionData[] = [
+    {
+      version: '2.3.0',
+      features: [t('clV230F1'), t('clV230F2'), t('clV230F3'), t('clV230F4'), t('clV230F5'), t('clV230F6')],
+      technical: [t('clV230T1')],
+      bugfixes: []
+    },
     {
       version: '2.2.0',
       features: [t('clV220F1'), t('clV220F2'), t('clV220F3'), t('clV220F4'), t('clV220F5'), t('clV220F6')],

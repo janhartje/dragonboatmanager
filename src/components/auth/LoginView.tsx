@@ -1,16 +1,71 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
+import { signIn } from 'next-auth/react';
 import { useLanguage } from '@/context/LanguageContext';
-import { useDrachenboot } from '@/context/DrachenbootContext';
 import DragonLogo from '@/components/ui/DragonLogo';
 import Footer from '@/components/ui/Footer';
 import { LoginButton } from '@/components/auth/LoginButton';
-import { Github, ArrowLeft } from 'lucide-react';
+import { Github, ArrowLeft, Mail, Loader2, CheckCircle } from 'lucide-react';
 
 const LoginView: React.FC = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const searchParams = useSearchParams();
+  const isVerifyRequest = searchParams.get('verify') === '1';
+  const prefilledEmail = searchParams.get('email') || '';
+  
+  const [email, setEmail] = useState(prefilledEmail);
+  const [isLoading, setIsLoading] = useState(false);
+  const [emailSent, setEmailSent] = useState(false);
+
+  const handleEmailSignIn = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email.trim()) return;
+    
+    setIsLoading(true);
+    try {
+      // Pass language via callbackUrl so auth.ts can read it
+      await signIn('resend', { 
+        email, 
+        redirect: false,
+        callbackUrl: `/app?lang=${language}`,
+      });
+      setEmailSent(true);
+    } catch (error) {
+      console.error('Error signing in with email:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Show verification message
+  if (isVerifyRequest || emailSent) {
+    return (
+      <div className="min-h-screen font-sans text-slate-800 dark:text-slate-100 transition-colors duration-300 bg-slate-100 dark:bg-slate-950 flex flex-col">
+        <div className="flex-1 flex items-center justify-center p-4">
+          <div className="w-full max-w-md">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800 p-8 text-center">
+              <div className="w-20 h-20 bg-green-50 dark:bg-green-900/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <CheckCircle className="w-10 h-10 text-green-600 dark:text-green-400" />
+              </div>
+              <h1 className="text-2xl font-bold text-slate-800 dark:text-white mb-2">
+                ✉️ {t('checkEmail')}
+              </h1>
+              <p className="text-slate-600 dark:text-slate-400 mb-4">
+                {t('emailSentBody')}
+              </p>
+              <p className="text-slate-500 dark:text-slate-500 text-sm">
+                {t('emailNotReceived')}
+              </p>
+            </div>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen font-sans text-slate-800 dark:text-slate-100 transition-colors duration-300 bg-slate-100 dark:bg-slate-950 flex flex-col">
@@ -37,6 +92,44 @@ const LoginView: React.FC = () => {
               <p className="text-slate-600 dark:text-slate-400">
                 {t('loginSubtitle') || 'Bitte melden Sie sich an, um fortzufahren.'}
               </p>
+            </div>
+
+            {/* Email Magic Link Form */}
+            <form onSubmit={handleEmailSignIn} className="mb-6">
+              <div className="flex gap-2">
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder={t('emailPlaceholderLogin') || 'deine@email.de'}
+                  className="flex-1 px-4 py-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                  disabled={isLoading}
+                />
+                <button
+                  type="submit"
+                  disabled={isLoading || !email.trim()}
+                  className="px-4 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white rounded-lg font-medium transition-colors flex items-center gap-2"
+                >
+                  {isLoading ? (
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                  ) : (
+                    <Mail className="w-5 h-5" />
+                  )}
+                </button>
+              </div>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-2 text-left">
+                {t('signInEmail') || 'Mit E-Mail anmelden'} — kein Passwort nötig!
+              </p>
+            </form>
+
+            <div className="relative mb-6">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-slate-200 dark:border-slate-700"></div>
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-white dark:bg-slate-900 text-slate-500">{t('orDivider')}</span>
+              </div>
             </div>
 
             <div className="space-y-3">
