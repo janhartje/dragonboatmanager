@@ -18,6 +18,8 @@ Der **Drachenboot Manager** ist eine Progressive Web App (PWA) zur Verwaltung vo
 *   **Offline-First**: Dank PWA-Technologie und PostgreSQL auch ohne Internet nutzbar (nach initialer Synchronisation).
 *   **Internationalisierung**: Verfügbar in Deutsch und Englisch (automatische Erkennung).
 *   **Dark Mode**: Automatische Anpassung an das System-Theme.
+*   **Hilfe & Support**: Integriertes Hilfe-Center mit Anleitungen, FAQs und direktem Kontakt zum Entwickler.
+*   **Erweiterte Mitgliederverwaltung**: Status-Tracking (Ausstehend), einfache Rollenvergabe und Verwaltungsoptionen.
 
 ## 🛠 Tech Stack
 

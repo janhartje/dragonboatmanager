@@ -5,29 +5,30 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useDrachenboot } from '@/context/DrachenbootContext';
 import { useLanguage } from '@/context/LanguageContext';
-import { ArrowLeft, Trash2, AlertTriangle, Shield, ShieldAlert } from 'lucide-react';
+import { ArrowLeft, Trash2, AlertTriangle, Shield, ShieldAlert, UserMinus } from 'lucide-react';
 import Header from '@/components/ui/Header';
 import Footer from '@/components/ui/Footer';
 import DragonLogo from '@/components/ui/DragonLogo';
 import TeamSettingsForm from '@/components/drachenboot/team/TeamSettingsForm';
 import { InviteMemberForm } from '@/components/drachenboot/team/InviteMemberForm';
-import { HelpModal, AlertModal } from '@/components/ui/Modals';
+import { HelpModal, AlertModal, ConfirmModal } from '@/components/ui/Modals';
 import PageTransition from '@/components/ui/PageTransition';
 
 export default function TeamDetailPage({ params }: { params: { id: string } }) {
   const router = useRouter();
-  const { teams, updateTeam, deleteTeam, isDarkMode, toggleDarkMode, paddlers, updatePaddler } = useDrachenboot();
+  const { teams, updateTeam, deleteTeam, isDarkMode, toggleDarkMode, paddlers, updatePaddler, deletePaddler, refetchPaddlers } = useDrachenboot();
   const { t } = useLanguage();
   
   const [isLoading, setIsLoading] = useState(true);
   const [deleteConfirm, setDeleteConfirm] = useState(false);
   const [activeTab, setActiveTab] = useState<'general' | 'members'>('general');
   const [alertMessage, setAlertMessage] = useState<string | null>(null);
+  const [memberToRemove, setMemberToRemove] = useState<any>(null);
 
   const team = teams.find(t => t.id === params.id);
 
-  // Filter for actual users (members) of this team
-  const members = paddlers.filter(p => p.userId && p.teamId === params.id);
+  // Filter for actual users (members) of this team, including pending invites
+  const members = paddlers.filter(p => p.teamId === params.id && (p.userId || p.inviteEmail));
 
   const [showHelp, setShowHelp] = useState(false);
 
@@ -65,6 +66,14 @@ export default function TeamDetailPage({ params }: { params: { id: string } }) {
       }
     }
     updatePaddler(paddlerId, { role: newRole });
+  };
+
+  const confirmRemoveMember = async () => {
+    if (memberToRemove) {
+      await deletePaddler(memberToRemove.id);
+      await refetchPaddlers();
+      setMemberToRemove(null);
+    }
   };
 
   if (isLoading || !team) {
@@ -156,30 +165,13 @@ export default function TeamDetailPage({ params }: { params: { id: string } }) {
                       </div>
                     </div>
                     
-                    {deleteConfirm ? (
-                      <div className="flex flex-col sm:flex-row sm:items-center gap-3 animate-in fade-in slide-in-from-top-2 duration-200">
-                        <button
-                          onClick={handleDelete}
-                          className="w-full sm:w-auto px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors shadow-sm"
-                        >
-                          {t('confirmDelete') || 'Yes, delete team'}
-                        </button>
-                        <button
-                          onClick={() => setDeleteConfirm(false)}
-                          className="w-full sm:w-auto px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg font-medium transition-colors"
-                        >
-                          {t('cancel') || 'Cancel'}
-                        </button>
-                      </div>
-                    ) : (
-                      <button
-                        onClick={() => setDeleteConfirm(true)}
-                        className="px-4 py-2 border border-red-200 dark:border-red-900/50 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg font-medium transition-colors flex items-center gap-2"
-                      >
-                        <Trash2 size={18} />
-                        <span>{t('deleteTeam') || 'Delete Team'}</span>
-                      </button>
-                    )}
+                    <button
+                      onClick={() => setDeleteConfirm(true)}
+                      className="px-4 py-2 border border-red-200 dark:border-red-900/50 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg font-medium transition-colors flex items-center gap-2"
+                    >
+                      <Trash2 size={18} />
+                      <span>{t('deleteTeam') || 'Delete Team'}</span>
+                    </button>
                   </div>
                 </div>
               </div>
@@ -189,7 +181,7 @@ export default function TeamDetailPage({ params }: { params: { id: string } }) {
                   <h3 className="text-lg font-medium text-slate-800 dark:text-slate-200 mb-4">
                     {t('inviteMembers') || 'Invite Members'}
                   </h3>
-                  <InviteMemberForm teamId={team.id} />
+                  <InviteMemberForm teamId={team.id} onSuccess={refetchPaddlers} />
                 </div>
                 
                 <div className="pt-6 border-t border-slate-200 dark:border-slate-800">
@@ -209,33 +201,49 @@ export default function TeamDetailPage({ params }: { params: { id: string } }) {
                           </div>
                           <div>
                             <p className="font-medium text-slate-900 dark:text-slate-100">{member.name}</p>
-                            <p className="text-sm text-slate-500 dark:text-slate-400">
+                            <p className="text-sm text-slate-500 dark:text-slate-400 flex items-center gap-2">
                               {member.role === 'CAPTAIN' ? (t('captain') || 'Captain') : (t('paddler') || 'Paddler')}
+                              {!member.userId && member.inviteEmail && (
+                                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400 border border-amber-200 dark:border-amber-800">
+                                  {t('pending')}
+                                </span>
+                              )}
                             </p>
                           </div>
                         </div>
                         
-                        <button
-                          onClick={() => handleRoleChange(member.id, member.role === 'CAPTAIN' ? 'PADDLER' : 'CAPTAIN')}
-                          className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors font-medium text-sm border shadow-sm ${
-                            member.role === 'CAPTAIN'
-                              ? 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-700'
-                              : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-700'
-                          }`}
-                          title={member.role === 'CAPTAIN' ? (t('demoteToPaddler') || 'Demote to Paddler') : (t('promoteToCaptain') || 'Promote to Captain')}
-                        >
-                          {member.role === 'CAPTAIN' ? (
-                            <>
-                              <ShieldAlert size={16} className="text-amber-500" />
-                              <span>{t('demote') || 'Demote'}</span>
-                            </>
-                          ) : (
-                            <>
-                              <Shield size={16} className="text-blue-500" />
-                              <span>{t('promote') || 'Promote'}</span>
-                            </>
-                          )}
-                        </button>
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => handleRoleChange(member.id, member.role === 'CAPTAIN' ? 'PADDLER' : 'CAPTAIN')}
+                            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors font-medium text-sm border shadow-sm ${
+                              member.role === 'CAPTAIN'
+                                ? 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-700'
+                                : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-700'
+                            }`}
+                            title={member.role === 'CAPTAIN' ? (t('demoteToPaddler') || 'Demote to Paddler') : (t('promoteToCaptain') || 'Promote to Captain')}
+                          >
+                            {member.role === 'CAPTAIN' ? (
+                              <>
+                                <ShieldAlert size={16} className="text-amber-500" />
+                                <span className="hidden sm:inline">{t('demote') || 'Demote'}</span>
+                              </>
+                            ) : (
+                              <>
+                                <Shield size={16} className="text-blue-500" />
+                                <span className="hidden sm:inline">{t('promote') || 'Promote'}</span>
+                              </>
+                            )}
+                          </button>
+
+                          <button
+                            onClick={() => setMemberToRemove(member)}
+                            className="flex items-center gap-2 px-4 py-2 rounded-lg transition-colors font-medium text-sm border shadow-sm bg-white border-red-200 text-red-600 hover:bg-red-50 dark:bg-slate-800 dark:border-red-900/30 dark:text-red-400 dark:hover:bg-red-900/20"
+                            title={t('removeMember')}
+                          >
+                            <UserMinus size={16} />
+                            <span className="hidden sm:inline">{t('removeMember')}</span>
+                          </button>
+                        </div>
                       </div>
                     ))}
                     
@@ -262,6 +270,26 @@ export default function TeamDetailPage({ params }: { params: { id: string } }) {
           message={alertMessage || ''}
           onClose={() => setAlertMessage(null)}
           type="warning"
+        />
+
+        <ConfirmModal
+          isOpen={!!memberToRemove}
+          title={t('confirmRemoveMemberTitle')}
+          message={t('confirmRemoveMemberBody')}
+          confirmLabel={t('confirmRemoveMemberButton')}
+          isDestructive={true}
+          onCancel={() => setMemberToRemove(null)}
+          onConfirm={confirmRemoveMember}
+        />
+
+        <ConfirmModal
+          isOpen={deleteConfirm}
+          title={t('deleteTeam')}
+          message={t('deleteTeamWarning')}
+          confirmLabel={t('confirmDelete')}
+          isDestructive={true}
+          onCancel={() => setDeleteConfirm(false)}
+          onConfirm={handleDelete}
         />
       </div>
     </div>

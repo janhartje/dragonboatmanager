@@ -66,19 +66,21 @@ enum Role {
 }
 
 model Paddler {
-  id        String   @id @default(cuid())
-  name      String
-  userId    String?
-  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
-  teamId    String?
-  team      Team?    @relation(fields: [teamId], references: [id], onDelete: Cascade)
-  weight    Float
-  side      String?  // 'left', 'right', 'both'
-  skills    String[] // ['drum', 'steer', etc.]
-  role      Role     @default(PADDLER)
-  isGuest   Boolean  @default(false)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          String   @id @default(cuid())
+  name        String
+  userId      String?
+  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  teamId      String?
+  team        Team?    @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  weight      Float
+  side        String?  // 'left', 'right', 'both'
+  skills      String[] // ['drum', 'steer', etc.]
+  role        Role     @default(PADDLER)
+  isGuest     Boolean  @default(false)
+  inviteEmail String?  // Email for invited but not-yet-registered users
+  inviteLanguage String? // Language preference for the invite (en/de)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   attendances Attendance[]
   assignments Assignment[]

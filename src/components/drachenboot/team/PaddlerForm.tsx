@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { User, Pencil, Drum, ShipWheel, Save, Plus, Link as LinkIcon, Unlink } from 'lucide-react';
+import { User, Pencil, Save, Plus, Link as LinkIcon, Mail, Loader2, Check } from 'lucide-react';
 import { Paddler } from '@/types';
-
 import { FormInput } from '@/components/ui/FormInput';
+import { WeightInput } from '@/components/ui/WeightInput';
+import { SkillSelector, SkillsState } from '@/components/ui/SkillSelector';
+import { linkPaddlerToAccount } from '@/app/actions/team';
+import { useDrachenboot } from '@/context/DrachenbootContext';
 
 interface PaddlerFormProps {
   paddlerToEdit: Paddler | null;
@@ -17,10 +20,15 @@ interface PaddlerFormProps {
 const PaddlerForm: React.FC<PaddlerFormProps> = ({ paddlerToEdit, onSave, onCancel, t, teamMembers = [], isModal = false, isGuest = false }) => {
   const [name, setName] = useState<string>('');
   const [weight, setWeight] = useState<string>('');
-  const [skills, setSkills] = useState({ left: false, right: false, drum: false, steer: false });
+  const [skills, setSkills] = useState<SkillsState>({ left: false, right: false, drum: false, steer: false });
   const [userId, setUserId] = useState<string>('');
+  const [linkEmail, setLinkEmail] = useState<string>('');
+  const [isLinking, setIsLinking] = useState(false);
+  const [linkSuccess, setLinkSuccess] = useState(false);
+  const [linkError, setLinkError] = useState<string | null>(null);
 
   const [touched, setTouched] = useState(false);
+  const { refetchPaddlers } = useDrachenboot();
 
   useEffect(() => {
     if (paddlerToEdit) {
@@ -32,6 +40,9 @@ const PaddlerForm: React.FC<PaddlerFormProps> = ({ paddlerToEdit, onSave, onCanc
       });
       setSkills(sObj);
       setUserId(paddlerToEdit.userId || '');
+      setLinkEmail('');
+      setLinkError(null);
+      setLinkSuccess(false);
     } else {
       resetForm();
     }
@@ -42,10 +53,13 @@ const PaddlerForm: React.FC<PaddlerFormProps> = ({ paddlerToEdit, onSave, onCanc
     setWeight('');
     setSkills({ left: false, right: false, drum: false, steer: false });
     setUserId('');
+    setLinkEmail('');
+    setLinkError(null);
+    setLinkSuccess(false);
     setTouched(false);
   };
 
-  const toggleSkill = (skill: keyof typeof skills) => {
+  const handleSkillChange = (skill: keyof SkillsState) => {
     setSkills((prev) => ({ ...prev, [skill]: !prev[skill] }));
   };
 
@@ -66,6 +80,34 @@ const PaddlerForm: React.FC<PaddlerFormProps> = ({ paddlerToEdit, onSave, onCanc
       userId: userId || null
     });
     if (!paddlerToEdit) resetForm();
+  };
+
+  const handleLinkAccount = async () => {
+    if (!linkEmail.trim() || !paddlerToEdit) return;
+    
+    setIsLinking(true);
+    setLinkError(null);
+    
+    try {
+      const result = await linkPaddlerToAccount(paddlerToEdit.id as string, linkEmail.trim());
+      setLinkSuccess(true);
+      await refetchPaddlers();
+      
+      // Close the form after a delay
+      setTimeout(() => {
+        onCancel();
+      }, 1500);
+    } catch (e: any) {
+      if (e.message === 'USER_ALREADY_MEMBER') {
+        setLinkError(t('userAlreadyMember') || 'User is already a team member');
+      } else if (e.message === 'PADDLER_ALREADY_LINKED') {
+        setLinkError(t('paddlerAlreadyLinked') || 'Paddler is already linked to an account');
+      } else {
+        setLinkError(e.message || t('linkError') || 'Failed to link account');
+      }
+    } finally {
+      setIsLinking(false);
+    }
   };
 
   const containerClasses = isModal 
@@ -92,45 +134,78 @@ const PaddlerForm: React.FC<PaddlerFormProps> = ({ paddlerToEdit, onSave, onCanc
           </div>
           <div className="w-full md:w-32">
             <label className="text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400 mb-1 block">{t('weight')}</label>
-            <FormInput
-              type="number" 
+            <WeightInput
               value={weight} 
-              onChange={(e) => setWeight(e.target.value)} 
-              placeholder="kg"
-              error={touched && !weight.trim()}
+              onChange={setWeight} 
             />
           </div>
         </div>
         
-        {/* Account Linking */}
-        {!isGuest && (
-        <div>
-           <label className="text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400 mb-1 block flex items-center gap-1">
-             <LinkIcon size={12} /> {t('linkedAccount') || 'Linked Account'}
-           </label>
-           <select 
-             value={userId} 
-             onChange={(e) => setUserId(e.target.value)}
-             className="w-full p-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-sm outline-none dark:text-white"
-           >
-             <option value="">{t('noAccount') || 'No Account Linked'}</option>
-             {teamMembers.map((member) => (
-               <option key={member.userId} value={member.userId}>
-                 {member.name} ({member.email})
-               </option>
-             ))}
-           </select>
+        {/* Account Linking Section */}
+        {!isGuest && paddlerToEdit && (
+        <div className="space-y-3">
+          <label className="text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400 mb-1 block flex items-center gap-1">
+            <LinkIcon size={12} /> {t('linkedAccount') || 'Linked Account'}
+          </label>
+          
+          {userId ? (
+            // Already linked - show read-only email
+            <div className="w-full p-2 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 rounded text-sm text-green-700 dark:text-green-400 flex items-center gap-2">
+              <Check size={14} />
+              {teamMembers.find(m => m.userId === userId)?.email || paddlerToEdit.user?.email || t('accountLinked') || 'Account Linked'}
+            </div>
+          ) : linkSuccess ? (
+            // Just linked successfully
+            <div className="w-full p-2 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 rounded text-sm text-green-700 dark:text-green-400 flex items-center gap-2">
+              <Check size={14} />
+              {t('accountLinkedSuccess') || 'Account linked successfully!'}
+            </div>
+          ) : (
+            // Not linked - show input to link
+            <>
+              <div className="flex gap-2">
+                <div className="flex-1">
+                  <FormInput
+                    type="email"
+                    value={linkEmail}
+                    onChange={(e) => setLinkEmail(e.target.value)}
+                    placeholder={t('emailToLink') || 'Enter email to link'}
+                    disabled={isLinking}
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={handleLinkAccount}
+                  disabled={!linkEmail.trim() || isLinking}
+                  className={`h-10 px-4 rounded text-sm font-medium flex items-center justify-center gap-2 transition-all ${
+                    linkEmail.trim() && !isLinking
+                      ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                      : 'bg-slate-200 dark:bg-slate-800 text-slate-400 cursor-not-allowed'
+                  }`}
+                >
+                  {isLinking ? <Loader2 size={14} className="animate-spin" /> : <Mail size={14} />}
+                  {t('link') || 'Link'}
+                </button>
+              </div>
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                {t('linkAccountHint') || 'If the email has an account, the paddler will be linked. Otherwise, an invitation will be sent.'}
+              </p>
+              {linkError && (
+                <div className="p-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded text-sm text-red-600 dark:text-red-400">
+                  {linkError}
+                </div>
+              )}
+            </>
+          )}
         </div>
         )}
 
         <div>
           <label className="text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400 mb-2 block">{t('skills')}</label>
-          <div className="flex gap-2 flex-wrap">
-            <button type="button" onClick={() => toggleSkill('left')} className={`px-3 py-1.5 rounded-lg border text-sm font-medium transition-all ${skills.left ? 'bg-red-500 border-red-600 text-white' : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400'}`}>{t('left')}</button>
-            <button type="button" onClick={() => toggleSkill('right')} className={`px-3 py-1.5 rounded-lg border text-sm font-medium transition-all ${skills.right ? 'bg-green-500 border-green-600 text-white' : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400'}`}>{t('right')}</button>
-            <button type="button" onClick={() => toggleSkill('drum')} className={`px-3 py-1.5 rounded-lg border text-sm font-medium transition-all flex items-center gap-1 ${skills.drum ? 'bg-yellow-400 border-yellow-500 text-yellow-900' : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400'}`}><Drum size={12} /> {t('drum')}</button>
-            <button type="button" onClick={() => toggleSkill('steer')} className={`px-3 py-1.5 rounded-lg border text-sm font-medium transition-all flex items-center gap-1 ${skills.steer ? 'bg-purple-500 border-purple-600 text-white' : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400'}`}><ShipWheel size={12} /> {t('steer')}</button>
-          </div>
+          <SkillSelector 
+            skills={skills} 
+            onChange={handleSkillChange} 
+          />
         </div>
         <div className="flex flex-col-reverse sm:flex-row gap-2 pt-2 justify-end">
           {(!isModal && paddlerToEdit) && <button type="button" onClick={onCancel} className="w-full sm:w-auto bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 px-4 py-2 rounded text-sm">{t('cancel')}</button>}

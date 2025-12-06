@@ -1,4 +1,5 @@
 import { Resend } from 'resend';
+import { render } from '@react-email/render';
 import prisma from '@/lib/prisma';
 import { Prisma } from '@prisma/client';
 
@@ -9,6 +10,7 @@ interface SendEmailParams {
   subject: string;
   react: React.ReactElement;
   from?: string;
+  replyTo?: string;
   template?: string; // Name of the template, e.g. "WelcomeEmail"
   props?: Record<string, unknown>; // Props passed to the template for debugging
 }
@@ -17,7 +19,8 @@ export const sendEmail = async ({
   to, 
   subject, 
   react, 
-  from = 'Drachenboot Manager <onboarding@resend.dev>',
+  from = 'Drachenboot Manager <no-reply@drachenbootmanager.de>',
+  replyTo,
   template = 'unknown',
   props = {}
 }: SendEmailParams) => {
@@ -40,11 +43,15 @@ export const sendEmail = async ({
   }
 
   try {
+    // Pre-render the React component to HTML
+    const html = await render(react);
+    
     const { data, error } = await resend.emails.send({
       from,
       to: recipients,
+      replyTo,
       subject,
-      react,
+      html,
     });
 
     if (error) {

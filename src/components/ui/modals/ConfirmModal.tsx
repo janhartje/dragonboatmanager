@@ -10,6 +10,7 @@ interface ConfirmModalProps {
   onCancel: () => void;
   confirmLabel?: string;
   cancelLabel?: string;
+  isDestructive?: boolean;
 }
 
 const ConfirmModal: React.FC<ConfirmModalProps> = ({
@@ -19,7 +20,8 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
   onConfirm,
   onCancel,
   confirmLabel,
-  cancelLabel
+  cancelLabel,
+  isDestructive = false
 }) => {
   const { t } = useLanguage();
 
@@ -30,7 +32,7 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
       <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl max-w-md w-full overflow-hidden border border-slate-200 dark:border-slate-800 animate-in zoom-in-95 duration-200">
         <div className="flex items-center justify-between p-4 border-b border-slate-100 dark:border-slate-800">
           <h2 className="font-bold text-lg text-slate-800 dark:text-white">{title}</h2>
-          <button onClick={onCancel} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors text-slate-500">
+          <button onClick={onCancel} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors text-slate-500">
             <X size={20} />
           </button>
         </div>
@@ -48,7 +50,11 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
           </button>
           <button 
             onClick={onConfirm}
-            className="px-4 py-2 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm transition-colors"
+            className={`px-4 py-2 text-sm font-bold text-white rounded-lg shadow-sm transition-colors ${
+              isDestructive 
+                ? 'bg-red-600 hover:bg-red-700' 
+                : 'bg-blue-600 hover:bg-blue-700'
+            }`}
           >
             {confirmLabel || t('confirm')}
           </button>

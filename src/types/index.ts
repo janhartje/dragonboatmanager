@@ -19,6 +19,7 @@ export interface Paddler {
   isCanister?: boolean;
   teamId?: string;
   userId?: string;
+  inviteEmail?: string; // Email for invited but not-yet-registered users
   role?: 'CAPTAIN' | 'PADDLER';
   user?: {
     email?: string | null;

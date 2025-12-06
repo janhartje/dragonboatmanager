@@ -1,6 +1,7 @@
 import React from 'react';
+import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Info, X, PlayCircle } from 'lucide-react';
+import { Info, X, PlayCircle, ExternalLink } from 'lucide-react';
 import { useTour } from '@/context/TourContext';
 import { useLanguage } from '@/context/LanguageContext';
 
@@ -179,6 +180,12 @@ const HelpModal: React.FC<HelpModalProps> = ({ onClose }) => {
             </button>
           </section>
         )}
+        
+        <div className="mt-8 pt-6 border-t border-slate-100 dark:border-slate-800 text-center">
+            <Link href="/help" className="inline-flex items-center gap-2 text-blue-600 dark:text-blue-400 hover:underline font-medium" onClick={onClose}>
+                <ExternalLink size={16} /> {t('visitHelpCenter')}
+            </Link>
+        </div>
       </div>
 
       <div className="p-4 border-t border-slate-100 dark:border-slate-800 text-center bg-slate-50 dark:bg-slate-800/50">

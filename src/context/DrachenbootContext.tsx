@@ -35,6 +35,7 @@ interface DrachenbootContextType {
   setPaddlers: React.Dispatch<React.SetStateAction<Paddler[]>>;
   setEvents: React.Dispatch<React.SetStateAction<Event[]>>;
   userRole: 'CAPTAIN' | 'PADDLER' | null;
+  refetchPaddlers: () => Promise<void>;
 }
 
 const DrachenbootContext = createContext<DrachenbootContextType | undefined>(undefined);
@@ -221,6 +222,13 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
   
   // Helper function to fetch teams with preference for activeTeamId
   const fetchTeamsWithPreference = async (preferredTeamId: string | null) => {
+    // Check for teamId in URL search params
+    let urlTeamId: string | null = null;
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      urlTeamId = params.get('teamId');
+    }
+
     try {
       const res = await fetch('/api/teams');
       if (res.status === 401) {
@@ -232,9 +240,14 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
         const data = await res.json();
         setTeams(data);
         if (data.length > 0) {
-          // Priority: API preference > localStorage > first team
+          // Priority: URL param > API preference > localStorage > first team
           let teamToSelect = null;
-          if (preferredTeamId) {
+          
+          if (urlTeamId) {
+             teamToSelect = data.find((t: Team) => t.id === urlTeamId);
+          }
+
+          if (!teamToSelect && preferredTeamId) {
             teamToSelect = data.find((t: Team) => t.id === preferredTeamId);
           }
           if (!teamToSelect) {
@@ -246,6 +259,12 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
           }
           setIsDataLoading(true);
           setCurrentTeam(teamToSelect);
+          
+          // Clean up URL if we used it
+          if (urlTeamId && typeof window !== 'undefined') {
+             const newUrl = window.location.pathname;
+             window.history.replaceState({}, '', newUrl);
+          }
         }
       }
     } catch (e) {
@@ -681,7 +700,8 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
       removeCanister,
       setPaddlers,
       setEvents,
-      userRole: role
+      userRole: role,
+      refetchPaddlers: fetchPaddlers
     };
   }, [
     teams, currentTeam, createTeam, switchTeam,

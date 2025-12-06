@@ -10,9 +10,10 @@ import { Loader2, Check, Mail } from "lucide-react"
 
 interface InviteMemberFormProps {
   teamId: string
+  onSuccess?: () => void
 }
 
-export function InviteMemberForm({ teamId }: InviteMemberFormProps) {
+export function InviteMemberForm({ teamId, onSuccess }: InviteMemberFormProps) {
   const { t } = useLanguage()
   const [email, setEmail] = useState("")
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle")
@@ -27,6 +28,8 @@ export function InviteMemberForm({ teamId }: InviteMemberFormProps) {
       await inviteMember(teamId, email)
       setStatus("success")
       setEmail("")
+      // Call onSuccess callback to refresh the member list
+      onSuccess?.()
     } catch (error) {
       setStatus("error")
       if (error instanceof Error) {
