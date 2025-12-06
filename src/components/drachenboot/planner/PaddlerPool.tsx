@@ -75,7 +75,6 @@ const PaddlerPool: React.FC<PaddlerPoolProps> = ({
               isConfirming={isConfirming}
               onClick={() => setSelectedPaddlerId(isSelected ? null : p.id)}
               triggerDelete={triggerDelete}
-              triggerDelete={triggerDelete}
               t={t}
               isReadOnly={isReadOnly}
             />
