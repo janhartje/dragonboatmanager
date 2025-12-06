@@ -14,7 +14,7 @@ import PageTransition from '@/components/ui/PageTransition';
 
 export default function TeamManagementPage() {
   const router = useRouter();
-  const { teams, currentTeam, switchTeam, createTeam, isDarkMode, toggleDarkMode } = useDrachenboot();
+  const { teams, currentTeam, switchTeam, createTeam, isDarkMode, toggleDarkMode, userRole } = useDrachenboot();
   const { t } = useLanguage();
   const [showCreateModal, setShowCreateModal] = useState(false);
 
@@ -103,16 +103,18 @@ export default function TeamManagementPage() {
                       )}
                     </div>
                     
-                    <button 
-                      onClick={(e) => { 
-                        e.stopPropagation(); 
-                        router.push(`/app/teams/${team.id}`); 
-                      }}
-                      className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded-lg transition-colors"
-                      title={t('edit') || 'Edit'}
-                    >
-                      <Edit2 size={18} />
-                    </button>
+                    {currentTeam?.id === team.id && userRole === 'CAPTAIN' && (
+                      <button 
+                        onClick={(e) => { 
+                          e.stopPropagation(); 
+                          router.push(`/app/teams/${team.id}`); 
+                        }}
+                        className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded-lg transition-colors"
+                        title={t('edit') || 'Edit'}
+                      >
+                        <Edit2 size={18} />
+                      </button>
+                    )}
                   </div>
                 ))}
               </div>

@@ -21,6 +21,11 @@ Der **Drachenboot Manager** ist eine Progressive Web App (PWA) zur Verwaltung vo
 *   **Hilfe & Support**: Integriertes Hilfe-Center mit Anleitungen, FAQs und direktem Kontakt zum Entwickler.
 *   **Erweiterte Mitgliederverwaltung**: Status-Tracking (Ausstehend), einfache Rollenvergabe und Verwaltungsoptionen.
 
+### 🔒 Rollen & Berechtigungen
+
+*   **Captain**: Voller Zugriff. Kann Teams erstellen/löschen, Einstellungen ändern, Mitglieder verwalten (einladen/entfernen/befördern) und Termine planen.
+*   **Paddler**: Eingeschränkter Zugriff. Kann nur das eigene Profil (Gewicht, Seite, Skills) bearbeiten und Zu/Absagen für Termine geben. Kein Zugriff auf Teameinstellungen.
+
 ## 🛠 Tech Stack
 
 *   **Framework**: [Next.js 14](https://nextjs.org/) (App Router)

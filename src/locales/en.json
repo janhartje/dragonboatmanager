@@ -125,89 +125,182 @@
     "clFeatures": "New Features",
     "clTechnical": "Technical Changes",
     "clBugfixes": "Bug Fixes",
-    "clV230Title": "Version 2.3.0",
-    "clV230Date": "December 2025",
-    "clV230F1": "New Help Center: centralized guides, FAQs, and support contact.",
-    "clV230F2": "Enhanced Member Management: Manage invites ('Pending' status) and remove members.",
-    "clV230F3": "Role Management: New 'Make Captain' and 'Remove Captain' button actions.",
-    "clV230F4": "Security Update: Double confirmation required when deleting a team.",
-    "clV230F5": "Passwordless Login: Sign in via Email (Magic Link) is now supported.",
-    "clV230F6": "Team Invites: Invite people via email and link them to existing paddlers.",
-    "clV230T1": "New API endpoint for contact support form.",
-    "clV220Title": "Version 2.2.0",
-    "clV220Date": "December 2025",
-    "clV220F1": "Export Improvements: Date in filename and clean image without UI controls.",
-    "clV220F2": "Layout Optimization: Squad and Boat windows now align in height.",
-    "clV220F3": "Guest Management: Consistent new interface for adding guests.",
-    "clV220F4": "The training date is now displayed in the header title.",
-    "clV220F5": "Legal: Added Imprint, Privacy Policy, and Safety Disclaimers.",
-    "clV220F6": "Smoother animations during navigation and loading.",
-    "clV220T1": "Switched to server-side calculation for balance stats (Privacy).",
-    "clV220T2": "Modernized image export function for better compatibility.",
-    "clV220T3": "Optimized loading behavior prevents flickering at startup.",
-    "clV220B1": "Fix: Profile menu was partially hidden in planner view.",
-    "clV210Title": "Version 2.1.0",
-    "clV210Date": "December 2025",
-    "clV210F1": "You can now sign in with your Google or GitHub account.",
-    "clV210F2": "Your profile picture is now displayed in the member list.",
-    "clV210F3": "Paddlers can be linked to user accounts – so you can see who belongs to which account.",
-    "clV210F4": "Your settings (theme, language, active team) are now saved and available on all your devices.",
-    "clV210F5": "Notifications now appear as beautiful popups instead of browser dialogs.",
-    "clV210T1": "Unified input fields for better readability in dark mode.",
-    "clV210T2": "Improved spacing and separators in the header area.",
-    "clV210T3": "Form validation optimized.",
-    "clV200Title": "Version 2.0.0",
-    "clV200Date": "December 2025",
-    "clV200F1": "You can now manage multiple teams and switch between them.",
-    "clV200F2": "New team management page: Create, edit, and delete teams.",
-    "clV200F3": "Your data is now securely stored in the cloud – no more data loss when switching browsers.",
-    "clV200F4": "Teams can now be personalized with logo, website, and social media links.",
-    "clV200T1": "Migrated from LocalStorage to PostgreSQL database.",
-    "clV200T2": "PWA install button moved to footer.",
-    "clV200T3": "Standardized page width across all pages.",
-    "clV170Title": "Version 1.7.0",
-    "clV170Date": "December 2025",
-    "clV170F1": "New boat type: Small boat with 10 seats now available.",
-    "clV170F2": "Standard and small boats have separate seating plans.",
-    "clV170F3": "The balance display now shows more clearly how the weight is distributed.",
-    "clV160Title": "Version 1.6.0",
-    "clV160Date": "December 2025",
-    "clV160F1": "Swap paddlers: Simply click on two occupied seats to swap the paddlers.",
-    "clV160F2": "Selected paddlers are now highlighted even on occupied seats.",
-    "clV160T1": "Improved help texts in planning mode.",
-    "clV150Title": "Version 1.5.0",
-    "clV150Date": "December 2025",
-    "clV150F1": "New animated dragon boat graphic on the landing page.",
-    "clV150F2": "The landing page now also supports dark mode.",
-    "clV150B1": "The app now opens correctly when launched from the home screen.",
-    "clV140Title": "Version 1.4.0",
-    "clV140Date": "December 2025",
-    "clV140T1": "Added API interface for automatic boat seating.",
-    "clV140T2": "Created API documentation with Swagger.",
-    "clV140T3": "Introduced automated tests and quality assurance.",
-    "clV130Title": "Version 1.3.0",
-    "clV130Date": "December 2025",
-    "clV130F1": "The app is now available in German and English.",
-    "clV130F2": "Your language is detected automatically.",
-    "clV130F3": "Dark mode now automatically matches your system settings.",
-    "clV130B1": "Various speed and stability improvements.",
-    "clV120Title": "Version 1.2.0",
-    "clV120Date": "December 2025",
-    "clV120F1": "Interactive tutorials show you how everything works.",
-    "clV120F2": "Help content now adapts to where you are in the app.",
-    "clV120F3": "The automatic seating feature is now called \"Magic AI\".",
-    "clV120T1": "All dialog windows now have a unified design.",
-    "clV110Title": "Version 1.1.0",
-    "clV110Date": "December 2025",
-    "clV110F1": "New cleaner design in the header area.",
-    "clV110F2": "Added imprint and legal information.",
-    "clV110T1": "Dark mode toggle improved.",
-    "clV100Title": "Version 1.0.0",
-    "clV100Date": "December 2025",
-    "clV100F1": "Manage your team: Add paddlers and edit their data.",
-    "clV100F2": "Plan trainings and regattas with attendance tracking.",
-    "clV100F3": "Fill your boat via drag & drop or let Magic AI do it for you.",
-    "clV100F4": "See at a glance how the weight is distributed in the boat.",
+    "changelogData": [
+        {
+            "version": "2.3.1",
+            "date": "December 2025",
+            "features": [],
+            "technical": [],
+            "bugfixes": [
+                "Security Update: Permissions for team editing and member management have been tightened.",
+                "UI Improvement: Edit buttons are now only visible to captains."
+            ]
+        },
+        {
+            "version": "2.3.0",
+            "date": "December 2025",
+            "features": [
+                "New Help Center: centralized guides, FAQs, and support contact.",
+                "Enhanced Member Management: Manage invites ('Pending' status) and remove members.",
+                "Role Management: New 'Make Captain' and 'Remove Captain' button actions.",
+                "Security Update: Double confirmation required when deleting a team.",
+                "Passwordless Login: Sign in via Email (Magic Link) is now supported.",
+                "Team Invites: Invite people via email and link them to existing paddlers."
+            ],
+            "technical": [
+                "New API endpoint for contact support form."
+            ],
+            "bugfixes": []
+        },
+        {
+            "version": "2.2.0",
+            "date": "December 2025",
+            "features": [
+                "Export Improvements: Date in filename and clean image without UI controls.",
+                "Layout Optimization: Squad and Boat windows now align in height.",
+                "Guest Management: Consistent new interface for adding guests.",
+                "The training date is now displayed in the header title.",
+                "Legal: Added Imprint, Privacy Policy, and Safety Disclaimers.",
+                "Smoother animations during navigation and loading."
+            ],
+            "technical": [
+                "Switched to server-side calculation for balance stats (Privacy).",
+                "Modernized image export function for better compatibility.",
+                "Optimized loading behavior prevents flickering at startup."
+            ],
+            "bugfixes": [
+                "Fix: Profile menu was partially hidden in planner view."
+            ]
+        },
+        {
+            "version": "2.1.0",
+            "date": "December 2025",
+            "features": [
+                "You can now sign in with your Google or GitHub account.",
+                "Your profile picture is now displayed in the member list.",
+                "Paddlers can be linked to user accounts – so you can see who belongs to which account.",
+                "Your settings (theme, language, active team) are now saved and available on all your devices.",
+                "Notifications now appear as beautiful popups instead of browser dialogs."
+            ],
+            "technical": [
+                "Unified input fields for better readability in dark mode.",
+                "Improved spacing and separators in the header area.",
+                "Form validation optimized."
+            ],
+            "bugfixes": []
+        },
+        {
+            "version": "2.0.0",
+            "date": "December 2025",
+            "features": [
+                "You can now manage multiple teams and switch between them.",
+                "New team management page: Create, edit, and delete teams.",
+                "Your data is now securely stored in the cloud – no more data loss when switching browsers.",
+                "Teams can now be personalized with logo, website, and social media links."
+            ],
+            "technical": [
+                "Migrated from LocalStorage to PostgreSQL database.",
+                "PWA install button moved to footer.",
+                "Standardized page width across all pages."
+            ],
+            "bugfixes": []
+        },
+        {
+            "version": "1.7.0",
+            "date": "December 2025",
+            "features": [
+                "New boat type: Small boat with 10 seats now available.",
+                "Standard and small boats have separate seating plans.",
+                "The balance display now shows more clearly how the weight is distributed."
+            ],
+            "technical": [],
+            "bugfixes": []
+        },
+        {
+            "version": "1.6.0",
+            "date": "December 2025",
+            "features": [
+                "Swap paddlers: Simply click on two occupied seats to swap the paddlers.",
+                "Selected paddlers are now highlighted even on occupied seats."
+            ],
+            "technical": [
+                "Improved help texts in planning mode."
+            ],
+            "bugfixes": []
+        },
+        {
+            "version": "1.5.0",
+            "date": "December 2025",
+            "features": [
+                "New animated dragon boat graphic on the landing page.",
+                "The landing page now also supports dark mode."
+            ],
+            "technical": [],
+            "bugfixes": [
+                "The app now opens correctly when launched from the home screen."
+            ]
+        },
+        {
+            "version": "1.4.0",
+            "date": "December 2025",
+            "features": [],
+            "technical": [
+                "Added API interface for automatic boat seating.",
+                "Created API documentation with Swagger.",
+                "Introduced automated tests and quality assurance."
+            ],
+            "bugfixes": []
+        },
+        {
+            "version": "1.3.0",
+            "date": "December 2025",
+            "features": [
+                "The app is now available in German and English.",
+                "Your language is detected automatically.",
+                "Dark mode now automatically matches your system settings."
+            ],
+            "technical": [],
+            "bugfixes": [
+                "Various speed and stability improvements."
+            ]
+        },
+        {
+            "version": "1.2.0",
+            "date": "December 2025",
+            "features": [
+                "Interactive tutorials show you how everything works.",
+                "Help content now adapts to where you are in the app.",
+                "The automatic seating feature is now called \"Magic AI\"."
+            ],
+            "technical": [
+                "All dialog windows now have a unified design."
+            ],
+            "bugfixes": []
+        },
+        {
+            "version": "1.1.0",
+            "date": "December 2025",
+            "features": [
+                "New cleaner design in the header area.",
+                "Added imprint and legal information.",
+                "Dark mode toggle improved."
+            ],
+            "technical": [],
+            "bugfixes": []
+        },
+        {
+            "version": "1.0.0",
+            "date": "December 2025",
+            "features": [
+                "Manage your team: Add paddlers and edit their data.",
+                "Plan trainings and regattas with attendance tracking.",
+                "Fill your boat via drag & drop or let Magic AI do it for you.",
+                "See at a glance how the weight is distributed in the boat."
+            ],
+            "technical": [],
+            "bugfixes": []
+        }
+    ],
     "imprintLiabilityContentText": "As a service provider, we are responsible for our own content on these pages in accordance with general laws pursuant to § 7 Para.1 TMG. According to §§ 8 to 10 TMG, however, we as a service provider are not obliged to monitor transmitted or stored third-party information or to investigate circumstances that indicate illegal activity. Obligations to remove or block the use of information in accordance with general laws remain unaffected by this. However, liability in this respect is only possible from the time of knowledge of a specific infringement. As soon as we become aware of such infringements, we will remove this content immediately.",
     "imprintLiabilityLinksText": "Our offer contains links to external third-party websites, over whose content we have no influence. Therefore, we cannot assume any liability for this external content. The respective provider or operator of the pages is always responsible for the content of the linked pages. The linked pages were checked for possible legal violations at the time of linking. Illegal content was not recognizable at the time of linking. However, permanent monitoring of the content of the linked pages is not reasonable without concrete evidence of an infringement. As soon as we become aware of legal violations, we will remove such links immediately.",
     "imprintCopyrightText": "The content and works created by the site operators on these pages are subject to German copyright law. Duplication, processing, distribution and any kind of exploitation outside the limits of copyright law require the written consent of the respective author or creator. Downloads and copies of this page are only permitted for private, non-commercial use. Insofar as the content on this page was not created by the operator, the copyrights of third parties are observed. In particular, third-party content is identified as such. Should you nevertheless become aware of a copyright infringement, please inform us accordingly. As soon as we become aware of legal violations, we will remove such content immediately.",
@@ -450,5 +543,7 @@
     "confirmRemoveMemberTitle": "Remove member?",
     "confirmRemoveMemberBody": "Are you sure you want to remove this member from the team? They will lose access to internal events.",
     "confirmRemoveMemberButton": "Remove Member",
-    "pending": "Pending"
+    "accessDenied": "Access Denied",
+    "onlyCaptainsCanEditTeam": "Only team captains can edit team settings and manage members.",
+    "backToDashboard": "Back to Dashboard"
 }

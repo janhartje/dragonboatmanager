@@ -125,89 +125,183 @@
     "clFeatures": "Neue Funktionen",
     "clTechnical": "Technische Änderungen",
     "clBugfixes": "Fehlerbehebungen",
-    "clV230Title": "Version 2.3.0",
-    "clV230Date": "Dezember 2025",
-    "clV230F1": "Neues Hilfe-Center: Zentrale Anlaufstelle für Anleitungen, FAQs und Support-Kontakt.",
-    "clV230F2": "Erweiterte Mitgliederverwaltung: Einladungen verwalten (Status 'Ausstehend') und Mitglieder entfernen.",
-    "clV230F3": "Rollenverwaltung: Optimierte Buttons 'Zum Kapitän machen' und 'Kapitän entfernen'.",
-    "clV230F4": "Sicherheits-Update: Löschen von Teams erfordert jetzt eine doppelte Bestätigung.",
-    "clV230F5": "Passwortfreier Login: Anmeldung jetzt auch per E-Mail (Magic Link) möglich.",
-    "clV230F6": "Team-Einladungen: Lade Personen per E-Mail ein und verknüpfe sie mit existierenden Paddlern.",
-    "clV230T1": "Neue API-Schnittstelle für das Kontaktformular.",
-    "clV220Title": "Version 2.2.0",
-    "clV220Date": "Dezember 2025",
-    "clV220F1": "Export Verbesserungen: Datum im Dateinamen und aufgeräumtes Bild ohne UI-Elemente.",
-    "clV220F2": "Layout Optimierung: Kader- und Boots-Fenster haben jetzt die gleiche Höhe.",
-    "clV220F3": "Gäste Verwaltung: Neues einheitliches Design für das Hinzufügen von Gästen.",
-    "clV220F4": "Das Datum des Trainings wird jetzt oben im Titel angezeigt.",
-    "clV220F5": "Rechtliches: Impressum, Datenschutzerklärung und Sicherheitshinweise wurden ergänzt.",
-    "clV220F6": "Flüssigere Animationen beim Seitenwechsel und Laden.",
-    "clV220T1": "Umstellung auf serverseitige Berechnung der Balance-Werte für mehr Datenschutz.",
-    "clV220T2": "Modernisierte Bild-Export-Funktion für bessere Kompatibilität.",
-    "clV220T3": "Optimiertes Ladeverhalten verhindert 'Flackern' beim Start.",
-    "clV220B1": "Korrektur: Profilmenü wurde in der Planungsansicht teilweise verdeckt.",
-    "clV210Title": "Version 2.1.0",
-    "clV210Date": "Dezember 2025",
-    "clV210F1": "Du kannst dich jetzt mit deinem Google- oder GitHub-Konto anmelden.",
-    "clV210F2": "Dein Profilbild wird jetzt in der Mitgliederliste angezeigt.",
-    "clV210F3": "Paddler können mit Benutzerkonten verknüpft werden – so siehst du, wer zu welchem Account gehört.",
-    "clV210F4": "Deine Einstellungen (Theme, Sprache, aktives Team) werden jetzt gespeichert und sind auf allen Geräten verfügbar.",
-    "clV210F5": "Hinweismeldungen erscheinen jetzt als schöne Popups statt als Browser-Fenster.",
-    "clV210T1": "Einheitliche Eingabefelder für bessere Lesbarkeit im Dark Mode.",
-    "clV210T2": "Verbesserte Abstände und Trennlinien im Kopfbereich.",
-    "clV210T3": "Formularvalidierung optimiert.",
-    "clV200Title": "Version 2.0.0",
-    "clV200Date": "Dezember 2025",
-    "clV200F1": "Du kannst jetzt mehrere Teams verwalten und zwischen ihnen wechseln.",
-    "clV200F2": "Neue Team-Verwaltungsseite: Erstelle, bearbeite und lösche Teams.",
-    "clV200F3": "Deine Daten werden jetzt sicher in der Cloud gespeichert – kein Datenverlust mehr beim Browser-Wechsel.",
-    "clV200F4": "Teams können jetzt mit Logo, Website und Social-Media-Links personalisiert werden.",
-    "clV200T1": "Umstellung von LocalStorage auf PostgreSQL-Datenbank.",
-    "clV200T2": "PWA Install-Button in den Footer verschoben.",
-    "clV200T3": "Einheitliche Seitenbreite auf allen Seiten.",
-    "clV170Title": "Version 1.7.0",
-    "clV170Date": "Dezember 2025",
-    "clV170F1": "Neuer Boot-Typ: Kleines Boot mit 10 Plätzen jetzt verfügbar.",
-    "clV170F2": "Standard- und Kleinboote haben separate Besetzungspläne.",
-    "clV170F3": "Die Balance-Anzeige zeigt jetzt noch deutlicher, wie das Boot verteilt ist.",
-    "clV160Title": "Version 1.6.0",
-    "clV160Date": "Dezember 2025",
-    "clV160F1": "Paddler tauschen: Klicke einfach auf zwei besetzte Plätze, um die Paddler zu tauschen.",
-    "clV160F2": "Ausgewählte Paddler werden jetzt auch auf besetzten Plätzen hervorgehoben.",
-    "clV160T1": "Verbesserte Hilfe-Texte im Planungsmodus.",
-    "clV150Title": "Version 1.5.0",
-    "clV150Date": "Dezember 2025",
-    "clV150F1": "Neue animierte Drachenboot-Grafik auf der Startseite.",
-    "clV150F2": "Die Startseite unterstützt jetzt auch den Dark Mode.",
-    "clV150B1": "Die App öffnet sich jetzt korrekt, wenn sie vom Homescreen gestartet wird.",
-    "clV140Title": "Version 1.4.0",
-    "clV140Date": "Dezember 2025",
-    "clV140T1": "API-Schnittstelle für automatische Bootsbesetzung hinzugefügt.",
-    "clV140T2": "API-Dokumentation mit Swagger erstellt.",
-    "clV140T3": "Automatische Tests und Qualitätssicherung eingeführt.",
-    "clV130Title": "Version 1.3.0",
-    "clV130Date": "Dezember 2025",
-    "clV130F1": "Die App ist jetzt auf Deutsch und Englisch verfügbar.",
-    "clV130F2": "Die Sprache wird automatisch erkannt.",
-    "clV130F3": "Der Dark Mode passt sich jetzt automatisch an deine Systemeinstellung an.",
-    "clV130B1": "Diverse Geschwindigkeits- und Stabilitätsverbesserungen.",
-    "clV120Title": "Version 1.2.0",
-    "clV120Date": "Dezember 2025",
-    "clV120F1": "Interaktive Einführungstouren zeigen dir, wie alles funktioniert.",
-    "clV120F2": "Die Hilfe passt sich jetzt an, je nachdem wo du gerade bist.",
-    "clV120F3": "Die automatische Besetzung heißt jetzt \"Magic KI\".",
-    "clV120T1": "Alle Dialogfenster haben jetzt ein einheitliches Design.",
-    "clV110Title": "Version 1.1.0",
-    "clV110Date": "Dezember 2025",
-    "clV110F1": "Neues übersichtlicheres Design im Kopfbereich.",
-    "clV110F2": "Impressum und rechtliche Informationen hinzugefügt.",
-    "clV110T1": "Dark Mode Umschalter verbessert.",
-    "clV100Title": "Version 1.0.0",
-    "clV100Date": "Dezember 2025",
-    "clV100F1": "Verwalte dein Team: Füge Paddler hinzu und bearbeite ihre Daten.",
-    "clV100F2": "Plane Trainings und Regatten mit Zu- und Absagen.",
-    "clV100F3": "Besetze dein Boot per Drag & Drop oder lass die Magic KI es für dich tun.",
-    "clV100F4": "Sieh auf einen Blick, wie das Gewicht im Boot verteilt ist.",
+    "changelogData": [
+        {
+            "version": "2.3.1",
+            "date": "Dezember 2025",
+            "features": [],
+            "technical": [],
+            "bugfixes": [
+                "Sicherheits-Update: Berechtigungen für Team-Bearbeitung und Mitglieder-Verwaltung wurden verschärft.",
+                "UI-Verbesserung: Bearbeiten-Buttons sind jetzt nur noch für Kapitäne sichtbar."
+            ]
+        },
+        {
+            "version": "2.3.0",
+            "date": "Dezember 2025",
+            "features": [
+                "Neues Hilfe-Center: Zentrale Anlaufstelle für Anleitungen, FAQs und Support-Kontakt.",
+                "Erweiterte Mitgliederverwaltung: Einladungen verwalten (Status 'Ausstehend') und Mitglieder entfernen.",
+                "Rollenverwaltung: Optimierte Buttons 'Zum Kapitän machen' und 'Kapitän entfernen'.",
+                "Sicherheits-Update: Löschen von Teams erfordert jetzt eine doppelte Bestätigung.",
+                "Passwortfreier Login: Anmeldung jetzt auch per E-Mail (Magic Link) möglich.",
+                "Team-Einladungen: Lade Personen per E-Mail ein und verknüpfe sie mit existierenden Paddlern."
+            ],
+            "technical": [
+                "Neue API-Schnittstelle für das Kontaktformular."
+            ],
+            "bugfixes": []
+        },
+        {
+            "version": "2.2.0",
+            "date": "Dezember 2025",
+            "features": [
+                "Export Verbesserungen: Datum im Dateinamen und aufgeräumtes Bild ohne UI-Elemente.",
+                "Layout Optimierung: Kader- und Boots-Fenster haben jetzt die gleiche Höhe.",
+                "Gäste Verwaltung: Neues einheitliches Design für das Hinzufügen von Gästen.",
+                "Das Datum des Trainings wird jetzt oben im Titel angezeigt.",
+                "Rechtliches: Impressum, Datenschutzerklärung und Sicherheitshinweise wurden ergänzt.",
+                "Flüssigere Animationen beim Seitenwechsel und Laden."
+            ],
+            "technical": [
+                "Umstellung auf serverseitige Berechnung der Balance-Werte für mehr Datenschutz.",
+                "Modernisierte Bild-Export-Funktion für bessere Kompatibilität.",
+                "Optimiertes Ladeverhalten verhindert 'Flackern' beim Start."
+            ],
+            "bugfixes": [
+                "Korrektur: Profilmenü wurde in der Planungsansicht teilweise verdeckt."
+            ]
+        },
+        {
+            "version": "2.1.0",
+            "date": "Dezember 2025",
+            "features": [
+                "Du kannst dich jetzt mit deinem Google- oder GitHub-Konto anmelden.",
+                "Dein Profilbild wird jetzt in der Mitgliederliste angezeigt.",
+                "Paddler können mit Benutzerkonten verknüpft werden – so siehst du, wer zu welchem Account gehört.",
+                "Deine Einstellungen (Theme, Sprache, aktives Team) werden jetzt gespeichert und sind auf allen Geräten verfügbar.",
+                "Hinweismeldungen erscheinen jetzt als schöne Popups statt als Browser-Fenster."
+            ],
+            "technical": [
+                "Einheitliche Eingabefelder für bessere Lesbarkeit im Dark Mode.",
+                "Verbesserte Abstände und Trennlinien im Kopfbereich.",
+                "Formularvalidierung optimiert."
+            ],
+            "bugfixes": []
+        },
+        {
+            "version": "2.0.0",
+            "date": "Dezember 2025",
+            "features": [
+                "Du kannst jetzt mehrere Teams verwalten und zwischen ihnen wechseln.",
+                "Neue Team-Verwaltungsseite: Erstelle, bearbeite und lösche Teams.",
+                "Deine Daten werden jetzt sicher in der Cloud gespeichert – kein Datenverlust mehr beim Browser-Wechsel.",
+                "Teams können jetzt mit Logo, Website und Social-Media-Links personalisiert werden."
+            ],
+            "technical": [
+                "Umstellung von LocalStorage auf PostgreSQL-Datenbank.",
+                "PWA Install-Button in den Footer verschoben.",
+                "Einheitliche Seitenbreite auf allen Seiten."
+            ],
+            "bugfixes": []
+        },
+        {
+            "version": "1.7.0",
+            "date": "Dezember 2025",
+            "features": [
+                "Neuer Boot-Typ: Kleines Boot mit 10 Plätzen jetzt verfügbar.",
+                "Standard- und Kleinboote haben separate Besetzungspläne.",
+                "Die Balance-Anzeige zeigt jetzt noch deutlicher, wie das Boot verteilt ist."
+            ],
+            "technical": [],
+            "bugfixes": []
+        },
+        {
+            "version": "1.6.0",
+            "date": "Dezember 2025",
+            "features": [
+                "Paddler tauschen: Klicke einfach auf zwei besetzte Plätze, um die Paddler zu tauschen.",
+                "Ausgewählte Paddler werden jetzt auch auf besetzten Plätzen hervorgehoben."
+            ],
+            "technical": [
+                "Verbesserte Hilfe-Texte im Planungsmodus."
+            ],
+            "bugfixes": []
+        },
+        {
+            "version": "1.5.0",
+            "date": "Dezember 2025",
+            "features": [
+                "Neue animierte Drachenboot-Grafik auf der Startseite.",
+                "Die Startseite unterstützt jetzt auch den Dark Mode."
+            ],
+            "technical": [],
+            "bugfixes": [
+                "Die App öffnet sich jetzt korrekt, wenn sie vom Homescreen gestartet wird."
+            ]
+        },
+        {
+            "version": "1.4.0",
+            "date": "Dezember 2025",
+            "features": [],
+            "technical": [
+                "API-Schnittstelle für automatische Bootsbesetzung hinzugefügt.",
+                "API-Dokumentation mit Swagger erstellt.",
+                "Automatische Tests und Qualitätssicherung eingeführt."
+            ],
+            "bugfixes": []
+        },
+        {
+            "version": "1.3.0",
+            "date": "Dezember 2025",
+            "features": [
+                "Die App ist jetzt auf Deutsch und Englisch verfügbar.",
+                "Die Sprache wird automatisch erkannt.",
+                "Der Dark Mode passt sich jetzt automatisch an deine Systemeinstellung an."
+            ],
+            "technical": [],
+            "bugfixes": [
+                "Diverse Geschwindigkeits- und Stabilitätsverbesserungen."
+            ]
+        },
+        {
+            "version": "1.2.0",
+            "date": "Dezember 2025",
+            "features": [
+                "Interaktive Einführungstouren zeigen dir, wie alles funktioniert.",
+                "Die Hilfe passt sich jetzt an, je nachdem wo du gerade bist.",
+                "Die automatische Besetzung heißt jetzt \"Magic KI\"."
+            ],
+            "technical": [
+                "Alle Dialogfenster haben jetzt ein einheitliches Design."
+            ],
+            "bugfixes": []
+        },
+        {
+            "version": "1.1.0",
+            "date": "Dezember 2025",
+            "features": [
+                "Neues übersichtlicheres Design im Kopfbereich.",
+                "Impressum und rechtliche Informationen hinzugefügt."
+            ],
+            "technical": [
+                "Dark Mode Umschalter verbessert."
+            ],
+            "bugfixes": []
+        },
+        {
+            "version": "1.0.0",
+            "date": "Dezember 2025",
+            "features": [
+                "Verwalte dein Team: Füge Paddler hinzu und bearbeite ihre Daten.",
+                "Plane Trainings und Regatten mit Zu- und Absagen.",
+                "Besetze dein Boot per Drag & Drop oder lass die Magic KI es für dich tun.",
+                "Sieh auf einen Blick, wie das Gewicht im Boot verteilt ist."
+            ],
+            "technical": [],
+            "bugfixes": []
+        }
+    ],
     "imprintLiabilityContentText": "Als Diensteanbieter sind wir gemäß § 7 Abs.1 TMG für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich. Nach §§ 8 bis 10 TMG sind wir als Diensteanbieter jedoch nicht verpflichtet, übermittelte oder gespeicherte fremde Informationen zu überwachen oder nach Umständen zu forschen, die auf eine rechtswidrige Tätigkeit hinweisen. Verpflichtungen zur Entfernung oder Sperrung der Nutzung von Informationen nach den allgemeinen Gesetzen bleiben hiervon unberührt. Eine diesbezügliche Haftung ist jedoch erst ab dem Zeitpunkt der Kenntnis einer konkreten Rechtsverletzung möglich. Bei Bekanntwerden von entsprechenden Rechtsverletzungen werden wir diese Inhalte umgehend entfernen.",
     "imprintLiabilityLinksText": "Unser Angebot enthält Links zu externen Websites Dritter, auf deren Inhalte wir keinen Einfluss haben. Deshalb können wir für diese fremden Inhalte auch keine Gewähr übernehmen. Für die Inhalte der verlinkten Seiten ist stets der jeweilige Anbieter oder Betreiber der Seiten verantwortlich. Die verlinkten Seiten wurden zum Zeitpunkt der Verlinkung auf mögliche Rechtsverstöße überprüft. Rechtswidrige Inhalte waren zum Zeitpunkt der Verlinkung nicht erkennbar. Eine permanente inhaltliche Kontrolle der verlinkten Seiten ist jedoch ohne konkrete Anhaltspunkte einer Rechtsverletzung nicht zumutbar. Bei Bekanntwerden von Rechtsverletzungen werden wir derartige Links umgehend entfernen.",
     "imprintCopyrightText": "Die durch die Seitenbetreiber erstellten Inhalte und Werke auf diesen Seiten unterliegen dem deutschen Urheberrecht. Die Vervielfältigung, Bearbeitung, Verbreitung und jede Art der Verwertung außerhalb der Grenzen des Urheberrechtes bedürfen der schriftlichen Zustimmung des jeweiligen Autors bzw. Erstellers. Downloads und Kopien dieser Seite sind nur für den privaten, nicht kommerziellen Gebrauch gestattet. Soweit die Inhalte auf dieser Seite nicht vom Betreiber erstellt wurden, werden die Urheberrechte Dritter beachtet. Insbesondere werden Inhalte Dritter als solche gekennzeichnet. Sollten Sie trotzdem auf eine Urheberrechtsverletzung aufmerksam werden, bitten wir um einen entsprechenden Hinweis. Bei Bekanntwerden von Rechtsverletzungen werden wir derartige Inhalte umgehend entfernen.",
@@ -450,5 +544,7 @@
     "confirmRemoveMemberTitle": "Mitglied entfernen?",
     "confirmRemoveMemberBody": "Möchtest du dieses Mitglied wirklich aus dem Team entfernen? Es verliert den Zugriff auf interne Termine.",
     "confirmRemoveMemberButton": "Mitglied entfernen",
-    "pending": "Ausstehend"
+    "accessDenied": "Zutritt verweigert",
+    "onlyCaptainsCanEditTeam": "Nur Team-Kapitäne können Teameinstellungen ändern und Mitglieder verwalten.",
+    "backToDashboard": "Zurück zum Dashboard"
 }

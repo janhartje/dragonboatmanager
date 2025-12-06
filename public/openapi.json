@@ -152,6 +152,16 @@
                             }
                         }
                     },
+                    "403": {
+                        "description": "Forbidden - Only Captains can update the team",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
                     "500": {
                         "description": "Failed to update team",
                         "content": {
@@ -367,6 +377,16 @@
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/PaddlerFull"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden - Non-captains can only update themselves and cannot change roles",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
                                 }
                             }
                         }

@@ -6,13 +6,13 @@ import de from '../locales/de.json';
 import en from '../locales/en.json';
 
 interface Translations {
-  [key: string]: string;
+  [key: string]: any;
 }
 
 interface LanguageContextType {
   language: string;
   changeLanguage: (lang: string) => void;
-  t: (key: string) => string;
+  t: (key: string) => any;
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
@@ -94,7 +94,7 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
   };
 
-  const t = (key: string): string => {
+  const t = (key: string): any => {
     return translations[language][key] || key;
   };
 

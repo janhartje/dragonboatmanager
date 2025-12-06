@@ -8,6 +8,7 @@ interface ChangelogModalProps {
 
 interface VersionData {
   version: string;
+  date: string;
   features: string[];
   technical: string[];
   bugfixes: string[];
@@ -15,7 +16,7 @@ interface VersionData {
 
 const ChangelogModal: React.FC<ChangelogModalProps> = ({ onClose }) => {
   const { t } = useLanguage();
-  const [expandedVersions, setExpandedVersions] = useState<Set<string>>(new Set(['2.3.0']));
+  const [expandedVersions, setExpandedVersions] = useState<Set<string>>(new Set(['2.3.1']));
 
   const toggleVersion = (version: string) => {
     const newExpanded = new Set(expandedVersions);
@@ -27,90 +28,12 @@ const ChangelogModal: React.FC<ChangelogModalProps> = ({ onClose }) => {
     setExpandedVersions(newExpanded);
   };
 
-  const versions: VersionData[] = [
-    {
-      version: '2.3.0',
-      features: [t('clV230F1'), t('clV230F2'), t('clV230F3'), t('clV230F4'), t('clV230F5'), t('clV230F6')],
-      technical: [t('clV230T1')],
-      bugfixes: []
-    },
-    {
-      version: '2.2.0',
-      features: [t('clV220F1'), t('clV220F2'), t('clV220F3'), t('clV220F4'), t('clV220F5'), t('clV220F6')],
-      technical: [t('clV220T1'), t('clV220T2'), t('clV220T3')],
-      bugfixes: [t('clV220B1')]
-    },
-    {
-      version: '2.1.0',
-      features: [t('clV210F1'), t('clV210F2'), t('clV210F3'), t('clV210F4'), t('clV210F5')],
-      technical: [t('clV210T1'), t('clV210T2'), t('clV210T3')],
-      bugfixes: []
-    },
-    {
-      version: '2.0.0',
-      features: [t('clV200F1'), t('clV200F2'), t('clV200F3'), t('clV200F4')],
-      technical: [t('clV200T1'), t('clV200T2'), t('clV200T3')],
-      bugfixes: []
-    },
-    {
-      version: '1.7.0',
-      features: [t('clV170F1'), t('clV170F2'), t('clV170F3')],
-      technical: [],
-      bugfixes: []
-    },
-    {
-      version: '1.6.0',
-      features: [t('clV160F1'), t('clV160F2')],
-      technical: [t('clV160T1')],
-      bugfixes: []
-    },
-    {
-      version: '1.5.0',
-      features: [t('clV150F1'), t('clV150F2')],
-      technical: [],
-      bugfixes: [t('clV150B1')]
-    },
-    {
-      version: '1.4.0',
-      features: [],
-      technical: [t('clV140T1'), t('clV140T2'), t('clV140T3')],
-      bugfixes: []
-    },
-    {
-      version: '1.3.0',
-      features: [t('clV130F1'), t('clV130F2'), t('clV130F3')],
-      technical: [],
-      bugfixes: [t('clV130B1')]
-    },
-    {
-      version: '1.2.0',
-      features: [t('clV120F1'), t('clV120F2'), t('clV120F3')],
-      technical: [t('clV120T1')],
-      bugfixes: []
-    },
-    {
-      version: '1.1.0',
-      features: [t('clV110F1'), t('clV110F2')],
-      technical: [t('clV110T1')],
-      bugfixes: []
-    },
-    {
-      version: '1.0.0',
-      features: [t('clV100F1'), t('clV100F2'), t('clV100F3'), t('clV100F4')],
-      technical: [],
-      bugfixes: []
-    }
-  ];
-
-  const getVersionTitle = (version: string) => {
-    const versionKey = version.replace(/\./g, '');
-    return t(`clV${versionKey}Title`);
-  };
-
-  const getVersionDate = (version: string) => {
-    const versionKey = version.replace(/\./g, '');
-    return t(`clV${versionKey}Date`);
-  };
+  const versions: VersionData[] = t('changelogData') || [];
+  
+  // Sort versions by semantic versioning (newest first) just in case, 
+  // though JSON order should be preserved.
+  // Assuming JSON is already sorted for simplicity, or we can adding a sort here if needed.
+  // For now, trust the JSON order as it is easier to manage.
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
@@ -138,8 +61,8 @@ const ChangelogModal: React.FC<ChangelogModalProps> = ({ onClose }) => {
                   <div className="flex items-center gap-3">
                     {isExpanded ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
                     <div className="text-left">
-                      <span className="font-bold text-slate-900 dark:text-white">{getVersionTitle(v.version)}</span>
-                      <span className="ml-2 text-sm text-slate-500 dark:text-slate-400">{getVersionDate(v.version)}</span>
+                      <span className="font-bold text-slate-900 dark:text-white">Version {v.version}</span>
+                      <span className="ml-2 text-sm text-slate-500 dark:text-slate-400">{v.date}</span>
                     </div>
                   </div>
                   <div className="flex gap-2">

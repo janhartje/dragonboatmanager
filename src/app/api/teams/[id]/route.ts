@@ -17,6 +17,7 @@ export async function PUT(
       where: {
         teamId: params.id,
         userId: session.user.id,
+        role: 'CAPTAIN',
       },
     });
 

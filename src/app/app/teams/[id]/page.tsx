@@ -16,7 +16,7 @@ import PageTransition from '@/components/ui/PageTransition';
 
 export default function TeamDetailPage({ params }: { params: { id: string } }) {
   const router = useRouter();
-  const { teams, updateTeam, deleteTeam, isDarkMode, toggleDarkMode, paddlers, updatePaddler, deletePaddler, refetchPaddlers } = useDrachenboot();
+  const { teams, updateTeam, deleteTeam, isDarkMode, toggleDarkMode, paddlers, updatePaddler, deletePaddler, refetchPaddlers, userRole, isDataLoading } = useDrachenboot();
   const { t } = useLanguage();
   
   const [isLoading, setIsLoading] = useState(true);
@@ -76,10 +76,33 @@ export default function TeamDetailPage({ params }: { params: { id: string } }) {
     }
   };
 
-  if (isLoading || !team) {
+  if (isLoading || isDataLoading || !team) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-100 dark:bg-slate-950">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  // Permission Check
+  if (userRole !== 'CAPTAIN') {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-100 dark:bg-slate-950 p-4">
+        <div className="text-center max-w-md w-full p-8 bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800">
+          <ShieldAlert size={48} className="mx-auto text-red-500 mb-4" />
+          <h1 className="text-xl font-bold text-slate-800 dark:text-slate-200 mb-2">
+            {t('accessDenied') || 'Access Denied'}
+          </h1>
+          <p className="text-slate-600 dark:text-slate-400 mb-6">
+            {t('onlyCaptainsCanEditTeam') || 'Only team captains can edit team settings and manage members.'}
+          </p>
+          <Link 
+            href="/app" 
+            className="inline-block px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+          >
+            {t('backToDashboard') || 'Back to Dashboard'}
+          </Link>
+        </div>
       </div>
     );
   }

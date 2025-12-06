@@ -35,6 +35,20 @@ export async function PUT(
     }
 
     const body = await request.json();
+    
+    // Authorization Logic
+    const isCaptain = membership.role === 'CAPTAIN';
+    const isSelfUpdate = membership.id === params.id;
+
+    if (!isCaptain) {
+        if (!isSelfUpdate) {
+             return NextResponse.json({ error: 'Unauthorized - Only Captains can edit other members' }, { status: 403 });
+        }
+        // If self-update, prevent modifying sensitive fields like 'role'
+        // Using 'delete' on body (any) or destructing
+        delete body.role; 
+    }
+
     const paddler = await prisma.paddler.update({
       where: { id: params.id },
       data: {
@@ -43,7 +57,7 @@ export async function PUT(
         side: body.side,
         skills: body.skills,
         isGuest: body.isGuest,
-        role: body.role,
+        role: body.role, // Will be undefined if deleted above, Prisma ignores undefined in update
       },
     });
 
