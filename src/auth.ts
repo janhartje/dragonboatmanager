@@ -118,6 +118,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   callbacks: {
     session({ session, user }) {
       session.user.id = user.id
+      session.user.weight = user.weight
       
       const adminEmails = process.env.ADMIN_EMAILS?.split(',').map(e => e.trim()) || [];
       if (user.email && adminEmails.includes(user.email)) {
