@@ -5,12 +5,14 @@ import { useLanguage } from '@/context/LanguageContext';
 import { useDrachenboot } from '@/context/DrachenbootContext';
 import { ImprintModal, ChangelogModal, PrivacyModal } from './Modals';
 import { usePWAInstall } from '@/hooks/usePWAInstall';
+import { useSession } from 'next-auth/react';
 
 interface FooterProps {
   variant?: 'compact' | 'full';
 }
 
 const Footer: React.FC<FooterProps> = ({ variant = 'full' }) => {
+  const { data: session } = useSession();
   const { t } = useLanguage();
   const [showImprint, setShowImprint] = useState<boolean>(false);
   const [showPrivacy, setShowPrivacy] = useState<boolean>(false);
@@ -42,6 +44,14 @@ const Footer: React.FC<FooterProps> = ({ variant = 'full' }) => {
               <a href="/docs" className="text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-colors">
                 API Docs
               </a>
+              {session?.user?.isAdmin && (
+                <>
+                  <span className="text-slate-300 dark:text-slate-600">•</span>
+                  <a href="/admin/dashboard" className="text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300 transition-colors">
+                    Admin
+                  </a>
+                </>
+              )}
             </div>
           </div>
         </footer>
@@ -64,6 +74,14 @@ const Footer: React.FC<FooterProps> = ({ variant = 'full' }) => {
           <button onClick={() => setShowChangelog(true)} className="hover:text-slate-800 dark:hover:text-slate-200 transition-colors">{t('changelog')}</button>
           <span>•</span>
           <a href="/docs" className="hover:text-slate-800 dark:hover:text-slate-200 transition-colors">API Docs</a>
+          {session?.user?.isAdmin && (
+            <>
+              <span>•</span>
+              <a href="/admin/dashboard" className="hover:text-slate-800 dark:hover:text-slate-200 transition-colors text-purple-600 dark:text-purple-400">
+                Admin
+              </a>
+            </>
+          )}
           {canInstall && (
             <>
               <span>•</span>

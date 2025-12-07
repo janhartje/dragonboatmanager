@@ -135,6 +135,21 @@
     "clBugfixes": "Fehlerbehebungen",
     "changelogData": [
         {
+            "version": "2.6.0",
+            "date": "Dezember 2025",
+            "features": [
+                "Neues Admin Dashboard: Umfassende Statistiken und System-Metriken für Administratoren.",
+                "Wachstums-Charts: Interaktive Charts für Nutzer- und Team-Wachstum mit umschaltbarem Zeitraum (30 Tage / 6 Monate).",
+                "Erweiterte Stats: Anzeige von aktiven Sitzungen und gesendeten E-Mails."
+            ],
+            "technical": [
+                "Datenbank: 'createdAt' Feld für Benutzer hinzugefügt für bessere historische Analysen.",
+                "API: Optimierte Statistik-Abfragen mit serverseitiger Aggregation.",
+                "Performance: Unabhängiges Laden von Charts und Metriken."
+            ],
+            "bugfixes": []
+        },
+        {
             "version": "2.5.0",
             "date": "Dezember 2025",
             "features": [

@@ -12,6 +12,137 @@
         }
     ],
     "paths": {
+        "/api/admin/stats": {
+            "get": {
+                "summary": "Get Admin Statistics",
+                "description": "Fetches system-wide statistics for the admin dashboard. Requires ADMIN role.",
+                "tags": [
+                    "Admin"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Admin statistics",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "counts": {
+                                            "type": "object",
+                                            "properties": {
+                                                "users": {
+                                                    "type": "integer"
+                                                },
+                                                "teams": {
+                                                    "type": "integer"
+                                                },
+                                                "events": {
+                                                    "type": "integer"
+                                                },
+                                                "paddlers": {
+                                                    "type": "integer"
+                                                },
+                                                "openInvites": {
+                                                    "type": "integer"
+                                                },
+                                                "activeSessions": {
+                                                    "type": "integer"
+                                                },
+                                                "sentEmails": {
+                                                    "type": "integer"
+                                                }
+                                            }
+                                        },
+                                        "recent": {
+                                            "type": "object",
+                                            "properties": {
+                                                "teams": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "events": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "users": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object"
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "history": {
+                                            "type": "object",
+                                            "properties": {
+                                                "teams": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "days": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "object"
+                                                            }
+                                                        },
+                                                        "months": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "object"
+                                                            }
+                                                        }
+                                                    }
+                                                },
+                                                "users": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "days": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "object"
+                                                            }
+                                                        },
+                                                        "months": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "object"
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized - User is not logged in",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden - User is not an admin",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/teams": {
             "get": {
                 "summary": "Get All Teams",

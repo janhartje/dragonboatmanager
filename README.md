@@ -20,11 +20,13 @@ Der **Drachenboot Manager** ist eine Progressive Web App (PWA) zur Verwaltung vo
 *   **Dark Mode**: Automatische Anpassung an das System-Theme.
 *   **Hilfe & Support**: Integriertes Hilfe-Center mit Anleitungen, FAQs und direktem Kontakt zum Entwickler.
 *   **Erweiterte Mitgliederverwaltung**: Status-Tracking (Ausstehend), einfache Rollenvergabe und Verwaltungsoptionen.
+*   **Admin Dashboard**: Umfassende Statistiken zu Nutzern, Teams und Events inkl. Wachstumscharts und System-Metriken (nur für Administratoren).
 
 ### 🔒 Rollen & Berechtigungen
 
 *   **Captain**: Voller Zugriff auf das eigene Team. Kann Teams erstellen (wird automatisch Captain), Einstellungen ändern, Mitglieder verwalten und Termine planen. Alle schreibenden API-Endpunkte für Team-Ressourcen sind geschützt.
 *   **Paddler**: Eingeschränkter Zugriff. Kann nur das eigene Profil (Gewicht, Seite, Skills) bearbeiten und Zu/Absagen für Termine geben. Kein Zugriff auf Teameinstellungen. Schreibzugriffe auf fremde Daten werden blockiert.
+*   **Admin**: Zugriff auf das `/admin/dashboard`. Wird über die `ADMIN_EMAILS` Umgebungsvariable gesteuert.
 
 ## 🛠 Tech Stack
 
@@ -36,6 +38,7 @@ Der **Drachenboot Manager** ist eine Progressive Web App (PWA) zur Verwaltung vo
 *   **State Management**: React Context API (`DrachenbootContext`, `LanguageContext`)
 *   **Drag & Drop**: [@dnd-kit](https://dndkit.com/) (Modern, lightweight DnD library)
 *   **Export**: `html-to-image` für hochauflösenden Bild-Export der Aufstellung (unterstützt moderne CSS-Features)
+*   **Charts**: `recharts` für Statistik-Visualisierung
 
 ## 📂 Projektstruktur
 
@@ -46,12 +49,11 @@ src/
 │   ├── page.tsx         # Landing Page
 │   ├── app/             # Main Application
 │   │   ├── page.tsx     # Team View
+│   │   ├── admin/       # Admin Dashboard
 │   │   ├── planner/     # Planner View Route
 │   │   └── teams/       # Team Management Pages
 │   └── api/             # API Routes (Prisma)
 ├── components/
-│   ├── drachenboot/     # Domain-spezifische Komponenten (TeamView, PlannerView)
-│   └── ui/              # Wiederverwendbare UI-Komponenten (Buttons, Modals, etc.)
 ├── context/             # Global State (Daten, Sprache, Tour)
 ├── locales/             # Übersetzungsdateien (de.json, en.json)
 ├── types/               # TypeScript Definitionen (index.ts)
@@ -78,7 +80,12 @@ Für die lokale Entwicklung wird Docker für die PostgreSQL-Datenbank verwendet:
    ```bash
    cp .env.example .env
    ```
-3. Datenbank starten:
+3. **Admin Konfiguration (Optional):**
+   Füge deine E-Mail-Adresse zu `ADMIN_EMAILS` in der `.env` hinzu, um Zugriff auf das Dashboard zu erhalten:
+   ```bash
+   ADMIN_EMAILS="deine@email.de,admin@drachenboot.app"
+   ```
+4. Datenbank starten:
    ```bash
    npm run db:up
    ```
@@ -96,6 +103,7 @@ Erstelle eine `.env` Datei im Hauptverzeichnis (siehe `.env.example`):
 ```bash
 NEXT_PUBLIC_SERVER_URL=http://localhost:3000
 POSTGRES_URL="postgresql://user:password@localhost:5432/drachenboot"
+ADMIN_EMAILS="admin@example.com"
 ```
 
 ### Installation
