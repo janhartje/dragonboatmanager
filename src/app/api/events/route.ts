@@ -124,6 +124,7 @@ export async function POST(request: Request) {
       data: {
         title: body.title,
         date: new Date(body.date),
+        comment: body.comment,
         type: body.type || 'training',
         boatSize: body.boatSize || 'standard',
         teamId: body.teamId,

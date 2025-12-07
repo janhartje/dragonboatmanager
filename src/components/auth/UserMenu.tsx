@@ -68,66 +68,73 @@ export function UserMenu() {
         </button>
 
         {isOpen && (
-          <div className="absolute right-0 mt-2 w-64 bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 z-50 overflow-hidden">
-            <div className="p-2">
-              <div className="px-3 py-2 mb-1">
-                <p className="text-slate-900 dark:text-slate-100 leading-none">
-                  {session.user.name}
-                </p>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 truncate">
-                  {session.user.email}
-                </p>
-              </div>
-              
-              <div className="h-px bg-slate-200 dark:bg-slate-700 my-1"></div>
-              
-              <button
-                onClick={() => {
-                  setShowProfileModal(true)
-                  setIsOpen(false)
-                }}
-                className="w-full text-left px-3 py-2 rounded-lg flex items-center gap-2 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-              >
-                <User size={16} />
-                <span>{t('profile') || 'Profile'}</span>
-              </button>
-
-              <button
-                onClick={() => {
-                  router.push('/help')
-                  setIsOpen(false)
-                }}
-                className="w-full text-left px-3 py-2 rounded-lg flex items-center gap-2 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-              >
-                <HelpCircle size={16} />
-                <span>{t('helpCenterTitle') || 'Help Center'}</span>
-              </button>
-
-              {/* Leave Team Option - Only for Paddlers (not Captains) and when inside a team */}
-              {currentTeam && userRole !== 'CAPTAIN' && (
+          <>
+            {/* Mobile Backdrop & Layout */}
+            <div className="fixed inset-0 z-40 bg-black/20 backdrop-blur-sm sm:hidden" onClick={() => setIsOpen(false)} />
+            
+            <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90vw] max-w-sm z-50 
+              sm:absolute sm:top-auto sm:left-auto sm:translate-x-0 sm:translate-y-0 sm:right-0 sm:mt-2 sm:w-64
+              bg-white dark:bg-slate-900 rounded-xl shadow-2xl sm:shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+              <div className="p-2">
+                <div className="px-3 py-2 mb-1">
+                  <p className="font-semibold text-slate-900 dark:text-slate-100 leading-none text-lg sm:text-base">
+                    {session.user.name}
+                  </p>
+                  <p className="text-sm sm:text-xs text-slate-500 dark:text-slate-400 mt-1 truncate">
+                    {session.user.email}
+                  </p>
+                </div>
+                
+                <div className="h-px bg-slate-200 dark:bg-slate-700 my-1"></div>
+                
                 <button
                   onClick={() => {
-                    setShowLeaveConfirm(true)
+                    setShowProfileModal(true)
                     setIsOpen(false)
                   }}
-                  className="w-full text-left px-3 py-2 rounded-lg flex items-center gap-2 text-orange-600 dark:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-900/20 transition-colors"
+                  className="w-full text-left px-3 py-3 sm:py-2 rounded-lg flex items-center gap-3 sm:gap-2 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                 >
-                  <DoorOpen size={16} />
-                  <span>{t('leaveTeam')}</span>
+                  <User size={18} className="sm:w-4 sm:h-4" />
+                  <span className="text-base sm:text-sm">{t('profile') || 'Profile'}</span>
                 </button>
-              )}
-              
-              <div className="h-px bg-slate-200 dark:bg-slate-700 my-1"></div>
 
-              <button
-                onClick={() => signOut()}
-                className="w-full text-left px-3 py-2 rounded-lg flex items-center gap-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
-              >
-                <LogOut size={16} />
-                <span>{t('logout') || 'Log out'}</span>
-              </button>
+                <button
+                  onClick={() => {
+                    router.push('/help')
+                    setIsOpen(false)
+                  }}
+                  className="w-full text-left px-3 py-3 sm:py-2 rounded-lg flex items-center gap-3 sm:gap-2 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                >
+                  <HelpCircle size={18} className="sm:w-4 sm:h-4" />
+                  <span className="text-base sm:text-sm">{t('helpCenterTitle') || 'Help Center'}</span>
+                </button>
+
+                {/* Leave Team Option - Only for Paddlers (not Captains) and when inside a team */}
+                {currentTeam && userRole !== 'CAPTAIN' && (
+                  <button
+                    onClick={() => {
+                      setShowLeaveConfirm(true)
+                      setIsOpen(false)
+                    }}
+                    className="w-full text-left px-3 py-3 sm:py-2 rounded-lg flex items-center gap-3 sm:gap-2 text-orange-600 dark:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-900/20 transition-colors"
+                  >
+                    <DoorOpen size={18} className="sm:w-4 sm:h-4" />
+                    <span className="text-base sm:text-sm">{t('leaveTeam')}</span>
+                  </button>
+                )}
+                
+                <div className="h-px bg-slate-200 dark:bg-slate-700 my-1"></div>
+
+                <button
+                  onClick={() => signOut()}
+                  className="w-full text-left px-3 py-3 sm:py-2 rounded-lg flex items-center gap-3 sm:gap-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                >
+                  <LogOut size={18} className="sm:w-4 sm:h-4" />
+                  <span className="text-base sm:text-sm">{t('logout') || 'Log out'}</span>
+                </button>
+              </div>
             </div>
-          </div>
+          </>
         )}
       </div>
 

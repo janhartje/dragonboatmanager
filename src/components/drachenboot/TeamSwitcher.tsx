@@ -69,54 +69,61 @@ const TeamSwitcher: React.FC = () => {
       </button>
 
       {isOpen && (
-        <div className="absolute left-0 sm:left-auto sm:right-0 mt-2 w-full sm:w-64 bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 z-50 overflow-hidden">
-          <div className="p-2">
-            <div className="text-xs font-semibold text-slate-500 dark:text-slate-400 px-2 py-1 uppercase tracking-wider flex justify-between items-center">
-              <span>{t('teams') || 'Teams'}</span>
-              <button 
-                onClick={() => {
-                  router.push('/app/teams');
-                  setIsOpen(false);
-                }}
-                className="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
-                title={t('manageTeams') || 'Manage Teams'}
-              >
-                <Settings size={14} />
-              </button>
-            </div>
-            <div className="max-h-60 overflow-y-auto mt-1">
-              {teams.map((team) => (
-                <button
-                  key={team.id}
+        <>
+          {/* Mobile Backdrop & Layout */}
+          <div className="fixed inset-0 z-40 bg-black/20 backdrop-blur-sm sm:hidden" onClick={() => setIsOpen(false)} />
+
+          <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90vw] max-w-sm z-50
+            sm:absolute sm:top-auto sm:left-0 sm:translate-x-0 sm:translate-y-0 sm:mt-2 sm:w-64
+            bg-white dark:bg-slate-900 rounded-xl shadow-2xl sm:shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+            <div className="p-2">
+              <div className="text-xs font-semibold text-slate-500 dark:text-slate-400 px-2 py-1 uppercase tracking-wider flex justify-between items-center">
+                <span>{t('teams') || 'Teams'}</span>
+                <button 
                   onClick={() => {
-                    switchTeam(team.id);
+                    router.push('/app/teams');
                     setIsOpen(false);
                   }}
-                  className={`w-full text-left px-3 py-2 rounded-lg flex items-center justify-between transition-colors ${
-                    currentTeam?.id === team.id
-                      ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400'
-                      : 'hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200'
-                  }`}
+                  className="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
+                  title={t('manageTeams') || 'Manage Teams'}
                 >
-                  <span className="truncate">{team.name}</span>
-                  {currentTeam?.id === team.id && <Check size={16} />}
+                  <Settings size={14} />
                 </button>
-              ))}
+              </div>
+              <div className="max-h-60 overflow-y-auto mt-1">
+                {teams.map((team) => (
+                  <button
+                    key={team.id}
+                    onClick={() => {
+                      switchTeam(team.id);
+                      setIsOpen(false);
+                    }}
+                    className={`w-full text-left px-3 py-3 sm:py-2 rounded-lg flex items-center justify-between transition-colors ${
+                      currentTeam?.id === team.id
+                        ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400'
+                        : 'hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200'
+                    }`}
+                  >
+                    <span className="truncate text-base sm:text-sm">{team.name}</span>
+                    {currentTeam?.id === team.id && <Check size={18} className="sm:w-4 sm:h-4" />}
+                  </button>
+                ))}
+              </div>
+              
+              <div className="h-px bg-slate-200 dark:bg-slate-700 my-2"></div>
+              
+              {session && (
+                <button
+                  onClick={() => setShowCreateModal(true)}
+                  className="w-full text-left px-3 py-3 sm:py-2 rounded-lg flex items-center gap-2 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
+                >
+                  <Plus size={18} className="sm:w-4 sm:h-4" />
+                  <span className="text-base sm:text-sm">{t('createTeam') || 'Create Team'}</span>
+                </button>
+              )}
             </div>
-            
-            <div className="h-px bg-slate-200 dark:bg-slate-700 my-2"></div>
-            
-            {session && (
-              <button
-                onClick={() => setShowCreateModal(true)}
-                className="w-full text-left px-3 py-2 rounded-lg flex items-center gap-2 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
-              >
-                <Plus size={16} />
-                <span>{t('createTeam') || 'Create Team'}</span>
-              </button>
-            )}
           </div>
-        </div>
+        </>
       )}
 
       {showCreateModal && (

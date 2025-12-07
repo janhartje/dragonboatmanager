@@ -92,6 +92,7 @@ model Event {
   teamId        String?
   team          Team?    @relation(fields: [teamId], references: [id], onDelete: Cascade)
   date          DateTime
+  comment       String?
   type          String   @default("training") // "training" | "regatta"
   boatSize      String   @default("standard") // "standard" | "small"
   canisterCount Int      @default(0)

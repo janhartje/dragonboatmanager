@@ -32,6 +32,7 @@
     "clsx": "^2.1.1",
     "dotenv": "^17.2.3",
     "driver.js": "^1.4.0",
+    "exceljs": "^4.4.0",
     "framer-motion": "^12.23.25",
     "html-to-image": "^1.11.13",
     "lucide-react": "^0.468.0",

@@ -133,6 +133,17 @@ export default function HelpPage() {
                       <li>{t('helpTeamEditMembers3')}</li>
                     </ul>
                   </div>
+
+                  {/* Import Data */}
+                  <div>
+                    <h4 className="font-bold text-slate-900 dark:text-white mb-2">{t('helpImportTitle')}</h4>
+                    <p className="mb-2">{t('helpImportDesc')}</p>
+                    <ul className="list-disc list-inside space-y-1 ml-1">
+                      <li>{t('helpImport1')}</li>
+                      <li>{t('helpImport2')}</li>
+                      <li>{t('helpImport3')}</li>
+                    </ul>
+                  </div>
                </div>
             </details>
 

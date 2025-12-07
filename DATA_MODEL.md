@@ -46,6 +46,7 @@ erDiagram
         string type
         string boatSize
         int canisterCount
+        string comment
         datetime createdAt
         datetime updatedAt
     }
@@ -233,6 +234,7 @@ Ein Training oder eine Regatta mit Datum und Teilnehmerliste.
 | `type` | string | Typ: `"training"` oder `"regatta"` |
 | `boatSize` | string | Bootsgröße: `"standard"` (20) oder `"small"` (10) |
 | `canisterCount` | int | Anzahl der Kanister-Platzhalter |
+| `comment` | string? | Optionaler Kommentar / Notiz |
 | `createdAt` | datetime | Erstellungszeitpunkt |
 | `updatedAt` | datetime | Letztes Update |
 

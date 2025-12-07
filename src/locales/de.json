@@ -7,8 +7,13 @@
     "newTermin": "Neuer Termin",
     "title": "Titel",
     "date": "Datum",
+    "time": "Uhrzeit",
+    "type": "Typ",
+    "boatSize": "Bootsgröße",
     "add": "Hinzufügen",
     "save": "Speichern",
+    "comment": "Kommentar",
+    "commentPlaceholder": "Infos zum Training...",
     "changelog": "Versionshistorie",
     "cancel": "Abbruch",
     "editPaddler": "Paddler bearbeiten",
@@ -93,6 +98,8 @@
     "guestAddTitle": "Gast hinzufügen",
     "guestName": "Gast Name",
     "weightKg": "Gewicht (kg)",
+    "editEvent": "Termin bearbeiten",
+    "dateAndTime": "Datum & Uhrzeit",
     "eventPlaceholder": "Training / Regatta",
     "tourWelcomeTitle": "Willkommen beim Drachenboot Manager",
     "tourWelcomeDesc": "Eine kurze Tour, um dir die wichtigsten Funktionen zu zeigen.",
@@ -127,6 +134,21 @@
     "clTechnical": "Technische Änderungen",
     "clBugfixes": "Fehlerbehebungen",
     "changelogData": [
+        {
+            "version": "2.5.0",
+            "date": "Dezember 2025",
+            "features": [
+                "Neu: Excel Import! Importiere komplette Teams und Terminpläne bequem per Excel- oder CSV-Datei.",
+                "Termine bearbeiten: Du kannst jetzt Titel, Datum, Uhrzeit und mehr nachträglich ändern.",
+                "Mehr Details: Erfasse exakte Uhrzeiten und Kommentare zu deinen Trainings.",
+                "Mobil-Optimierung: Profil- und Team-Menü öffnen sich auf kleinen Bildschirmen jetzt mittig für bessere Bedienbarkeit."
+            ],
+            "technical": [],
+            "bugfixes": [
+                "Fehler behoben, bei dem importierte Kommentare zu Terminen nicht angezeigt wurden.",
+                "Speichern-Icon im Termin-Fenster korrigiert."
+            ]
+        },
         {
             "version": "2.4.0",
             "date": "Dezember 2025",
@@ -405,6 +427,11 @@
     "helpTeamEditMembers1": "Neue Mitglieder per E-Mail einladen",
     "helpTeamEditMembers2": "Rollen verwalten (Kapitän/Paddler)",
     "helpTeamEditMembers3": "Mitglieder aus dem Team entfernen",
+    "helpImportTitle": "Daten importieren",
+    "helpImportDesc": "Importiere große Mengen an Paddlern oder Terminen per Excel oder CSV. Ideal für den Saisonstart.",
+    "helpImport1": "Klicke auf 'Import' in der Team-Kopfzeile",
+    "helpImport2": "Lade die passende Vorlage (Paddler/Termine) herunter",
+    "helpImport3": "Lade deine Datei hoch (.xlsx oder .csv) - Rollen wie Steuer/Trommel werden automatisch erkannt",
     "helpContextPlanner": "Planer",
     "helpContextHome": "Startseite",
     "errorUserNotFound": "Benutzer nicht gefunden. Bitte ihn/sie, sich erst zu registrieren.",
@@ -558,5 +585,19 @@
     "confirmRemoveMemberButton": "Mitglied entfernen",
     "accessDenied": "Zutritt verweigert",
     "onlyCaptainsCanEditTeam": "Nur Team-Kapitäne können Teameinstellungen ändern und Mitglieder verwalten.",
-    "backToDashboard": "Zurück zum Dashboard"
+    "backToDashboard": "Zurück zum Dashboard",
+    "importData": "Daten importieren",
+    "paddlers": "Paddler",
+    "events": "Termine",
+    "dragDropOrClick": "Klicken zum Hochladen oder Drag & Drop",
+    "downloadTemplate": "Vorlage herunterladen",
+    "importSuccess": "Import erfolgreich!",
+    "importError": "Fehler beim Import",
+    "preview": "Vorschau",
+    "rowsFound": "Zeilen gefunden",
+    "importButton": "Importieren",
+    "import": "Importieren",
+    "supportedFormats": "Unterstützt .xlsx, .xls, .csv",
+    "paddlerTemplateColumns": "Name | Gewicht | Seite | Skills | Email",
+    "eventTemplateColumns": "Titel | Datum | Zeit | Typ | Bootsgröße | Kommentar"
 }

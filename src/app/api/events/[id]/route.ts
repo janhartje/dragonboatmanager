@@ -42,6 +42,7 @@ export async function PUT(
       data: {
         title: body.title,
         date: body.date ? new Date(body.date) : undefined,
+        comment: body.comment,
         type: body.type,
         boatSize: body.boatSize,
         canisterCount: body.canisterCount,

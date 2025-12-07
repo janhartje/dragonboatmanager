@@ -23,7 +23,7 @@ interface DrachenbootContextType {
   addPaddler: (paddler: Omit<Paddler, 'id'>) => Promise<void>;
   updatePaddler: (id: number | string, data: Partial<Paddler>) => Promise<void>;
   deletePaddler: (id: number | string) => void;
-  createEvent: (title: string, date: string, type?: 'training' | 'regatta', boatSize?: 'standard' | 'small') => Promise<void>;
+  createEvent: (title: string, date: string, type?: 'training' | 'regatta', boatSize?: 'standard' | 'small', comment?: string) => Promise<void>;
   deleteEvent: (id: string) => Promise<void>;
   updateEvent: (id: string, data: Partial<Event>) => Promise<void>;
   updateAttendance: (eid: string, pid: number | string, status: 'yes' | 'no' | 'maybe') => void;
@@ -38,6 +38,8 @@ interface DrachenbootContextType {
   currentPaddler: Paddler | null;
   refetchPaddlers: () => Promise<void>;
   refetchEvents: () => Promise<void>;
+  importPaddlers: (data: any[]) => Promise<void>;
+  importEvents: (data: any[]) => Promise<void>;
 }
 
 const DrachenbootContext = createContext<DrachenbootContextType | undefined>(undefined);
@@ -139,10 +141,11 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
           loadedEvents.push({
             id: apiEvent.id,
             title: apiEvent.title,
-            date: new Date(apiEvent.date).toISOString().split('T')[0], // Keep YYYY-MM-DD format
+            date: new Date(apiEvent.date).toISOString(), // Keep full ISO string including time
             type: apiEvent.type,
             boatSize: apiEvent.boatSize || 'standard',
             canisterCount: apiEvent.canisterCount || 0,
+            comment: apiEvent.comment,
             attendance,
             guests: apiEvent.guests || [],
           });
@@ -486,13 +489,13 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
     }
   }, []);
 
-  const createEvent = useCallback(async (title: string, date: string, type: 'training' | 'regatta' = 'training', boatSize: 'standard' | 'small' = 'standard') => {
+  const createEvent = useCallback(async (title: string, date: string, type: 'training' | 'regatta' = 'training', boatSize: 'standard' | 'small' = 'standard', comment?: string) => {
     if (!currentTeam) return '';
     try {
       const res = await fetch('/api/events', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title, date, type, boatSize, teamId: currentTeam.id }),
+        body: JSON.stringify({ title, date, type, boatSize, comment, teamId: currentTeam.id }),
       });
       if (res.ok) {
         const createdEvent = await res.json();
@@ -500,7 +503,7 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
         // API returns Prisma object where date is Date object (serialized to string)
         const newEvent = { 
           ...createdEvent, 
-          date: new Date(createdEvent.date).toISOString().split('T')[0],
+          date: createdEvent.date,
           attendance: {}, 
           guests: [],
           canisterCount: 0
@@ -706,7 +709,37 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
       userRole: role,
       currentPaddler: myPaddler,
       refetchPaddlers: fetchPaddlers,
-      refetchEvents: fetchEvents
+      refetchEvents: fetchEvents,
+      importPaddlers: async (data: any[]) => {
+        if (!currentTeam) return;
+        try {
+          const res = await fetch(`/api/teams/${currentTeam.id}/import/paddlers`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ paddlers: data }),
+          });
+          if (!res.ok) throw new Error('Import failed');
+          await fetchPaddlers();
+        } catch (e) {
+          console.error(e);
+          throw e;
+        }
+      },
+      importEvents: async (data: any[]) => {
+        if (!currentTeam) return;
+        try {
+          const res = await fetch(`/api/teams/${currentTeam.id}/import/events`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ events: data }),
+          });
+          if (!res.ok) throw new Error('Import failed');
+          await fetchEvents();
+        } catch (e) {
+          console.error(e);
+          throw e;
+        }
+      }
     };
   }, [
     teams, currentTeam, createTeam, switchTeam,

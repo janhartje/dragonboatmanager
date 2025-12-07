@@ -31,7 +31,7 @@ interface PlannerViewProps {
 
 const PlannerView: React.FC<PlannerViewProps> = ({ eventId }) => {
   const router = useRouter();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { checkAndStartTour } = useTour();
 
   const { 
@@ -98,7 +98,8 @@ const PlannerView: React.FC<PlannerViewProps> = ({ eventId }) => {
   // --- COMPUTED ---
   const activeEvent = useMemo(() => events.find((e) => e.id === activeEventId) || null, [activeEventId, events]);
   const activeEventTitle = activeEvent ? activeEvent.title : t('unknownEvent');
-  const eventDate = activeEvent?.date ? new Date(activeEvent.date).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '';
+  const eventDate = activeEvent?.date ? new Date(activeEvent.date).toLocaleDateString(language === 'de' ? 'de-DE' : 'en-US', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '';
+  const eventTime = activeEvent?.date ? new Date(activeEvent.date).toLocaleTimeString(language === 'de' ? 'de-DE' : 'en-US', { hour: '2-digit', minute: '2-digit' }) : '';
   const boatSize = activeEvent?.boatSize || 'standard';
 
   // Assignments are always keyed by the event ID
@@ -458,7 +459,11 @@ const PlannerView: React.FC<PlannerViewProps> = ({ eventId }) => {
               </div>
               <span className="font-bold text-slate-800 dark:text-white text-sm">
                 {activeEventTitle}
-                {eventDate && <span className="font-normal text-slate-500 dark:text-slate-400 text-xs ml-2">({eventDate})</span>}
+                {eventDate && (
+                  <span className="font-normal text-slate-500 dark:text-slate-400 text-xs ml-2">
+                    ({eventDate} • {eventTime})
+                  </span>
+                )}
               </span>
             </div>
           }

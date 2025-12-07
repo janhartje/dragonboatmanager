@@ -16,7 +16,8 @@ interface VersionData {
 
 const ChangelogModal: React.FC<ChangelogModalProps> = ({ onClose }) => {
   const { t } = useLanguage();
-  const [expandedVersions, setExpandedVersions] = useState<Set<string>>(new Set(['2.3.1']));
+  const versions: VersionData[] = t('changelogData') || [];
+  const [expandedVersions, setExpandedVersions] = useState<Set<string>>(new Set(versions.length > 0 ? [versions[0].version] : []));
 
   const toggleVersion = (version: string) => {
     const newExpanded = new Set(expandedVersions);
@@ -28,8 +29,6 @@ const ChangelogModal: React.FC<ChangelogModalProps> = ({ onClose }) => {
     setExpandedVersions(newExpanded);
   };
 
-  const versions: VersionData[] = t('changelogData') || [];
-  
   // Sort versions by semantic versioning (newest first) just in case, 
   // though JSON order should be preserved.
   // Assuming JSON is already sorted for simplicity, or we can adding a sort here if needed.

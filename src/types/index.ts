@@ -31,7 +31,8 @@ export interface Paddler {
 export interface Event {
   id: string;
   title: string;
-  date: string; // ISO date string YYYY-MM-DD
+  date: string; // ISO date string YYYY-MM-DDTHH:mm:ss
+  comment?: string;
   type: 'training' | 'regatta';
   boatSize: 'standard' | 'small';
   canisterCount: number;

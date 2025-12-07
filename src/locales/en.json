@@ -7,8 +7,13 @@
     "newTermin": "New Event",
     "title": "Title",
     "date": "Date",
+    "time": "Time",
+    "type": "Type",
+    "boatSize": "Boat Size",
     "add": "Add",
     "save": "Save",
+    "comment": "Comment",
+    "commentPlaceholder": "Info about the session...",
     "cancel": "Cancel",
     "editPaddler": "Edit Paddler",
     "newMember": "New Member",
@@ -93,6 +98,8 @@
     "guestAddTitle": "Add Guest",
     "guestName": "Guest Name",
     "weightKg": "Weight (kg)",
+    "editEvent": "Edit Event",
+    "dateAndTime": "Date & Time",
     "eventPlaceholder": "Training / Race",
     "tourWelcomeTitle": "Welcome to Dragonboat Manager",
     "tourWelcomeDesc": "A short tour to show you the most important features.",
@@ -127,6 +134,21 @@
     "clTechnical": "Technical Changes",
     "clBugfixes": "Bug Fixes",
     "changelogData": [
+        {
+            "version": "2.5.0",
+            "date": "December 2025",
+            "features": [
+                "New: Excel Import! Easily import complete teams and event schedules via Excel or CSV files.",
+                "Edit Events: You can now modify title, date, time and other details of existing events.",
+                "More Details: Record specific times and comments for your training sessions.",
+                "Mobile Optimization: Profile and Team menus now open as centered popups for better usability on small screens."
+            ],
+            "technical": [],
+            "bugfixes": [
+                "Fixed issue where imported event comments were not displayed.",
+                "Fixed save icon in event modal."
+            ]
+        },
         {
             "version": "2.4.0",
             "date": "December 2025",
@@ -404,6 +426,11 @@
     "helpTeamEditMembers1": "Invite new members via email",
     "helpTeamEditMembers2": "Manage roles (Captain/Paddler)",
     "helpTeamEditMembers3": "Remove members from the team",
+    "helpImportTitle": "Import Data",
+    "helpImportDesc": "Import large amounts of paddlers or events via Excel or CSV. Perfect for season start.",
+    "helpImport1": "Click 'Import' in the team header",
+    "helpImport2": "Download the appropriate template (Paddlers/Events)",
+    "helpImport3": "Upload your file (.xlsx or .csv) - Roles like Steer/Drum are automatically detected",
     "helpContextPlanner": "Planner",
     "helpContextHome": "Home",
     "errorUserNotFound": "User not found. Please ask them to sign up first.",
@@ -556,5 +583,19 @@
     "confirmRemoveMemberButton": "Remove Member",
     "accessDenied": "Access Denied",
     "onlyCaptainsCanEditTeam": "Only team captains can edit team settings and manage members.",
-    "backToDashboard": "Back to Dashboard"
+    "backToDashboard": "Back to Dashboard",
+    "importData": "Import Data",
+    "paddlers": "Paddlers",
+    "events": "Events",
+    "dragDropOrClick": "Click to upload or Drag & Drop",
+    "downloadTemplate": "Download Template",
+    "importSuccess": "Import successful!",
+    "importError": "Import failed",
+    "preview": "Preview",
+    "rowsFound": "Rows found",
+    "importButton": "Import",
+    "import": "Import",
+    "supportedFormats": "Supports .xlsx, .xls, .csv",
+    "paddlerTemplateColumns": "Name | Weight | Side | Skills | Email",
+    "eventTemplateColumns": "Title | Date | Time | Type | BoatSize | Comment"
 }

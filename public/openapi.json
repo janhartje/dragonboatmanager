@@ -2,7 +2,7 @@
     "openapi": "3.0.0",
     "info": {
         "title": "Drachenboot Manager API",
-        "version": "1.8.0",
+        "version": "2.5.0",
         "description": "API documentation for the Drachenboot Manager application with multi-team support."
     },
     "servers": [
@@ -221,6 +221,265 @@
                                             "type": "string"
                                         }
                                     }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/teams/{id}/import/paddlers": {
+            "post": {
+                "summary": "Bulk Import Paddlers",
+                "description": "Imports multiple paddlers from a parsed Excel/CSV file. Requires CAPTAIN role.",
+                "tags": [
+                    "Teams",
+                    "Import"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "Team ID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "paddlers": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object",
+                                            "properties": {
+                                                "name": {
+                                                    "type": "string",
+                                                    "description": "Paddler name"
+                                                },
+                                                "weight": {
+                                                    "type": "number",
+                                                    "description": "Weight in kg"
+                                                },
+                                                "side": {
+                                                    "type": "string",
+                                                    "description": "Preferred side (left, right, drum, steer, or comma-separated)"
+                                                },
+                                                "email": {
+                                                    "type": "string",
+                                                    "description": "Email address for invitation (optional)"
+                                                }
+                                            },
+                                            "required": [
+                                                "name"
+                                            ]
+                                        }
+                                    }
+                                },
+                                "required": [
+                                    "paddlers"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Paddlers imported successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "count": {
+                                            "type": "integer",
+                                            "description": "Number of paddlers imported"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid data format",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden - Requires CAPTAIN role",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/teams/{id}/import/events": {
+            "post": {
+                "summary": "Bulk Import Events",
+                "description": "Imports multiple events from a parsed Excel/CSV file. Supports separate date and time columns. Requires CAPTAIN role.",
+                "tags": [
+                    "Teams",
+                    "Import"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "Team ID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "events": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object",
+                                            "properties": {
+                                                "title": {
+                                                    "type": "string",
+                                                    "description": "Event title"
+                                                },
+                                                "date": {
+                                                    "type": "string",
+                                                    "description": "Date (YYYY-MM-DD or DD.MM.YYYY)"
+                                                },
+                                                "time": {
+                                                    "type": "string",
+                                                    "description": "Time (HH:mm) - optional, can be merged with date"
+                                                },
+                                                "type": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "training",
+                                                        "regatta"
+                                                    ],
+                                                    "description": "Event type"
+                                                },
+                                                "boatSize": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "standard",
+                                                        "small"
+                                                    ],
+                                                    "description": "Boat size (standard=20, small=10)"
+                                                },
+                                                "comment": {
+                                                    "type": "string",
+                                                    "description": "Optional comment/note"
+                                                }
+                                            },
+                                            "required": [
+                                                "title",
+                                                "date"
+                                            ]
+                                        }
+                                    }
+                                },
+                                "required": [
+                                    "events"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Events imported successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "count": {
+                                            "type": "integer",
+                                            "description": "Number of events imported"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid data format",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden - Requires CAPTAIN role",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
                                 }
                             }
                         }
@@ -581,6 +840,11 @@
                                     },
                                     "canisterCount": {
                                         "type": "integer"
+                                    },
+                                    "comment": {
+                                        "type": "string",
+                                        "nullable": true,
+                                        "description": "Optional comment/note for the event"
                                     }
                                 }
                             }
@@ -1439,6 +1703,11 @@
                     "updatedAt": {
                         "type": "string",
                         "format": "date-time"
+                    },
+                    "comment": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "Optional comment/note for the event"
                     }
                 },
                 "required": [
@@ -1504,6 +1773,11 @@
                             "small"
                         ],
                         "default": "standard"
+                    },
+                    "comment": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "Optional comment/note"
                     }
                 },
                 "required": [

@@ -109,6 +109,18 @@ const HelpModal: React.FC<HelpModalProps> = ({ onClose }) => {
               <li>{t('helpTeamEditMembers3')}</li>
             </ul>
           </section>
+
+          <section>
+            <h3 className="font-bold text-slate-900 dark:text-white mb-2 flex items-center gap-2">
+              <span className="bg-sky-100 dark:bg-sky-900 text-sky-600 dark:text-sky-300 p-1 rounded">📤</span> {t('helpImportTitle')}
+            </h3>
+            <p className="text-slate-600 dark:text-slate-400 ml-1 text-sm mb-2">{t('helpImportDesc')}</p>
+            <ul className="list-disc list-inside space-y-1 text-slate-600 dark:text-slate-400 ml-1">
+              <li>{t('helpImport1')}</li>
+              <li>{t('helpImport2')}</li>
+              <li>{t('helpImport3')}</li>
+            </ul>
+          </section>
         </div>
       );
     }
@@ -149,7 +161,7 @@ const HelpModal: React.FC<HelpModalProps> = ({ onClose }) => {
   };
 
   return (
-  <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
+  <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
     <div className="bg-white dark:bg-slate-900 w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
       <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-slate-800/50">
         <h2 className="text-lg font-bold flex items-center gap-2 text-slate-900 dark:text-white">
