@@ -23,7 +23,7 @@ describe('importUtils', () => {
       expect(normalizeHeader('Bemerkung')).toBe('comment');
       expect(normalizeHeader('Hinweis')).toBe('comment');
       expect(normalizeHeader('Gewicht')).toBe('weight');
-      expect(normalizeHeader('Seite')).toBe('side');
+      expect(normalizeHeader('Seite')).toBe('skills');
     });
 
     it('should handle case insensitivity', () => {
