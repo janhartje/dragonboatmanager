@@ -233,6 +233,27 @@ export default function HelpPage() {
                </div>
             </details>
 
+            {/* FAQ: Set Stroke */}
+            <details className="group bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+               <summary className="flex items-center justify-between p-6 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                 <h3 className="font-bold text-slate-900 dark:text-white pr-4">{t('faqSetStrokeTitle')}</h3>
+                 <span className="text-slate-400 group-open:rotate-180 transition-transform">▼</span>
+               </summary>
+               <div className="px-6 pb-6 text-slate-600 dark:text-slate-400 text-sm leading-relaxed border-t border-slate-100 dark:border-slate-800 pt-4">
+                  <p className="mb-2">{t('faqSetStrokeAnswer')}</p>
+                  <ul className="space-y-2">
+                    <li className="flex items-start gap-2">
+                      <span className="font-bold min-w-[20px]">{/* 1. */}</span>
+                      <span>{t('faqSetStrokeMethod1')}</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="font-bold min-w-[20px]">{/* 2. */}</span>
+                      <span>{t('faqSetStrokeMethod2')}</span>
+                    </li>
+                  </ul>
+               </div>
+            </details>
+
           </div>
         </section>
 

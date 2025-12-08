@@ -20,7 +20,7 @@ interface PaddlerFormProps {
 const PaddlerForm: React.FC<PaddlerFormProps> = ({ paddlerToEdit, onSave, onCancel, t, teamMembers = [], isModal = false, isGuest = false }) => {
   const [name, setName] = useState<string>('');
   const [weight, setWeight] = useState<string>('');
-  const [skills, setSkills] = useState<SkillsState>({ left: false, right: false, drum: false, steer: false });
+  const [skills, setSkills] = useState<SkillsState>({ left: false, right: false, drum: false, steer: false, stroke: false, steer_preferred: false });
   const [userId, setUserId] = useState<string>('');
   const [linkEmail, setLinkEmail] = useState<string>('');
   const [isLinking, setIsLinking] = useState(false);
@@ -34,7 +34,7 @@ const PaddlerForm: React.FC<PaddlerFormProps> = ({ paddlerToEdit, onSave, onCanc
     if (paddlerToEdit) {
       setName(paddlerToEdit.name);
       setWeight(paddlerToEdit.weight.toString());
-      const sObj = { left: false, right: false, drum: false, steer: false };
+      const sObj: SkillsState = { left: false, right: false, drum: false, steer: false, stroke: false, steer_preferred: false };
       if (paddlerToEdit.skills) paddlerToEdit.skills.forEach((s) => {
         if (s in sObj) sObj[s as keyof typeof sObj] = true;
       });
@@ -51,13 +51,15 @@ const PaddlerForm: React.FC<PaddlerFormProps> = ({ paddlerToEdit, onSave, onCanc
   const resetForm = () => {
     setName('');
     setWeight('');
-    setSkills({ left: false, right: false, drum: false, steer: false });
+    setSkills({ left: false, right: false, drum: false, steer: false, stroke: false, steer_preferred: false });
     setUserId('');
     setLinkEmail('');
     setLinkError(null);
     setLinkSuccess(false);
     setTouched(false);
   };
+
+  const [activeTab, setActiveTab] = useState<'general' | 'preferences'>('general');
 
   const handleSkillChange = (skill: keyof SkillsState) => {
     setSkills((prev) => ({ ...prev, [skill]: !prev[skill] }));
@@ -121,7 +123,36 @@ const PaddlerForm: React.FC<PaddlerFormProps> = ({ paddlerToEdit, onSave, onCanc
           {paddlerToEdit ? <Pencil size={16} /> : <User size={16} />} {paddlerToEdit ? t('editPaddler') : t('newMember')}
         </h3>
       )}
+      
       <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Tabs */}
+        <div className="flex gap-2 border-b border-slate-200 dark:border-slate-700 mb-4">
+             <button
+                type="button"
+                onClick={() => setActiveTab('general')}
+                className={`pb-2 px-1 text-sm font-medium transition-colors border-b-2 ${
+                  activeTab === 'general'
+                    ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                    : 'border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400'
+                }`}
+             >
+                {t('tabGeneral') || 'General'}
+             </button>
+             <button
+                type="button"
+                onClick={() => setActiveTab('preferences')}
+                className={`pb-2 px-1 text-sm font-medium transition-colors border-b-2 ${
+                  activeTab === 'preferences'
+                    ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                    : 'border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400'
+                }`}
+             >
+                {t('tabPreferences') || 'Auto-Assignment'}
+             </button>
+        </div>
+
+        {activeTab === 'general' && (
+        <>
         <div className="flex flex-col md:flex-row gap-4">
           <div className="flex-1">
             <label className="text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400 mb-1 block">{t('name')}</label>
@@ -207,7 +238,53 @@ const PaddlerForm: React.FC<PaddlerFormProps> = ({ paddlerToEdit, onSave, onCanc
             onChange={handleSkillChange} 
           />
         </div>
-        <div className="flex flex-col-reverse sm:flex-row gap-2 pt-2 justify-end">
+        </>
+        )}
+
+        {activeTab === 'preferences' && (
+        /* Special Roles Section */
+        <div>
+          <label className="text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400 mb-2 block">{t('specialRoles')}</label>
+          <p className="text-xs text-slate-500 mb-3">
+             {t('helpCalculation2') || "Special preferences for the Magic AI algorithm."}
+          </p>
+          <div className="flex flex-col gap-2">
+            <button
+              type="button"
+              onClick={() => handleSkillChange('stroke')}
+              className={`px-4 py-3 rounded-lg border text-sm font-medium transition-all flex items-center justify-between w-full ${
+                skills.stroke
+                  ? 'bg-blue-50 border-blue-200 text-blue-700 dark:bg-blue-900/20 dark:border-blue-800 dark:text-blue-300'
+                  : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:border-slate-300'
+              }`}
+            >
+              <div className="flex flex-col text-left">
+                  <span className="font-bold">{t('stroke') || 'Stroke'}</span>
+                  <span className="text-xs opacity-75 font-normal">{t('strokeDesc') || 'Prioritized for front row'}</span>
+              </div>
+              {skills.stroke && <Check size={18} strokeWidth={2.5} />}
+            </button>
+            
+            <button
+              type="button"
+              onClick={() => handleSkillChange('steer_preferred')}
+              className={`px-4 py-3 rounded-lg border text-sm font-medium transition-all flex items-center justify-between w-full ${
+                skills.steer_preferred
+                  ? 'bg-purple-50 border-purple-200 text-purple-700 dark:bg-purple-900/20 dark:border-purple-800 dark:text-purple-300'
+                  : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:border-slate-300'
+              }`}
+            >
+              <div className="flex flex-col text-left">
+                  <span className="font-bold">{t('steerPreferred') || 'Preferred Steersman'}</span>
+                  <span className="text-xs opacity-75 font-normal">{t('steerPreferredDesc') || 'Prioritized for steering position'}</span>
+              </div>
+              {skills.steer_preferred && <Check size={18} strokeWidth={2.5} />}
+            </button>
+          </div>
+        </div>
+        )}
+
+        <div className="flex flex-col-reverse sm:flex-row gap-2 pt-2 justify-end mt-6 border-t border-slate-100 dark:border-slate-800">
           {(!isModal && paddlerToEdit) && <button type="button" onClick={onCancel} className="w-full sm:w-auto bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 px-4 py-2 rounded text-sm">{t('cancel')}</button>}
           {isModal && <button type="button" onClick={onCancel} className="w-full sm:w-auto bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 px-4 py-2 rounded text-sm">{t('cancel')}</button>}
           <button 

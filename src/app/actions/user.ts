@@ -39,10 +39,25 @@ export async function updateProfile(data: { name: string; weight: number; skills
     })
 
     if (currentPaddler) {
+      // Preserve special roles that users cannot edit themselves
+      // These roles are usually assigned by captains and aren't visible in the user profile form
+      const SPECIAL_ROLES = ['stroke', 'steer_preferred'];
+      const existingSpecialRoles = (currentPaddler.skills || []).filter(s => SPECIAL_ROLES.includes(s));
+      
+      // Filter out special roles from the incoming data just in case (though UI shouldn't send them)
+      // Then re-add the existing special roles
+      const newSkills = [
+        ...(data.skills || []).filter(s => !SPECIAL_ROLES.includes(s)), 
+        ...existingSpecialRoles
+      ];
+
+      // Remove duplicates
+      const uniqueSkills = Array.from(new Set(newSkills));
+
       await prisma.paddler.update({
         where: { id: currentPaddler.id },
         data: {
-          skills: data.skills
+          skills: uniqueSkills
         }
       })
     }

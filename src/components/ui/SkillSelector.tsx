@@ -7,6 +7,8 @@ export interface SkillsState {
   right: boolean;
   drum: boolean;
   steer: boolean;
+  stroke?: boolean;
+  steer_preferred?: boolean;
 }
 
 interface SkillSelectorProps {

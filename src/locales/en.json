@@ -20,6 +20,8 @@
     "name": "Name",
     "weight": "Weight",
     "skills": "Skills",
+    "tabGeneral": "General",
+    "tabPreferences": "Auto-Assignment",
     "left": "Left",
     "right": "Right",
     "drum": "Drum",
@@ -57,6 +59,11 @@
     "helpBoatManningSwap": "Click on another occupied seat to swap the paddlers.",
     "helpBoatManning3": "To remove someone, hover over the seat and click the small X.",
     "helpBoatManning4": "Use the pin needle (top left of seat) to lock a paddler. They won't be moved by Magic AI.",
+    "stroke": "Stroke",
+    "strokeDesc": "Prioritized for the first occupied row",
+    "steerPreferred": "Preferred Steersman",
+    "steerPreferredDesc": "Prioritized for steering position",
+    "specialRoles": "Special Roles",
     "helpBoatSize": "Boat Size",
     "changeBoatSize": "Change Boat Size",
     "changeBoatSizeConfirm": "Are you sure you want to change the boat size? The current lineup will be cleared.",
@@ -65,7 +72,7 @@
     "helpCalculation": "Calculation Logic",
     "helpCalculationDesc": "How Balance and Trim are calculated:",
     "helpCalculation1": "Standard (20): Split at middle (Rows 1-5 Front, 6-10 Back).",
-    "helpCalculation2": "Small (10): Middle row (3) is excluded from Front/Back comparison to ensure fairness.",
+    "helpCalculation2": "Special roles help guide the Magic AI to optimally fill the boat.",
     "helpCalculation3": "Drummer counts to Front, Steer counts to Back.",
     "helpSpecialItems": "Special Items",
     "helpSpecialItems1": "Canister: Add 25kg placeholder.",
@@ -134,6 +141,23 @@
     "clTechnical": "Technical Changes",
     "clBugfixes": "Bug Fixes",
     "changelogData": [
+        {
+            "version": "2.7.0",
+            "date": "December 2025",
+            "features": [
+                "Magic AI Optimization: Heavier (and often taller) paddlers are now prioritized for the middle of the boat.",
+                "New Special Role 'Stroke': Paddlers with this role are prioritized for the first row by the AI.",
+                "New Special Role 'Preferred Steer': These paddlers take precedence on the steering position.",
+                "Prioritization: Confirmed attendances are now strictly prioritized over 'Maybes', guests, and canisters.",
+                "Smart Canisters: Canisters are only used if they improve balance; otherwise, their usage is minimized.",
+                "Row Optimization: The AI prioritizes full rows. Single paddlers and canisters are preferably placed towards the back of the boat.",
+                "Help & FAQ updated."
+            ],
+            "technical": [],
+            "bugfixes": [
+                "Fix: Special roles (Stroke, Steer) are now preserved during profile updates."
+            ]
+        },
         {
             "version": "2.6.0",
             "date": "December 2025",
@@ -592,6 +616,10 @@
     "contactMessageLabel": "Your Message",
     "faqWeightChangeTitle": "My weight has changed - Why?",
     "faqWeightChangeAnswer": "Your Team Captain can update your weight and paddling side to optimize the boat planning. Your own changes will overwrite this, but it's best to coordinate with your Captain.",
+    "faqSetStrokeTitle": "How can I set fixed stroke paddlers?",
+    "faqSetStrokeAnswer": "There are two ways to define fixed stroke paddlers:",
+    "faqSetStrokeMethod1": "1. Via Profile: Activate the 'Stroke' special role for the paddler. Magic AI will prioritize placing them in the first row.",
+    "faqSetStrokeMethod2": "2. In the Boat: Manually place the paddler in seat 1 and click the 'Pin Needle' (top left of the seat). This fixes them in place, even when Magic AI recalculates.",
     "removeMember": "Remove",
     "confirmRemoveMemberTitle": "Remove member?",
     "confirmRemoveMemberBody": "Are you sure you want to remove this member from the team? They will lose access to internal events.",

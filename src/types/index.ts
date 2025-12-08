@@ -13,7 +13,6 @@ export interface Paddler {
   id: number | string;
   name: string;
   weight: number;
-  side?: 'left' | 'right' | 'both'; // 'both' is sometimes used for drummers/steers or flexible paddlers
   skills: string[]; // e.g., 'left', 'right', 'drum', 'steer'
   isGuest?: boolean;
   isCanister?: boolean;
@@ -21,6 +20,7 @@ export interface Paddler {
   userId?: string;
   inviteEmail?: string; // Email for invited but not-yet-registered users
   role?: 'CAPTAIN' | 'PADDLER';
+  priority?: number; // 1=Fixed, 2=Maybe, 3=Guest, 4=Canister
   user?: {
     email?: string | null;
     name?: string | null;

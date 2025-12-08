@@ -151,6 +151,10 @@ Ein Mitglied eines Teams mit definierten Eigenschaften für die Bootsplanung.
 - Hat viele `Attendance`s
 - Hat viele `Assignment`s
 
+**Synchronisation:**
+- `name` und `weight` werden vom verknüpften `User` Profil überschrieben, wenn der Benutzer sein Profil aktualisiert.
+- `skills` werden spezifisch pro Team-Paddler gespeichert. Beim Update des User-Profils werden neue Skills übernommen, aber Spezialrollen wie `'stroke'` oder `'steer_preferred'` (die meist vom Kapitän vergeben werden) bleiben erhalten.
+
 ### User (Auth)
 
 Ein registrierter Benutzer der Anwendung (für Login/Authentifizierung).

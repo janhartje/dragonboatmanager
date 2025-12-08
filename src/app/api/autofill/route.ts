@@ -59,14 +59,37 @@ export async function POST(request: Request) {
       .filter(a => ['yes', 'maybe'].includes(a.status))
       .map(a => {
         const p = a.paddler;
-        // Normalize skills and side into valid skills array for algorithm
-        const algoSkills: string[] = [];
-        if (p.side === 'both') { algoSkills.push('left', 'right'); }
-        else if (p.side) { algoSkills.push(p.side); }
-        
-        if (p.skills) {
-           p.skills.forEach(s => algoSkills.push(s)); // drum, steer
+         // Normalize skills into valid skills array for algorithm
+         const algoSkills: string[] = [];
+         // side is removed from model, so we only rely on skills
+         
+         if (p.skills) {
+           p.skills.forEach(s => algoSkills.push(s)); // drum, steer, stroke, steer_preferred
         }
+
+        // Priority mapping: yes=1, maybe=2
+        // Guests usually have 'yes' status if they are in the list effectively, 
+        // but we can distinguish by isGuest flag if needed. 
+        // Requirement: Fixed > Maybe > Guest > Canister
+        let priority = 1; // Default Fixed
+        if (a.status === 'maybe') priority = 2;
+        if (p.isGuest) priority = 3; // Guests lower than members? "feste zusagen werden vor vieleichts, gästen und kanistern bevorzugt" -> Yes (1) > Maybe (2) > Guest (3) ? 
+        // Actually "feste zusagen" (Fixed) > Maybe. 
+        // "Guests" are usually fixed commitments too, just external. 
+        // Let's interpret: Member(Yes)=1, Guest(Yes)=1 (or 1.5?), Member(Maybe)=2, Guest(Maybe)=2. 
+        // User said: "feste zusagen werden vor vieleichts, gästen und kanistern bevorzugt"
+        // This implies: Fixed Promises > Maybes, Guests, Canisters.
+        // Wait, "Fixed > Maybe, Guest, Canister" could mean Fixed is top, rest is lower.
+        // Or Fixed > Maybe > Guest > Canister.
+        // Let's assume:
+        // 1. Member Yes
+        // 2. Member Maybe
+        // 3. Guest (Any, usually Yes)
+        // 4. Canister
+        
+        if (p.isGuest) priority = 3;
+        else if (a.status === 'maybe') priority = 2;
+        else priority = 1;
 
         return {
           id: p.id,
@@ -74,7 +97,8 @@ export async function POST(request: Request) {
           weight: p.weight,
           skills: algoSkills,
           isGuest: p.isGuest,
-          isCanister: false
+          isCanister: false,
+          priority
         };
       });
 
@@ -87,11 +111,17 @@ export async function POST(request: Request) {
             name: 'Kanister',
             weight: 25,
             skills: ['left', 'right'],
-            isCanister: true
+            isCanister: true,
+            priority: 4 // Lowest priority
         });
     }
 
-    const activePaddlerPool = [...attendees, ...canisters].sort((a, b) => a.name.localeCompare(b.name));
+    const activePaddlerPool = [...attendees, ...canisters].sort((a, b) => {
+        // Sort by priority first
+        if (a.priority !== b.priority) return a.priority - b.priority;
+        // Then by name
+        return a.name.localeCompare(b.name);
+    });
 
     // Determine Assignments
     let assignments = assignmentsOverride;
