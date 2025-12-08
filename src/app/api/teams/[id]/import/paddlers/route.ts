@@ -44,11 +44,26 @@ export async function POST(
     const paddlersToInvite: any[] = [];
 
     for (const p of paddlers) {
+      let skillsArray: string[] = [];
+      if (Array.isArray(p.skills)) {
+          skillsArray = p.skills;
+      } else if (typeof p.skills === 'string') {
+          // Split by comma and trim
+          skillsArray = p.skills.split(',').map((s: string) => s.trim().toLowerCase()).filter(Boolean);
+      }
+      // Also check legacy 'side' if present and valid
+      if (p.side && typeof p.side === 'string') {
+          const sides = p.side.split(',').map((s: string) => s.trim().toLowerCase());
+          skillsArray = [...skillsArray, ...sides];
+      }
+      // Deduplicate
+      skillsArray = Array.from(new Set(skillsArray));
+
       const paddlerData = {
         name: p.name,
         weight: parseFloat(p.weight) || 0,
-        side: p.side || null,
-        skills: Array.isArray(p.skills) ? p.skills : [],
+
+        skills: skillsArray,
         teamId: teamId,
       };
 

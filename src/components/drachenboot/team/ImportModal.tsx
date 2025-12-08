@@ -176,14 +176,14 @@ export const ImportModal: React.FC<ImportModalProps> = ({
       sheet.columns = [
         { header: 'Name', key: 'Name', width: 20 },
         { header: 'Weight', key: 'Weight', width: 10 },
-        { header: 'Side', key: 'Side', width: 20 },
+        { header: 'Skills', key: 'Skills', width: 20 },
         { header: 'Email', key: 'Email', width: 30 },
       ];
       
-      sheet.addRow({ Name: 'Max Mustermann', Weight: 85.5, Side: 'left', Email: 'max@example.com' });
-      sheet.addRow({ Name: 'Erika Musterfrau', Weight: 65.0, Side: 'right', Email: 'erika@example.com' });
-      sheet.addRow({ Name: 'Tom Trommler', Weight: 60.0, Side: 'drum', Email: 'tom@example.com' });
-      sheet.addRow({ Name: 'Multi Talent', Weight: 72.5, Side: 'right, drum, steer', Email: 'multi@example.com' });
+      sheet.addRow({ Name: 'Max Mustermann', Weight: 85.5, Skills: 'left', Email: 'max@example.com' });
+      sheet.addRow({ Name: 'Erika Musterfrau', Weight: 65.0, Skills: 'right', Email: 'erika@example.com' });
+      sheet.addRow({ Name: 'Tom Trommler', Weight: 60.0, Skills: 'drum', Email: 'tom@example.com' });
+      sheet.addRow({ Name: 'Multi Talent', Weight: 72.5, Skills: 'right, drum, steer', Email: 'multi@example.com' });
 
       // Help Data
       helpSheet.columns = [
@@ -195,7 +195,7 @@ export const ImportModal: React.FC<ImportModalProps> = ({
       helpSheet.addRows([
         { Column: 'Name', DescriptionDE: 'Vor- und Nachname des Paddlers', DescriptionEN: 'Full name of the paddler' },
         { Column: 'Weight', DescriptionDE: 'Gewicht in kg (z.B. 85.5)', DescriptionEN: 'Weight in kg (e.g. 85.5)' },
-        { Column: 'Side', DescriptionDE: 'Rolle/Seite: "left", "right", "drum", "steer" (kommagetrennt für mehrere)', DescriptionEN: 'Role/Side: "left", "right", "drum", "steer" (comma separated for multiple)' },
+        { Column: 'Skills', DescriptionDE: 'Skills/Seite: "left", "right", "drum", "steer" (kommagetrennt für mehrere)', DescriptionEN: 'Skills/Side: "left", "right", "drum", "steer" (comma separated for multiple)' },
         { Column: 'Email', DescriptionDE: 'E-Mail Adresse für Einladungen (optional)', DescriptionEN: 'Email address for invitations (optional)' }
       ]);
       

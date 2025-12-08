@@ -15,11 +15,11 @@ export const columnAliases: { [key: string]: string } = {
   'comment': 'comment',
   'weight': 'weight',
   'gewicht': 'weight',
-  'side': 'side',
-  'seite': 'side',
-  'rolle': 'side',
-  'skill': 'side',
-  'skills': 'side'
+  'side': 'skills',
+  'seite': 'skills',
+  'rolle': 'skills',
+  'skill': 'skills',
+  'skills': 'skills'
 };
 
 export const normalizeHeader = (header: string): string => {

@@ -105,7 +105,7 @@ export async function POST(request: Request) {
       data: {
         name: body.name,
         weight: body.weight,
-        side: body.side,
+
         skills: body.skills,
         isGuest: body.isGuest || false,
         teamId: body.teamId,

@@ -54,7 +54,7 @@ export async function PUT(
       data: {
         name: body.name,
         weight: body.weight,
-        side: body.side,
+
         skills: body.skills,
         isGuest: body.isGuest,
         role: body.role, // Will be undefined if deleted above, Prisma ignores undefined in update
