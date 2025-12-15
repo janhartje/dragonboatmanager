@@ -39,7 +39,7 @@
     "exceljs": "^4.4.0",
     "framer-motion": "^12.23.25",
     "html-to-image": "^1.11.13",
-    "lucide-react": "^0.468.0",
+    "lucide-react": "^0.561.0",
     "next": "^14.2.33",
     "next-auth": "^5.0.0-beta.30",
     "pg": "^8.16.3",
