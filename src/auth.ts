@@ -8,9 +8,41 @@ import { sendEmail } from "@/lib/email"
 import MagicLinkEmail from "@/emails/templates/MagicLinkEmail"
 import TeamInviteEmail from "@/emails/templates/TeamInviteEmail"
 import { t, Language } from "@/emails/utils/i18n"
+import type { Adapter, AdapterUser } from "@auth/core/adapters"
+
+// Create a custom adapter that normalizes emails to lowercase
+function CaseInsensitivePrismaAdapter(prismaClient: typeof prisma): Adapter {
+  const baseAdapter = PrismaAdapter(prismaClient)
+  
+  return {
+    ...baseAdapter,
+    // Override createUser to normalize email to lowercase
+    createUser: async (data) => {
+      const normalizedData = {
+        ...data,
+        email: data.email?.toLowerCase() ?? data.email,
+      }
+      return baseAdapter.createUser!(normalizedData)
+    },
+    // Override getUserByEmail to search case-insensitively
+    getUserByEmail: async (email: string) => {
+      const normalizedEmail = email.toLowerCase()
+      const user = await prismaClient.user.findFirst({
+        where: {
+          email: {
+            equals: normalizedEmail,
+            mode: 'insensitive',
+          },
+        },
+      })
+      if (!user) return null
+      return user as AdapterUser
+    },
+  }
+}
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
-  adapter: PrismaAdapter(prisma),
+  adapter: CaseInsensitivePrismaAdapter(prisma),
   providers: [
     Google,
     GitHub,
@@ -18,6 +50,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       from: "Drachenboot Manager <no-reply@drachenbootmanager.de>",
       maxAge: 7 * 24 * 60 * 60, // 7 days
       sendVerificationRequest: async ({ identifier: email, url }) => {
+        // Normalize email to lowercase for consistent lookup
+        email = email.toLowerCase();
 
         // Try to detect user's language preference
         let lang: Language = 'de'; // Default to German
@@ -32,9 +66,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         let invitedPaddlerFound = false;
 
         try {
-            // First check for pending invite (Paddler with inviteEmail)
+            // First check for pending invite (Paddler with inviteEmail) - case insensitive
             const invitedPaddler = await prisma.paddler.findFirst({
-                where: { inviteEmail: email },
+                where: { 
+                  inviteEmail: {
+                    equals: email,
+                    mode: 'insensitive',
+                  }
+                },
                 include: { team: true }
             });
 
@@ -71,8 +110,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         // If no invited paddler was found, try to get user's language preference
         if (!invitedPaddlerFound) {
             try {
-                const user = await prisma.user.findUnique({
-                    where: { email },
+                // Case-insensitive user lookup
+                const user = await prisma.user.findFirst({
+                    where: { 
+                      email: {
+                        equals: email,
+                        mode: 'insensitive',
+                      }
+                    },
                     select: { language: true }
                 });
 
@@ -121,8 +166,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       session.user.id = user.id
       session.user.weight = user.weight
       
-      const adminEmails = process.env.ADMIN_EMAILS?.split(',').map(e => e.trim()) || [];
-      if (user.email && adminEmails.includes(user.email)) {
+      const adminEmails = process.env.ADMIN_EMAILS?.split(',').map(e => e.trim().toLowerCase()) || [];
+      if (user.email && adminEmails.includes(user.email.toLowerCase())) {
         session.user.isAdmin = true;
       }
       
@@ -138,9 +183,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           where: { id: user.id },
         });
 
-        // Check if there are any paddlers with this email in inviteEmail field
+        // Check if there are any paddlers with this email in inviteEmail field (case-insensitive)
         const invitedPaddlers = await prisma.paddler.findMany({
-          where: { inviteEmail: user.email },
+          where: { 
+            inviteEmail: {
+              equals: user.email,
+              mode: 'insensitive',
+            }
+          },
         });
         
         // Link all invited paddlers to this user
@@ -164,9 +214,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             where: { id: user.id },
           });
 
-          // Check if there are any paddlers with this email in inviteEmail field
+          // Check if there are any paddlers with this email in inviteEmail field (case-insensitive)
           const invitedPaddlers = await prisma.paddler.findMany({
-            where: { inviteEmail: user.email },
+            where: { 
+              inviteEmail: {
+                equals: user.email,
+                mode: 'insensitive',
+              }
+            },
           });
           
           // Link all invited paddlers to this user
