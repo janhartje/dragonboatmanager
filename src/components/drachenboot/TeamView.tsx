@@ -1,10 +1,10 @@
 import React, { useState, useMemo } from 'react';
-
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useSession } from "next-auth/react";
 import { useDrachenboot } from '@/context/DrachenbootContext';
 import { useLanguage } from '@/context/LanguageContext';
-import { HelpModal } from '../ui/Modals';
+import { HelpModal, AlertModal } from '../ui/Modals';
 import { OnboardingModal } from '../auth/OnboardingModal';
 import DragonLogo from '../ui/DragonLogo';
 import Header from '../ui/Header';
@@ -14,6 +14,7 @@ import { UserMenu } from '@/components/auth/UserMenu';
 import { updateProfile } from '@/app/actions/user';
 
 import { Globe, Instagram, Plus, FileUp, Calendar } from 'lucide-react';
+import { InfoCard } from '@/components/ui/InfoCard';
 
 
 import { Event, Paddler } from '@/types';
@@ -27,7 +28,7 @@ import WelcomeView from './WelcomeView';
 import { ImportModal } from './team/ImportModal';
 
 const TeamView: React.FC = () => {
-
+  const router = useRouter();
   const { t } = useLanguage();
   const { 
     teams,
@@ -64,6 +65,18 @@ const TeamView: React.FC = () => {
 
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
   const [showEventModal, setShowEventModal] = useState<boolean>(false);
+  
+  // --- UPGRADE SUCCESS HANDLING ---
+  const searchParams = useSearchParams();
+  const [showUpgradeSuccess, setShowUpgradeSuccess] = useState<boolean>(false);
+  
+  React.useEffect(() => {
+    if (searchParams.get('upgrade_success') === 'true') {
+      setShowUpgradeSuccess(true);
+      // Clean URL without reload
+      window.history.replaceState({}, '', '/app');
+    }
+  }, [searchParams]);
 
   const handleCreateEvent = (title: string, date: string, type: 'training' | 'regatta', boatSize: 'standard' | 'small', comment?: string) => {
     createEvent(title, date, type, boatSize, comment);
@@ -318,6 +331,13 @@ const TeamView: React.FC = () => {
           <Header 
             title={t('appTitle')}
             subtitle={t('teamManager')}
+            badge={
+              currentTeam?.plan === 'PRO' ? (
+                <span className="bg-yellow-100 text-yellow-800 text-xs font-bold px-2 py-0.5 rounded border border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-800/50">PRO</span>
+              ) : (
+                <span className="bg-slate-100 text-slate-600 text-xs font-bold px-2 py-0.5 rounded border border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700">FREE</span>
+              )
+            }
             logo={
               <Link href="/" className="cursor-pointer hover:opacity-80 transition-opacity">
                 {currentTeam?.icon ? (
@@ -369,6 +389,26 @@ const TeamView: React.FC = () => {
               
               <div className="lg:col-span-1 flex flex-col">
                 <EventsSection sortedPaddlers={sortedPaddlers} onEdit={setEditingEvent} />
+                 {(currentTeam?.plan === 'FREE' || !currentTeam?.plan) && (
+                    <InfoCard 
+                      id={`upgrade_prompt_team_${currentTeam?.id}`}
+                      className="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/20 dark:to-orange-950/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4 mb-6"
+                      allowedRoles={['CAPTAIN']}
+                    >
+                      <h3 className="text-lg font-bold text-amber-800 dark:text-amber-500 mb-2 pr-6">
+                        {t('pro.upgradeTitle')} 🔗
+                      </h3>
+                      <p className="text-sm text-amber-700 dark:text-amber-400 mb-4">
+                        {t('pro.upgradeDescription')}
+                      </p>
+                      <button
+                        onClick={() => router.push(`/app/teams/${currentTeam?.id}/upgrade`)}
+                        className="w-full py-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold rounded-lg shadow-sm transition-all transform hover:scale-[1.02]"
+                      >
+                        {t('pro.upgradeButton')}
+                      </button>
+                    </InfoCard>
+                 )}
               </div>
 
               {/* Paddler Grid */}
@@ -415,6 +455,7 @@ const TeamView: React.FC = () => {
               {/* Event Liste */}
               <div className="lg:col-span-1 flex flex-col">
                 <EventsSection sortedPaddlers={sortedPaddlers} onEdit={setEditingEvent} />
+
               </div>
 
               {/* Paddler Grid */}
@@ -472,6 +513,15 @@ const TeamView: React.FC = () => {
           onSave={handleOnboardingSave}
         />
       )}
+      
+      {/* Upgrade Success Modal */}
+      <AlertModal
+        isOpen={showUpgradeSuccess}
+        message={t('pro.upgradeSuccessMessage')}
+        onClose={() => setShowUpgradeSuccess(false)}
+        type="info"
+        title={t('pro.upgradeSuccessTitle')}
+      />
     </PageTransition>
   );
 };

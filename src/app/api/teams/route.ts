@@ -38,6 +38,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Name is required' }, { status: 400 });
     }
 
+    // No limit on team creation - PRO is per-team, not per-user
     const team = await prisma.team.create({
       data: { 
         name,

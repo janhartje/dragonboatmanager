@@ -7,6 +7,8 @@ export interface Team {
   facebook?: string;
   twitter?: string;
   email?: string;
+  plan?: string;
+  maxMembers?: number;
 }
 
 export interface Paddler {

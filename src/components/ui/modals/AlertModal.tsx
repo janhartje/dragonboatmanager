@@ -28,12 +28,6 @@ const AlertModal: React.FC<AlertModalProps> = ({
     error: <XCircle size={24} className="text-red-500" />
   };
 
-  const colors = {
-    info: 'bg-blue-50 dark:bg-blue-900/20',
-    warning: 'bg-amber-50 dark:bg-amber-900/20',
-    success: 'bg-green-50 dark:bg-green-900/20',
-    error: 'bg-red-50 dark:bg-red-900/20'
-  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
@@ -50,11 +44,11 @@ const AlertModal: React.FC<AlertModalProps> = ({
           </button>
         </div>
         
-        <div className={`p-6 ${colors[type]}`}>
+        <div className="p-6">
           <p className="text-slate-600 dark:text-slate-300">{message}</p>
         </div>
 
-        <div className="p-4 bg-slate-50 dark:bg-slate-950/50 flex justify-end">
+        <div className="p-4 border-t border-slate-100 dark:border-slate-800 flex justify-end">
           <button 
             onClick={onClose}
             className="px-6 py-2 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm transition-colors"

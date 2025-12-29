@@ -7,8 +7,7 @@ import de from '../locales/de.json';
 import en from '../locales/en.json';
 
 interface Translations {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 interface LanguageContextType {
@@ -98,7 +97,16 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   };
 
   const t = <T = string>(key: string): T => {
-    return (translations[language][key] as unknown as T) || (key as unknown as T);
+    const keys = key.split('.');
+    let value: unknown = translations[language];
+    for (const k of keys) {
+      if (typeof value === 'object' && value !== null) {
+          value = (value as Record<string, unknown>)[k];
+      } else {
+          return key as unknown as T;
+      }
+    }
+    return (value as T) || (key as unknown as T);
   };
 
   return (

@@ -142,6 +142,27 @@
     "clBugfixes": "Fehlerbehebungen",
     "changelogData": [
         {
+            "version": "3.0.0",
+            "date": "Dezember 2025",
+            "features": [
+                "PRO Mitgliedschaft: Schalte unbegrenzte Mitglieder, Exporte und mehr frei.",
+                "Einfache Zahlungsverwaltung via Stripe (Kreditkarte, SEPA, PayPal, etc.).",
+                "InfoCards: Wichtige Hinweise können nun dauerhaft ausgeblendet werden (gespeichert in Datenbank).",
+                "Team-Wechsel: Schnellerer Wechsel zwischen Teams und verbesserte Verwaltung.",
+                "Erweiterte Zahlungsarten: Support für SEPA Lastschrift, Bancontact, iDEAL und mehr."
+            ],
+            "technical": [
+                "Server-Side Persistenz für InfoCard-Status.",
+                "Optimierte Stripe Webhooks für Abo-Synchronisation.",
+                "Refactoring der Navigationsstruktur und Header-Komponenten."
+            ],
+            "bugfixes": [
+                "Fix: Anzeige des Abo-Status bei gekündigten Abos korrigiert.",
+                "Fix: URL-Updates beim Tab-Wechsel auf der Team-Seite.",
+                "Fix: Team-Switcher verhält sich nun korrekt auf Unterseiten."
+            ]
+        },
+        {
             "version": "2.8.0",
             "date": "Dezember 2025",
             "features": [
@@ -435,7 +456,10 @@
     "installPWA": "App installieren",
     "create": "Erstellen",
     "createTeam": "Team erstellen",
-    "teamName": "Team Name",
+    "createNewTeam": "Neues Team erstellen",
+    "upgradeTeam": "Team upgraden",
+    "forTeam": "für",
+    "teamName": "Teamname",
     "selectTeam": "Team wählen",
     "teams": "Teams",
     "manageTeams": "Teams verwalten",
@@ -522,6 +546,8 @@
     "privacyAuthText": "Für die Anmeldung nutzen wir NextAuth.js mit den Anbietern Google und GitHub. Wenn Sie sich über diese Dienste einloggen, erhalten wir von diesen Anbietern Ihre E-Mail-Adresse, Ihren Namen und Ihr Profilbild. Wir nutzen diese Daten ausschließlich zur Identifikation und Nutzerverwaltung.",
     "privacyEmails": "E-Mail Versand",
     "privacyEmailsText": "Der Versand von Transaktions-E-Mails (z.B. Einladungen) erfolgt über Resend (2261 Market Street #4816, San Francisco, CA 94114, USA). Die Datenverarbeitung findet in Irland statt. Wir haben mit Resend einen Auftragsverarbeitungsvertrag geschlossen.",
+    "privacyPayments": "Zahlungsabwicklung (Stripe)",
+    "privacyPaymentsText": "Wir nutzen Stripe für die Zahlungsabwicklung. Stripe verarbeitet Zahlungsdaten (z.B. Kreditkartendaten) in unserem Auftrag. Die Datenübertragung erfolgt verschlüsselt. Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO (Vertragserfüllung). Weitere Informationen finden Sie in der Datenschutzerklärung von Stripe: https://stripe.com/de/privacy.",
     "privacyRights": "Ihre Rechte",
     "privacyRightsText": "Sie haben das Recht auf Auskunft, Berichtigung, Löschung und Einschränkung der Verarbeitung Ihrer gespeicherten Daten. Sie können der Verarbeitung Ihrer Daten jederzeit widersprechen.",
     "disclaimerTitle": "Haftungsausschluss & Technische Hinweise",
@@ -567,6 +593,7 @@
     "emailOptional": "E-Mail (optional)",
     "inviteEmailHint": "Falls angegeben, wird eine Einladungs-E-Mail versendet",
     "addMember": "Mitglied hinzufügen",
+    "invite": "Einladen",
     "inviteMember": "Einladen",
     "email": "E-Mail",
     "inviteDescription": "Die Person wird zum Team hinzugefügt. Falls sie noch keinen Account hat, kann sie sich registrieren und ist dann automatisch Teil des Teams.",
@@ -680,5 +707,49 @@
     "errorHome": "Startseite",
     "errorGlobalTitle": "Kritischer Fehler",
     "errorGlobalMessage": "Ein kritischer Fehler ist aufgetreten und die Anwendung konnte nicht geladen werden.",
-    "errorReload": "Neu laden"
+    "errorReload": "Neu laden",
+    "pro": {
+        "upgradeTitle": "Upgrade auf PRO",
+        "upgradeDescription": "Erhalte unbegrenzte Mitglieder, iCal Integration und PDF exporte.",
+        "upgradeButton": "Jetzt upgraden",
+        "unlockFeaturesTitle": "Pro-Features freischalten",
+        "unlockFeaturesDescription": "Erhalte unbegrenzte Mitglieder, Import/Export Funktionen und bevorzugten Support.",
+        "billingAddress": "Rechnungsadresse",
+        "payNow": "Jetzt bezahlen",
+        "processing": "Verarbeite...",
+        "priceLabel": "Preis",
+        "intervalYearly": "Jährlich",
+        "intervalMonthly": "Monatlich",
+        "productName": "Drachenboot Manager PRO",
+        "benefits": {
+            "title": "Warum Pro?",
+            "item1": "Unbegrenzte Mitgliederzahl",
+            "item2": "Export als PDF & Bild",
+            "item3": "iCal Kalender Integration",
+            "item4": "Bevorzugter Support",
+            "item5": "Unterstütze die Weiterentwicklung"
+        },
+        "manageSubscription": "Abo verwalten",
+        "manageSubscriptionDesc": "Dein Team ist PRO! Hier kannst du Rechnungen einsehen und Zahlungsdaten ändern.",
+        "upgradeSuccessTitle": "🎉 Willkommen bei PRO!",
+        "upgradeSuccessMessage": "Dein Team wurde erfolgreich auf PRO upgegradet. Viel Spaß mit den neuen Features!",
+        "subscription": "Abo",
+        "subscriptionStatus": "Abo-Status",
+        "nextBillingDate": "Nächste Abrechnung",
+        "cancelSubscription": "Abo kündigen",
+        "reactivateSubscription": "Kündigung zurücknehmen",
+        "viewInvoices": "Rechnungen anzeigen",
+        "updatePaymentMethod": "Zahlungsmethode ändern",
+        "canceledAtPeriodEnd": "Wird zum Ende der Laufzeit gekündigt",
+        "perMonth": "/Monat",
+        "perYear": "/Jahr",
+        "paymentMethod": "Zahlungsmethode",
+        "noSubscription": "Kein aktives Abo",
+        "noSubscriptionDesc": "Dieses Team hat aktuell kein aktives PRO-Abo.",
+        "confirmCancel": "Bist du sicher, dass du das Abo kündigen möchtest?",
+        "cancelInfo": "Du kannst die Funktionen bis zum Ende der Laufzeit weiter nutzen.",
+        "subscriptionCanceled": "Abo wird gekündigt",
+        "subscriptionReactivated": "Kündigung zurückgenommen",
+        "managedByOther": "Das Abo wird von einem anderen Teammitglied verwaltet."
+    }
 }

@@ -142,6 +142,27 @@
     "clBugfixes": "Bug Fixes",
     "changelogData": [
         {
+            "version": "3.0.0",
+            "date": "December 2025",
+            "features": [
+                "PRO Subscription: Unlock unlimited members, exports, and more.",
+                "Easy payment management via Stripe (Credit Card, SEPA, PayPal, etc.).",
+                "InfoCards: Important notices can now be permanently dismissed (saved to database).",
+                "Team Switching: Faster switching between teams and improved management.",
+                "Extended Payment Methods: Support for SEPA Direct Debit, Bancontact, iDEAL, and more."
+            ],
+            "technical": [
+                "Server-side persistence for InfoCard dismissal status.",
+                "Optimized Stripe webhooks for subscription synchronization.",
+                "Refactoring of navigation structure and header components."
+            ],
+            "bugfixes": [
+                "Fix: Corrected subscription status display for canceled subscriptions.",
+                "Fix: URL updates when switching tabs on the team page.",
+                "Fix: Team switcher now behaves correctly on subpages."
+            ]
+        },
+        {
             "version": "2.8.0",
             "date": "December 2025",
             "features": [
@@ -433,7 +454,9 @@
     "landingStartApp": "Start App",
     "installPWA": "Install App",
     "createTeam": "Create Team",
-    "create": "Create",
+    "createNewTeam": "Create New Team",
+    "upgradeTeam": "Upgrade Team",
+    "forTeam": "for",
     "teamName": "Team Name",
     "selectTeam": "Select Team",
     "teams": "Teams",
@@ -521,6 +544,8 @@
     "privacyAuthText": "For login, we use NextAuth.js with Google and GitHub providers. When you log in via these services, we receive your email address, name, and profile picture. We use this data exclusively for identification and user management.",
     "privacyEmails": "Email Delivery",
     "privacyEmailsText": "Transaction emails (e.g., invitations) are sent via Resend (2261 Market Street #4816, San Francisco, CA 94114, USA). Data processing takes place in Ireland. We have concluded a data processing agreement with Resend.",
+    "privacyPayments": "Payment Processing (Stripe)",
+    "privacyPaymentsText": "We use Stripe for payment processing. Stripe processes payment data (e.g., credit card information) on our behalf. Data transmission is encrypted. The legal basis is Art. 6 (1) (b) GDPR (performance of a contract). For more information, please see Stripe's privacy policy: https://stripe.com/privacy.",
     "privacyRights": "Your Rights",
     "privacyRightsText": "You have the right to access, rectification, deletion, and restriction of processing of your stored data. You can object to the processing of your data at any time.",
     "disclaimerTitle": "Disclaimer & Technical Notices",
@@ -566,6 +591,7 @@
     "emailOptional": "Email (optional)",
     "inviteEmailHint": "If provided, an invitation email will be sent",
     "addMember": "Add Member",
+    "invite": "Invite",
     "email": "Email",
     "inviteDescription": "The person will be added to the team. If they don't have an account yet, they can sign up and will automatically be part of the team.",
     "inviteSuccess": "Invitation sent successfully!",
@@ -678,5 +704,49 @@
     "errorHome": "Home",
     "errorGlobalTitle": "Critical Error",
     "errorGlobalMessage": "A critical error occurred and the application could not be loaded.",
-    "errorReload": "Reload"
+    "errorReload": "Reload",
+    "pro": {
+        "upgradeTitle": "Upgrade to PRO",
+        "upgradeDescription": "Get unlimited members, iCal integration, and PDF exports.",
+        "upgradeButton": "Upgrade Now",
+        "unlockFeaturesTitle": "Unlock Pro Features",
+        "unlockFeaturesDescription": "Get unlimited members, import/export functionality, and priority support.",
+        "billingAddress": "Billing Address",
+        "payNow": "Pay now",
+        "processing": "Processing...",
+        "priceLabel": "Price",
+        "intervalYearly": "Yearly",
+        "intervalMonthly": "Monthly",
+        "productName": "Drachenboot Manager PRO",
+        "benefits": {
+            "title": "Why go Pro?",
+            "item1": "Unlimited Members",
+            "item2": "Export to PDF & Image",
+            "item3": "iCal Calendar Integration",
+            "item4": "Priority Support",
+            "item5": "Support Future Development"
+        },
+        "manageSubscription": "Manage Subscription",
+        "manageSubscriptionDesc": "Your team is PRO! View invoices and update payment details here.",
+        "upgradeSuccessTitle": "🎉 Welcome to PRO!",
+        "upgradeSuccessMessage": "Your team has been successfully upgraded to PRO. Enjoy the new features!",
+        "subscription": "Subscription",
+        "subscriptionStatus": "Subscription Status",
+        "nextBillingDate": "Next Billing Date",
+        "cancelSubscription": "Cancel Subscription",
+        "reactivateSubscription": "Reactivate Subscription",
+        "viewInvoices": "View Invoices",
+        "updatePaymentMethod": "Update Payment Method",
+        "canceledAtPeriodEnd": "Will be canceled at period end",
+        "perMonth": "/month",
+        "perYear": "/year",
+        "paymentMethod": "Payment Method",
+        "noSubscription": "No Active Subscription",
+        "noSubscriptionDesc": "This team does not have an active PRO subscription.",
+        "confirmCancel": "Are you sure you want to cancel your subscription?",
+        "cancelInfo": "You can continue using the features until the end of the current period.",
+        "subscriptionCanceled": "Subscription will be canceled",
+        "subscriptionReactivated": "Cancellation reverted",
+        "managedByOther": "This subscription is managed by another team member."
+    }
 }

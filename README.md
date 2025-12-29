@@ -204,6 +204,104 @@ Dies startet einen lokalen Server unter `http://localhost:3010`, auf dem du alle
 
 Benötigte Node.js Version: **18+** (nutze `nvm use`, falls nötig).
 
+### Stripe Integration (Payments & Subscriptions)
+
+Wir nutzen **Stripe** für die Zahlungsabwicklung des PRO-Abos.
+
+#### Umgebungsvariablen
+
+Folgende Variablen müssen in `.env` gesetzt werden:
+
+```bash
+STRIPE_SECRET_KEY=sk_test_...           # Stripe Secret Key (Test Mode)
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...  # Stripe Publishable Key (Test Mode)
+STRIPE_PRO_PRICE_ID=price_...           # Preis-ID des PRO-Produkts (monthly oder yearly)
+STRIPE_WEBHOOK_SECRET=whsec_...         # Webhook Secret (siehe unten)
+```
+
+#### Stripe CLI für lokale Entwicklung
+
+1. **Installation (macOS):**
+   ```bash
+   brew install stripe/stripe-cli/stripe
+   ```
+
+2. **Login:**
+   ```bash
+   stripe login
+   ```
+   Folge den Anweisungen im Browser, um den Pairing-Code zu bestätigen.
+
+3. **Webhook-Listener starten:**
+   ```bash
+   stripe listen --forward-to localhost:3000/api/webhooks/stripe
+   ```
+   Dieser Befehl gibt dir den `STRIPE_WEBHOOK_SECRET` aus (beginnt mit `whsec_...`). Trage diesen in deine `.env` ein.
+
+4. **Events testen:**
+   ```bash
+   stripe trigger invoice.payment_succeeded
+   ```
+
+#### Test-Kreditkarten
+
+| Szenario | Kartennummer | CVC | Ablaufdatum |
+|----------|--------------|-----|-------------|
+| **Erfolgreiche Zahlung** | `4242 4242 4242 4242` | Beliebig | Beliebig in der Zukunft |
+| **3D Secure erforderlich** | `4000 0025 0000 3155` | Beliebig | Beliebig |
+| **Zahlung abgelehnt** | `4000 0000 0000 0002` | Beliebig | Beliebig |
+| **Unzureichende Deckung** | `4000 0000 0000 9995` | Beliebig | Beliebig |
+
+**SEPA-Lastschrift (Test):** `DE89 3704 0044 0532 0130 00`
+
+👉 Vollständige Liste: [Stripe Testing Docs](https://docs.stripe.com/testing)
+
+### InfoCards System
+
+Ein generisches System für dauerhaft ausblendbare Hinweise (Dismissible Info Cards), das den Status pro User in der Datenbank speichert.
+
+*   **Datenbank**: `DismissedInfoCard` Model speichert `userId` + `cardId`.
+*   **Frontend**: `<InfoCard id="my-card-id">...</InfoCard>` Komponente.
+*   **Backend**: `dismissInfoCard` Server Action.
+*   **Verwendung**: Nutze dies für Onboarding-Elemente oder einmalige Hinweise, die nicht wiederkehren sollen.
+
+### PRO Subscription Model
+
+Das PRO-Abo erweitert Teams um Premium-Features:
+
+#### Pläne
+
+| Plan | Mitglieder | Features |
+|------|------------|----------|
+| **FREE** | Max. 25 | Basis-Features, Magic KI, Terminplanung |
+| **PRO** | Unbegrenzt | + PDF/Bild Export, iCal Integration, bevorzugter Support |
+
+#### Preisgestaltung
+
+- **Jährlich:** €48/Jahr (€4/Monat, -20% Rabatt)
+- **Monatlich:** €5/Monat
+
+#### Technische Umsetzung
+
+- **Kauf:** `/app/teams/[id]/upgrade` - Custom Checkout mit Stripe Elements
+- **Webhook:** `/api/webhooks/stripe` - Updates `team.plan` auf `'PRO'` bei erfolgreicher Zahlung
+- **Portal:** `/api/stripe/create-portal-session` - Öffnet Stripe Customer Portal für Abo-Verwaltung
+- **Preis-Auswahl:** Backend wählt dynamisch zwischen Monthly/Yearly Price-ID basierend auf Frontend-Auswahl
+
+#### Datenbank-Felder (Team-Modell)
+
+```prisma
+plan               String   @default("FREE")  // 'FREE' | 'PRO'
+subscriptionStatus String?                    // 'active' | 'canceled' | 'past_due'
+stripeCustomerId   String?                    // Stripe Customer ID
+maxMembers         Int      @default(25)      // Mitglieder-Limit
+```
+
+#### Wichtige Events (Webhooks)
+
+- `invoice.payment_succeeded` → Team wird auf PRO upgegradet
+- `customer.subscription.deleted` → Team wird auf FREE zurückgesetzt
+
 ## 🧠 Key Concepts
 
 *   **Team**: Eine Gruppe mit eigenem Kader und Terminkalender. Mehrere Teams können parallel verwaltet werden.

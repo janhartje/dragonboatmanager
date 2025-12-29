@@ -1,11 +1,11 @@
 'use client';
 
 import React, { useState, useEffect, use } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useDrachenboot } from '@/context/DrachenbootContext';
 import { useLanguage } from '@/context/LanguageContext';
-import { ArrowLeft, Trash2, AlertTriangle, Shield, ShieldAlert, UserMinus } from 'lucide-react';
+import { ArrowLeft, Trash2, AlertTriangle, Shield, ShieldAlert, UserMinus, CreditCard, Calendar, ExternalLink } from 'lucide-react';
 import Header from '@/components/ui/Header';
 import Footer from '@/components/ui/Footer';
 import DragonLogo from '@/components/ui/DragonLogo';
@@ -13,19 +13,237 @@ import TeamSettingsForm from '@/components/drachenboot/team/TeamSettingsForm';
 import { InviteMemberForm } from '@/components/drachenboot/team/InviteMemberForm';
 import { HelpModal, AlertModal, ConfirmModal } from '@/components/ui/Modals';
 import PageTransition from '@/components/ui/PageTransition';
+import TeamSwitcher from '@/components/drachenboot/TeamSwitcher';
+import { UserMenu } from '@/components/auth/UserMenu';
+
+import { UpgradeView } from '@/components/drachenboot/pro/UpgradeView';
+import { Team } from '@/types';
+
+
+interface SubscriptionDetails {
+  hasSubscription: boolean;
+  plan: string;
+  isBillingUser?: boolean;
+  subscription?: {
+    id: string;
+    status: string;
+    cancelAtPeriodEnd: boolean;
+    currentPeriodEnd: number;
+    currentPeriodStart: number;
+    interval?: string;
+    amount: number;
+    currency?: string;
+    priceId?: string;
+    paymentMethod?: {
+      brand?: string;
+      last4?: string;
+      expMonth?: number;
+      expYear?: number;
+    } | null;
+  };
+}
+
+function SubscriptionTab({ team, t }: { team: Team; t: (key: string) => string }) {
+  const teamId = team.id;
+  const [loading, setLoading] = useState(true);
+  const [subData, setSubData] = useState<SubscriptionDetails | null>(null);
+  const [actionLoading, setActionLoading] = useState(false);
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+
+  // Move fetchSubscription callback to useCallback or inside useEffect to avoid missing dependency warning
+  useEffect(() => {
+    const fetchSubscription = async () => {
+        setLoading(true);
+        try {
+          const res = await fetch(`/api/stripe/subscription-details?teamId=${teamId}`);
+          const data = await res.json();
+          setSubData(data);
+        } catch (e) {
+          console.error('Failed to fetch subscription:', e);
+        }
+        setLoading(false);
+      };
+
+    fetchSubscription();
+  }, [teamId]);
+
+  const handleAction = async (action: 'cancel' | 'reactivate') => {
+    setActionLoading(true);
+    try {
+      await fetch('/api/stripe/update-subscription', {
+        method: 'POST',
+        body: JSON.stringify({ teamId, action })
+      });
+      // We need to re-fetch here effectively.
+      // Since it's inside useEffect, we can trigger a re-fetch by invalidating query or just calling logic again?
+      // Simple way: duplicate the fetch logic or extract it?
+      // Since we moved it inside useEffect, let's just reload the page or use a simple hack for now?
+      // Better: let's reload the window for simplicity or just properly extract fetchSubscription.
+      window.location.reload(); 
+    } catch (e) {
+      console.error('Action failed:', e);
+    }
+    setActionLoading(false);
+    setShowCancelConfirm(false);
+  };
+
+  const openPortal = async () => {
+    const res = await fetch('/api/stripe/create-portal-session', {
+      method: 'POST',
+      body: JSON.stringify({ teamId })
+    });
+    const data = await res.json();
+    if (data.url) window.location.href = data.url;
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+
+
+  if (!subData?.hasSubscription || !subData.subscription) {
+    return <UpgradeView team={team} />;
+  }
+
+  const sub = subData.subscription;
+  const nextBilling = new Date(sub.currentPeriodEnd * 1000).toLocaleDateString();
+  const amount = (sub.amount / 100).toFixed(2);
+  const interval = sub.interval === 'year' ? t('pro.perYear') : t('pro.perMonth');
+
+  return (
+    <div className="space-y-6">
+      {/* Status Card */}
+      <div className={`p-6 rounded-lg border ${
+        sub.cancelAtPeriodEnd 
+          ? 'bg-amber-50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-800'
+          : 'bg-green-50 dark:bg-green-950/20 border-green-200 dark:border-green-800'
+      }`}>
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+              sub.cancelAtPeriodEnd 
+                ? 'bg-amber-100 dark:bg-amber-900/30'
+                : 'bg-green-100 dark:bg-green-900/30'
+            }`}>
+              <CreditCard className={sub.cancelAtPeriodEnd ? 'text-amber-600' : 'text-green-600'} size={20} />
+            </div>
+            <div>
+              <h3 className="font-bold text-lg text-slate-800 dark:text-slate-200">PRO</h3>
+              <p className={`text-sm ${sub.cancelAtPeriodEnd ? 'text-amber-600' : 'text-green-600'}`}>
+                {sub.cancelAtPeriodEnd ? t('pro.canceledAtPeriodEnd') : 'Aktiv'}
+              </p>
+            </div>
+          </div>
+          <div className="text-right">
+            <p className="text-2xl font-bold text-slate-800 dark:text-slate-200">€{amount}<span className="text-sm font-normal text-slate-500">{interval}</span></p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
+          <Calendar size={16} />
+          <span>{t('pro.nextBillingDate')}: <strong>{nextBilling}</strong></span>
+        </div>
+      </div>
+
+      {/* Payment Method */}
+      {sub.paymentMethod && (
+        <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700">
+          <h4 className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-2">{t('pro.paymentMethod')}</h4>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-6 bg-slate-200 dark:bg-slate-700 rounded flex items-center justify-center text-xs font-bold uppercase">
+              {sub.paymentMethod.brand}
+            </div>
+            <span className="text-slate-700 dark:text-slate-300">•••• {sub.paymentMethod.last4}</span>
+            <span className="text-slate-500 text-sm">exp {sub.paymentMethod.expMonth}/{sub.paymentMethod.expYear}</span>
+          </div>
+        </div>
+      )}
+
+      {/* Action Buttons - Only for billing user */}
+      {subData.isBillingUser ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <button
+            onClick={() => openPortal()}
+            className="flex items-center justify-center gap-2 px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors text-slate-700 dark:text-slate-300 font-medium"
+          >
+            <CreditCard size={18} />
+            {t('pro.updatePaymentMethod')}
+          </button>
+          <button
+            onClick={() => openPortal()}
+            className="flex items-center justify-center gap-2 px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors text-slate-700 dark:text-slate-300 font-medium"
+          >
+            <ExternalLink size={18} />
+            {t('pro.viewInvoices')}
+          </button>
+        </div>
+      ) : (
+        <div className="p-4 bg-slate-100 dark:bg-slate-800/50 rounded-lg text-center text-slate-500 dark:text-slate-400 text-sm">
+          {t('pro.managedByOther') || 'Das Abo wird von einem anderen Teammitglied verwaltet.'}
+        </div>
+      )}
+
+      {/* Cancel/Reactivate - Only for billing user */}
+      {subData.isBillingUser && (
+        <div className="pt-4 border-t border-slate-200 dark:border-slate-800">
+          {sub.cancelAtPeriodEnd ? (
+            <button
+              onClick={() => handleAction('reactivate')}
+              disabled={actionLoading}
+              className="w-full py-3 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors disabled:opacity-50"
+            >
+              {actionLoading ? '...' : t('pro.reactivateSubscription')}
+            </button>
+          ) : (
+            <button
+              onClick={() => setShowCancelConfirm(true)}
+              className="w-full py-3 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 font-medium rounded-lg transition-colors border border-red-200 dark:border-red-900/30"
+            >
+              {t('pro.cancelSubscription')}
+            </button>
+          )}
+        </div>
+      )}
+
+      {/* Cancel Confirmation */}
+      <ConfirmModal
+        isOpen={showCancelConfirm}
+        title={t('pro.cancelSubscription')}
+        message={`${t('pro.confirmCancel')} ${t('pro.cancelInfo')}`}
+        confirmLabel={t('pro.cancelSubscription')}
+        isDestructive={true}
+        onCancel={() => setShowCancelConfirm(false)}
+        onConfirm={() => handleAction('cancel')}
+      />
+    </div>
+  );
+}
 
 export default function TeamDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { teams, updateTeam, deleteTeam, isDarkMode, toggleDarkMode, paddlers, updatePaddler, deletePaddler, refetchPaddlers, userRole, isDataLoading } = useDrachenboot();
   const { t } = useLanguage();
   
 
   const [deleteConfirm, setDeleteConfirm] = useState(false);
-  const [activeTab, setActiveTab] = useState<'general' | 'members'>('general');
+  
+  // Refactor: activeTab is fully controlled by URL
+  // We use a helper to get safe tab value
+  const getTabFromUrl = () => {
+      const tab = searchParams.get('tab');
+      return (tab === 'general' || tab === 'members' || tab === 'subscription') ? tab : 'general';
+  };
+  const activeTab = getTabFromUrl();
+  
   const [alertMessage, setAlertMessage] = useState<string | null>(null);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [memberToRemove, setMemberToRemove] = useState<any>(null);
+  const [memberToRemove, setMemberToRemove] = useState<{ id: string | number; name: string } | null>(null);
 
   const team = teams.find(t => t.id === id);
 
@@ -119,7 +337,7 @@ export default function TeamDetailPage({ params }: { params: Promise<{ id: strin
           }
           leftAction={
             <button 
-              onClick={() => router.push('/app/teams')} 
+              onClick={() => router.push('/app')} 
               className="p-2 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-500 hover:text-blue-600 hover:border-blue-300 transition-colors"
             >
               <ArrowLeft size={20} />
@@ -130,12 +348,18 @@ export default function TeamDetailPage({ params }: { params: Promise<{ id: strin
           toggleDarkMode={toggleDarkMode}
           showHelp={true}
           onHelp={() => setShowHelp(true)}
-        />
+        >
+          <TeamSwitcher />
+          <div className="w-px h-8 bg-slate-100 dark:bg-slate-800 mx-2"></div>
+          <UserMenu />
+        </Header>
 
         <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col min-h-[600px]">
           <div className="flex border-b border-slate-200 dark:border-slate-800">
             <button
-              onClick={() => setActiveTab('general')}
+              onClick={() => {
+                router.push(`/app/teams/${id}?tab=general`);
+              }}
               className={`flex-1 py-4 text-sm font-medium transition-colors border-b-2 ${
                 activeTab === 'general'
                   ? 'border-blue-600 text-blue-600 dark:border-blue-400 dark:text-blue-400 bg-blue-50/50 dark:bg-blue-900/10'
@@ -145,7 +369,9 @@ export default function TeamDetailPage({ params }: { params: Promise<{ id: strin
               {t('general') || 'General'}
             </button>
             <button
-              onClick={() => setActiveTab('members')}
+              onClick={() => {
+                router.push(`/app/teams/${id}?tab=members`);
+              }}
               className={`flex-1 py-4 text-sm font-medium transition-colors border-b-2 ${
                 activeTab === 'members'
                   ? 'border-blue-600 text-blue-600 dark:border-blue-400 dark:text-blue-400 bg-blue-50/50 dark:bg-blue-900/10'
@@ -153,6 +379,18 @@ export default function TeamDetailPage({ params }: { params: Promise<{ id: strin
               }`}
             >
               {t('members') || 'Members'}
+            </button>
+            <button
+              onClick={() => {
+                router.push(`/app/teams/${id}?tab=subscription`);
+              }}
+              className={`flex-1 py-4 text-sm font-medium transition-colors border-b-2 ${
+                activeTab === 'subscription'
+                  ? 'border-blue-600 text-blue-600 dark:border-blue-400 dark:text-blue-400 bg-blue-50/50 dark:bg-blue-900/10'
+                  : 'border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/50'
+              }`}
+            >
+              {t('pro.subscription') || 'Subscription'}
             </button>
           </div>
 
@@ -197,7 +435,7 @@ export default function TeamDetailPage({ params }: { params: Promise<{ id: strin
                   </div>
                 </div>
               </div>
-            ) : (
+            ) : activeTab === 'members' ? (
               <div className="space-y-8">
                 <div>
                   <h3 className="text-lg font-medium text-slate-800 dark:text-slate-200 mb-4">
@@ -279,7 +517,9 @@ export default function TeamDetailPage({ params }: { params: Promise<{ id: strin
                   </div>
                 </div>
               </div>
-            )}
+            ) : activeTab === 'subscription' ? (
+              <SubscriptionTab team={team} t={t} />
+            ) : null}
           </div>
         </div>
 

@@ -43,6 +43,11 @@ const PrivacyModal: React.FC<PrivacyModalProps> = ({ onClose }) => {
         </section>
 
         <section>
+          <h3 className="font-bold text-slate-900 dark:text-white mb-2 text-base">{t('privacyPayments')}</h3>
+          <p className="text-sm">{t('privacyPaymentsText')}</p>
+        </section>
+
+        <section>
           <h3 className="font-bold text-slate-900 dark:text-white mb-2 text-base">{t('privacyRights')}</h3>
           <p className="text-sm">{t('privacyRightsText')}</p>
         </section>

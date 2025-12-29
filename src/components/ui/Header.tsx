@@ -5,6 +5,7 @@ import { useLanguage } from '@/context/LanguageContext';
 interface HeaderProps {
   title: React.ReactNode;
   subtitle?: React.ReactNode;
+  badge?: React.ReactNode;
   logo?: React.ReactNode;
   leftAction?: React.ReactNode;
   children?: React.ReactNode;
@@ -20,6 +21,7 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = ({ 
   title, 
   subtitle, 
+  badge,
   logo = null, 
   leftAction = null, 
   children = null, 
@@ -52,6 +54,7 @@ const Header: React.FC<HeaderProps> = ({
         <div>
           <div className="font-bold text-xl text-slate-800 dark:text-white leading-tight flex items-center gap-2">
             {title}
+            {badge}
           </div>
           {subtitle && <p className="text-xs text-slate-600 dark:text-slate-400 font-medium uppercase tracking-wider">{subtitle}</p>}
         </div>
