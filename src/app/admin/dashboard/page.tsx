@@ -23,6 +23,8 @@ interface DashboardStats {
     openInvites: number;
     activeSessions: number;
     sentEmails: number;
+    pendingEmails: number;
+    failedEmails: number;
   };
   recent: {
     teams: { id: string; name: string; createdAt: string }[];
@@ -154,6 +156,18 @@ export default function AdminDashboard() {
                   value={stats?.counts.sentEmails} 
                   icon={<Send className="w-6 h-6 text-purple-500" />} 
                 />
+                <StatsCard 
+                  label="Queued Emails" 
+                  value={stats?.counts.pendingEmails} 
+                  icon={<Mail className="w-6 h-6 text-yellow-500" />} 
+                />
+                 {(stats?.counts.failedEmails ?? 0) > 0 && (
+                    <StatsCard 
+                    label="Failed Emails" 
+                    value={stats?.counts.failedEmails} 
+                    icon={<Mail className="w-6 h-6 text-red-500" />} 
+                    />
+                 )}
               </div>
 
               {/* Growth Charts */}

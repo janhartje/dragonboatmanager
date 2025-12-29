@@ -142,6 +142,19 @@
     "clBugfixes": "Bug Fixes",
     "changelogData": [
         {
+            "version": "2.8.0",
+            "date": "December 2025",
+            "features": [
+                "Mail Queue System: A new robust system ensures reliable background email delivery.",
+                "Error Pages: User-friendly 404 and error pages."
+            ],
+            "technical": [
+                "SEO Optimization: Improved keywords and metadata for better discoverability.",
+                "Database Cleanup: Removed legacy email logs and replaced them with a centralized queuing system."
+            ],
+            "bugfixes": []
+        },
+        {
             "version": "2.7.1",
             "date": "December 2025",
             "features": [],

@@ -155,15 +155,22 @@ model Team {
   email     String?
 }
 
-model SentEmail {
+model EmailQueue {
   id        String   @id @default(cuid())
   to        String[]
   subject   String
-  template  String   // e.g., "WelcomeEmail"
+  body      String   @db.Text // Rendered HTML
+  from      String?
+  replyTo   String?
+  template  String?  // For debugging/logging
   props     Json?    // Template props for debugging
-  resendId  String?  // ID returned by Resend API
-  status    String   @default("sent") // "sent", "failed"
-  error     String?  @db.Text
+  status    String   @default("pending") // pending, processing, sent, failed
+  attempts  Int      @default(0)
+  lastError String?  @db.Text
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status])
+  @@index([createdAt])
 }
 

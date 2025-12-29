@@ -142,6 +142,19 @@
     "clBugfixes": "Fehlerbehebungen",
     "changelogData": [
         {
+            "version": "2.8.0",
+            "date": "Dezember 2025",
+            "features": [
+                "E-Mail Warteschlange: Ein neues, robustes System sorgt für zuverlässigen E-Mail-Versand im Hintergrund.",
+                "Fehlerseiten: Benutzerfreundliche 404- und Fehlerseiten."
+            ],
+            "technical": [
+                "SEO Optimierung: Verbesserte Keywords und Metadaten für bessere Auffindbarkeit.",
+                "Datenbank Bereinigung: Veraltete E-Mail-Logs entfernt und durch zentrales Queuing-System ersetzt."
+            ],
+            "bugfixes": []
+        },
+        {
             "version": "2.7.1",
             "date": "Dezember 2025",
             "features": [],

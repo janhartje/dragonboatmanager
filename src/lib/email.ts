@@ -1,9 +1,7 @@
-import { Resend } from 'resend';
 import { render } from '@react-email/render';
 import prisma from '@/lib/prisma';
 import { Prisma } from '@prisma/client';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
 
 interface SendEmailParams {
   to: string | string[];
@@ -26,76 +24,41 @@ export const sendEmail = async ({
 }: SendEmailParams) => {
   const recipients = Array.isArray(to) ? to : [to];
   
-  if (!process.env.RESEND_API_KEY) {
-    console.warn('RESEND_API_KEY is not set. Email not sent.');
-    // Log failed attempt
-    await prisma.sentEmail.create({
-      data: {
-        to: recipients,
-        subject,
-        template,
-        props: props as Prisma.InputJsonValue,
-        status: 'failed',
-        error: 'Missing API Key',
-      },
-    });
-    return { success: false, error: 'Missing API Key' };
-  }
-
   try {
     // Pre-render the React component to HTML
     const html = await render(react);
     
-    const { data, error } = await resend.emails.send({
-      from,
-      to: recipients,
-      replyTo,
-      subject,
-      html,
+    // Add to queue
+    await prisma.emailQueue.create({
+      data: {
+        to: recipients,
+        subject,
+        body: html,
+        from,
+        replyTo,
+        template,
+        props: props as Prisma.InputJsonValue,
+        status: 'pending',
+      },
     });
 
-    if (error) {
-      console.error('Error sending email:', error);
-      // Log failed email
-      await prisma.sentEmail.create({
-        data: {
-          to: recipients,
-          subject,
-          template,
-          props: props as Prisma.InputJsonValue,
-          status: 'failed',
-          error: JSON.stringify(error),
-        },
-      });
-      return { success: false, error };
+    // Optimistically try to process the queue
+    // usage of fetch here might fail if the base url is not available or if network issues
+    // but the email is in the queue safe and sound
+    try {
+        const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+        fetch(`${baseUrl}/api/cron/mail-queue`, { method: 'GET' }).catch(err => {
+            console.warn('Failed to trigger mail queue processor optimistically', err);
+        });
+    } catch {
+        // ignore
     }
 
-    // Log successful email
-    await prisma.sentEmail.create({
-      data: {
-        to: recipients,
-        subject,
-        template,
-        props: props as Prisma.InputJsonValue,
-        resendId: data?.id,
-        status: 'sent',
-      },
-    });
-
-    return { success: true, data };
+    return { success: true };
   } catch (error) {
-    console.error('Exception sending email:', error);
-    // Log exception
-    await prisma.sentEmail.create({
-      data: {
-        to: recipients,
-        subject,
-        template,
-        props: props as Prisma.InputJsonValue,
-        status: 'failed',
-        error: error instanceof Error ? error.message : String(error),
-      },
-    });
+    console.error('Exception queuing email:', error);
+    // Log exception in SentEmail for visibility that it failed to even queue (db down?)
+    // This is a critical failure if DB is down.
     return { success: false, error };
   }
 };
