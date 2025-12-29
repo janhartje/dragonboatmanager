@@ -1,5 +1,5 @@
 import { runAutoFillAlgorithm } from './algorithm';
-import { Paddler, Assignments } from '../types';
+import { Paddler } from '../types';
 
 // Mock helper
 const createPaddler = (id: string, weight: number, skills: string[] = [], priority: number = 1): Paddler => ({
@@ -70,7 +70,7 @@ describe('AutoFill Algorithm', () => {
         expect(assignments).not.toBeNull();
 
         // Check if stroke-p is in row 1
-        const seat = Object.entries(assignments!).find(([k, v]) => v === 'stroke-p');
+        const seat = Object.entries(assignments!).find(([, v]) => v === 'stroke-p');
         expect(seat).toBeDefined();
         // Should be row-1-left or row-1-right
         expect(seat![0]).toMatch(/row-1-(left|right)/);
@@ -213,7 +213,7 @@ describe('AutoFill Algorithm', () => {
         const assignments = runAutoFillAlgorithm(pool, {}, [], 0, 10);
         
         const occupied = new Set<number>();
-        let canisterRows = new Set<number>();
+        const canisterRows = new Set<number>();
         
         Object.keys(assignments!).forEach(k => {
              if (k.includes('row')) {

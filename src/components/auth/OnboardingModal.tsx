@@ -48,7 +48,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({ onClose, paddl
         skills: skillsArray
       });
       onClose();
-    } catch (e: any) {
+    } catch (e: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
       console.error(e);
       setError(e.message || 'Error saving profile');
     } finally {

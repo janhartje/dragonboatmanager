@@ -2,8 +2,8 @@
 
 import { auth, signIn } from "@/auth"
 import prisma from "@/lib/prisma"
-// import { sendEmail } from "@/lib/email"
-// import TeamInviteEmail from "@/emails/templates/TeamInviteEmail"
+
+
 
 // Helper function to send team invite - triggers NextAuth magic link
 async function sendTeamInviteEmail(
@@ -17,13 +17,13 @@ async function sendTeamInviteEmail(
   // auth.ts is configured to intercept this and send a TeamInviteEmail
   // if it finds a pending invite for this email.
   try {
-    // const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000'
+
     await signIn('resend', { 
       email, 
       redirect: false,
       redirectTo: `/app/teams/${teamId}?lang=${lang}`,
     })
-  } catch (_) {
+  } catch {
     // signIn throws a redirect error but the email is sent
     // We can safely ignore this
   }

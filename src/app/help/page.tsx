@@ -2,13 +2,13 @@
 
 import React from 'react'
 import { useLanguage } from '@/context/LanguageContext'
-import { useRouter } from 'next/navigation'
+
 import { ChevronLeft, HelpCircle, Send } from 'lucide-react'
 import Link from 'next/link'
 
 export default function HelpPage() {
   const { t } = useLanguage()
-  // const router = useRouter()
+
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 pb-20">
@@ -304,7 +304,7 @@ export default function HelpPage() {
                 } else {
                   throw new Error('Failed');
                 }
-              } catch (_) {
+              } catch {
                 if (statusDiv) {
                     statusDiv.textContent = t('contactError');
                     statusDiv.className = 'text-sm mt-4 text-red-600 dark:text-red-400 font-medium bg-red-50 dark:bg-red-900/20 p-3 rounded-lg block animate-in fade-in';

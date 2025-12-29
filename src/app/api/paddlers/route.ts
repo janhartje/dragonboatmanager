@@ -65,7 +65,7 @@ export async function GET(request: Request) {
     }
 
     // Redact weight if not CAPTAIN and not own record
-    const redactedPaddlers = paddlers.map((p: any) => {
+    const redactedPaddlers = paddlers.map((p: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
       const requesterRole = p.teamId ? roleMap.get(p.teamId) : null;
       const isOwnRecord = p.userId === session.user.id;
       if (requesterRole !== 'CAPTAIN' && !isOwnRecord) {
@@ -75,7 +75,7 @@ export async function GET(request: Request) {
     });
 
     return NextResponse.json(redactedPaddlers);
-  } catch (_) {
+  } catch {
     return NextResponse.json({ error: 'Failed to fetch paddlers' }, { status: 500 });
   }
 }
@@ -112,7 +112,7 @@ export async function POST(request: Request) {
       },
     });
     return NextResponse.json(paddler);
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed to create paddler' }, { status: 500 });
   }
 }

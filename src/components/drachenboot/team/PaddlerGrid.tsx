@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Users, Pencil, Trash2, Link as LinkIcon, AlertTriangle, Mail, Clock } from 'lucide-react';
+import { Users, Pencil, Trash2, Link as LinkIcon, AlertTriangle, Clock } from 'lucide-react';
 import SkillBadges from '../../ui/SkillBadges';
 import { Paddler } from '@/types';
 

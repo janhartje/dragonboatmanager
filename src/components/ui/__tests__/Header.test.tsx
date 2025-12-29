@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import Header from '../Header';
 import { useLanguage } from '@/context/LanguageContext';
 
@@ -54,7 +54,7 @@ describe('Header', () => {
   it('calls onHelp when help button is clicked', () => {
     const onHelp = jest.fn();
     renderHeader({ onHelp, showHelp: true });
-    const helpButton = screen.getByRole('button', { name: '' }); // Info icon button might not have accessible name, checking structure
+
     // Actually, let's find by the icon or class if needed, but usually role button is good.
     // Since there are multiple buttons (theme, lang), we need to be specific.
     // The help button is the first one if showHelp is true.

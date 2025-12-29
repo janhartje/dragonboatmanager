@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import prisma from '@/lib/prisma';
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
     const session = await auth();
     if (!session?.user?.email) {
@@ -69,6 +69,7 @@ export async function GET(req: NextRequest) {
     ]);
 
     // Aggregate helper
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const aggregate = (items: any[], dateKey: string, type: 'days' | 'months') => {
       const counts: { [key: string]: number } = {};
       

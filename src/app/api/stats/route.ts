@@ -17,6 +17,7 @@ export async function POST(request: Request) {
 
     // Determine active assignments and IDs to fetch
     let assignments = assignmentsOverride;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let event: { assignments: any[]; boatSize: string } | null = null;
     let paddlers: { id: string, weight: number }[] = [];
     let rows = 10;

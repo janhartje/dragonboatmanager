@@ -3,7 +3,7 @@ import en from '@/locales/en.json';
 
 export type Language = 'de' | 'en';
 
-const locales: Record<Language, Record<string, any>> = { de, en };
+const locales: Record<Language, Record<string, unknown>> = { de, en };
 
 /**
  * Simple translation function for emails.
@@ -12,5 +12,5 @@ const locales: Record<Language, Record<string, any>> = { de, en };
  * @returns The translated string, or the key if not found
  */
 export const t = (lang: Language, key: string): string => {
-  return locales[lang]?.[key] ?? key;
+  return (locales[lang]?.[key] as string) ?? key;
 };

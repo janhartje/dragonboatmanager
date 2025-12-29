@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-// import { useRouter } from 'next/navigation';
+
 import Link from 'next/link';
 import { useSession } from "next-auth/react";
 import { useDrachenboot } from '@/context/DrachenbootContext';
@@ -14,21 +14,20 @@ import { UserMenu } from '@/components/auth/UserMenu';
 import { updateProfile } from '@/app/actions/user';
 
 import { Globe, Instagram, Plus, FileUp, Calendar } from 'lucide-react';
-// import { Team } from '@/types';
-// import NewEventForm from './team/NewEventForm'; // Removed
-import { Event } from '@/types';
+
+
+import { Event, Paddler } from '@/types';
 import { EventModal } from './team/EventModal';
 import PaddlerModal from './team/PaddlerModal';
 import { EventsSection } from './team/EventsSection';
 import PaddlerGrid from './team/PaddlerGrid';
-import { Paddler } from '@/types';
 import LoadingSkeleton from '../ui/LoadingScreens';
 import PageTransition from '../ui/PageTransition';
 import WelcomeView from './WelcomeView';
 import { ImportModal } from './team/ImportModal';
 
 const TeamView: React.FC = () => {
-  // const router = useRouter();
+
   const { t } = useLanguage();
   const { 
     teams,
@@ -218,10 +217,7 @@ const TeamView: React.FC = () => {
         });
 
         // Determine main 'side' property for UI preference
-        let side: 'left' | 'right' | 'both' | null = null;
-        if (foundRoles.has('left') && foundRoles.has('right')) side = 'both';
-        else if (foundRoles.has('left')) side = 'left';
-        else if (foundRoles.has('right')) side = 'right';
+
 
         // Skills MUST contain 'left'/'right' for the algorithm to work, plus drum/steer
         let skills = Array.from(foundRoles);
@@ -231,7 +227,7 @@ const TeamView: React.FC = () => {
         // But maybe that's intended (pure drummer).
         // If nothing at all:
         if (skills.length === 0) {
-             side = 'left'; 
+ 
              skills = ['left'];
         }
         
@@ -247,7 +243,7 @@ const TeamView: React.FC = () => {
       }).filter((p): p is import('@/types').Paddler => p !== null);
 
       if (mappedPaddlers.length > 0) {
-         await importPaddlers(mappedPaddlers as any);
+         await importPaddlers(mappedPaddlers as unknown as Record<string, unknown>[]);
       }
     };
 

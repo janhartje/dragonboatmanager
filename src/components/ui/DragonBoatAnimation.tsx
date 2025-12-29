@@ -1,6 +1,14 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+
+interface Particle {
+  id: number;
+  top: number;
+  width: number;
+  duration: number;
+  delay: number;
+}
 
 const DragonBoatAnimation: React.FC = () => {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
@@ -13,13 +21,19 @@ const DragonBoatAnimation: React.FC = () => {
   };
 
   // Stabilize random values
-  const particles = React.useMemo(() => [...Array(15)].map((_, i) => ({
-    id: i,
-    top: Math.random() * 100,
-    width: 100 + Math.random() * 300,
-    duration: 2 + Math.random() * 3,
-    delay: -Math.random() * 5
-  })), []);
+  // Stabilize random values
+  const [particles, setParticles] = useState<Particle[]>([]);
+
+  useEffect(() => {
+    setParticles([...Array(15)].map((_, i) => ({ // eslint-disable-line react-hooks/set-state-in-effect
+        id: i,
+        top: Math.random() * 100,
+        width: 100 + Math.random() * 300,
+        duration: 2 + Math.random() * 3,
+        delay: -Math.random() * 5
+      })));
+
+  }, []);
 
   return (
     <div 
@@ -27,6 +41,7 @@ const DragonBoatAnimation: React.FC = () => {
       onMouseMove={handleMouseMove}
       style={{ perspective: '1000px' }}
     >
+      {/* eslint-disable-next-line react/no-unknown-property */}
       <style jsx>{`
         @keyframes grid-move {
           0% { transform: translateY(0); opacity: 0; }

@@ -7,13 +7,14 @@ import de from '../locales/de.json';
 import en from '../locales/en.json';
 
 interface Translations {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any;
 }
 
 interface LanguageContextType {
   language: string;
   changeLanguage: (lang: string) => void;
-  t: (key: string) => any;
+  t: <T = string>(key: string) => T;
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
@@ -26,7 +27,6 @@ const translations: { [key: string]: Translations } = {
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { data: session, status } = useSession();
   const [language, setLanguage] = useState<string>('de'); // Default to German
-  const [initialized, setInitialized] = useState(false);
 
   // Load language preference
   useEffect(() => {
@@ -40,7 +40,6 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
             if (data.language && translations[data.language]) {
               setLanguage(data.language);
               document.documentElement.lang = data.language;
-              setInitialized(true);
               return;
             }
           }
@@ -54,7 +53,6 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       if (savedLanguage && translations[savedLanguage]) {
         setLanguage(savedLanguage);
         document.documentElement.lang = savedLanguage;
-        setInitialized(true);
         return;
       }
 
@@ -66,7 +64,7 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           document.documentElement.lang = browserLang;
         }
       }
-      setInitialized(true);
+      // setInitialized(true);
     };
 
     if (status !== 'loading') {
@@ -95,8 +93,8 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
   };
 
-  const t = (key: string): any => {
-    return translations[language][key] || key;
+  const t = <T = string>(key: string): T => {
+    return (translations[language][key] as unknown as T) || (key as unknown as T);
   };
 
   return (

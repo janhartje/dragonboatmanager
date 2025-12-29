@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -7,7 +9,7 @@ import { DndContext, DragEndEvent, DragStartEvent, DragOverlay, useSensor, useSe
 import DragonLogo from '../ui/DragonLogo';
 
 import { useDrachenboot } from '@/context/DrachenbootContext';
-// import { runAutoFillAlgorithm } from '@/utils/algorithm'; // Moved to API
+
 import { useLanguage } from '@/context/LanguageContext';
 import { AddGuestModal, HelpModal, ConfirmModal } from '../ui/Modals';
 import Header from '../ui/Header';
@@ -19,7 +21,7 @@ import { useDebounce } from '@/hooks/useDebounce';
 import LoadingSkeleton from '../ui/LoadingScreens';
 import PageTransition from '../ui/PageTransition';
 
-// Sub-components
+
 import StatsPanel from './planner/StatsPanel';
 import PaddlerPool from './planner/PaddlerPool';
 import BoatVisualizer from './planner/BoatVisualizer';
@@ -59,12 +61,12 @@ const PlannerView: React.FC<PlannerViewProps> = ({ eventId }) => {
 
   const isReadOnly = userRole === 'PADDLER';
 
-  // --- REFRESH DATA ON MOUNT ---
+
   useEffect(() => {
     // Ensure we have the latest data when entering planner
     refetchPaddlers();
     refetchEvents();
-  }, []);
+  }, [refetchPaddlers, refetchEvents]);
 
   useEffect(() => {
     // Only start tour if data is loaded
@@ -73,9 +75,9 @@ const PlannerView: React.FC<PlannerViewProps> = ({ eventId }) => {
         checkAndStartTour('planner');
       }, 500);
     }
-  }, [isDataLoading, isLoading]);
+  }, [isDataLoading, isLoading, checkAndStartTour]);
 
-  // --- LOCAL UI STATE ---
+
   const [activeEventId, setActiveEventId] = useState<string>(eventId);
 
 
@@ -95,7 +97,7 @@ const PlannerView: React.FC<PlannerViewProps> = ({ eventId }) => {
   
   const boatRef = useRef<HTMLDivElement>(null);
 
-  // --- COMPUTED ---
+
   const activeEvent = useMemo(() => events.find((e) => e.id === activeEventId) || null, [activeEventId, events]);
   const activeEventTitle = activeEvent ? activeEvent.title : t('unknownEvent');
   const eventDate = activeEvent?.date ? new Date(activeEvent.date).toLocaleDateString(language === 'de' ? 'de-DE' : 'en-US', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '';
@@ -131,7 +133,7 @@ const PlannerView: React.FC<PlannerViewProps> = ({ eventId }) => {
     return [...regular, ...canisters, ...uniqueGuests].sort((a, b) => a.name.localeCompare(b.name));
   }, [paddlers, activeEvent, t]);
 
-  // --- BOAT CONFIG ---
+
   const rows = boatSize === 'small' ? 5 : 10;
   const boatConfig = useMemo(() => {
     const s: BoatConfigItem[] = [{ id: 'drummer', type: 'drummer' }];
@@ -140,7 +142,7 @@ const PlannerView: React.FC<PlannerViewProps> = ({ eventId }) => {
     return s;
   }, [rows]);
 
-  // --- STATS (Server Side Calculation) ---
+
   const [stats, setStats] = useState({ l: 0, r: 0, t: 0, diffLR: 0, f: 0, b: 0, diffFB: 0, c: 0 });
   const [cgStats, setCgStats] = useState({ x: 50, y: 50, targetY: 50 });
   const [isCalculating, setIsCalculating] = useState(false);
@@ -176,9 +178,9 @@ const PlannerView: React.FC<PlannerViewProps> = ({ eventId }) => {
     };
 
     fetchStats();
-  }, [debouncedAssignments, rows, debouncedTargetTrim]);
+  }, [debouncedAssignments, rows, debouncedTargetTrim, activeEventId]);
 
-  // --- ACTIONS ---
+
   const goHome = () => router.push('/app');
 
   const handleAddCanister = async () => {
@@ -256,7 +258,7 @@ const PlannerView: React.FC<PlannerViewProps> = ({ eventId }) => {
         }
       } else {
         // Standard assignment from pool
-        // CRITICAL FIX: Ensure paddler is not already in another seat (Ghost Fix)
+        // Ensure paddler is not already in another seat
         Object.keys(nAss).forEach((k) => { 
             if (nAss[k] === selectedPaddlerId) delete nAss[k]; 
         });
@@ -340,7 +342,7 @@ const PlannerView: React.FC<PlannerViewProps> = ({ eventId }) => {
     setIsExporting(true);
     setTimeout(() => {
       if (boatRef.current) {
-        console.log('Starting export capture...');
+
         // Using html-to-image for better support of modern CSS (oklch etc.)
         toPng(boatRef.current, { 
             cacheBust: true, 
@@ -348,7 +350,6 @@ const PlannerView: React.FC<PlannerViewProps> = ({ eventId }) => {
             backgroundColor: 'transparent' // Explicitly transparent or null
         })
           .then((dataUrl) => {
-            console.log('Canvas captured, generating link...');
             try {
                 const link = document.createElement('a');
                 const safeTitle = (activeEventTitle || 'plan').replace(/[^a-z0-9\u00C0-\u00FF]+/gi, '-').toLowerCase().replace(/(^-|-$)/g, '');
@@ -358,7 +359,7 @@ const PlannerView: React.FC<PlannerViewProps> = ({ eventId }) => {
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
-                console.log('Download click triggered');
+
             } catch (innerErr) {
                 console.error('Link generation failed', innerErr);
             }
@@ -375,7 +376,7 @@ const PlannerView: React.FC<PlannerViewProps> = ({ eventId }) => {
     }, 150);
   };
 
-  // --- DnD ---
+
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
     useSensor(TouchSensor, { activationConstraint: { delay: 250, tolerance: 5 } })
@@ -423,7 +424,7 @@ const PlannerView: React.FC<PlannerViewProps> = ({ eventId }) => {
              }
          } else {
              // From Pool
-             // CRITICAL FIX: Ensure paddler is not already in another seat
+             // Ensure paddler is not already in another seat
              Object.keys(nAss).forEach(k => { if (nAss[k] === paddlerId) delete nAss[k]; });
              nAss[targetSeatId] = paddlerId;
          }

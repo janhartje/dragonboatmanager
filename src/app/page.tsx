@@ -1,7 +1,7 @@
 'use client';
 
 import Link from "next/link";
-import { ArrowRight, Smartphone, Zap, Users, Sun, Moon, Scale, MousePointerClick, Save, ShieldCheck, Heart, Ship } from "lucide-react";
+import { ArrowRight, Smartphone, Zap, Users, Sun, Moon, ShieldCheck, Heart, Ship } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import DragonBoatAnimation from "@/components/ui/DragonBoatAnimation";
 import DragonLogo from "@/components/ui/DragonLogo";
@@ -15,7 +15,8 @@ export default function LandingPage() {
   useEffect(() => {
     // Check system preference on mount
     const isDark = document.documentElement.classList.contains('dark');
-    setIsDarkMode(isDark);
+    setIsDarkMode(isDark); // eslint-disable-line react-hooks/set-state-in-effect
+
   }, []);
 
   const toggleDarkMode = () => {

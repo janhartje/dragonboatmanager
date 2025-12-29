@@ -26,7 +26,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const { t } = useLanguage();
 
   // Define tour configurations
-  const tours: { [key: string]: unknown[] } = {
+  const tours = React.useMemo(() => ({
     welcome: [
       { 
         element: '#tour-welcome', 
@@ -148,7 +148,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
       }
     ]
-  };
+  }), [t]);
 
   useEffect(() => {
     const driverInstance = driver({
@@ -168,41 +168,45 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => clearTimeout(timer);
   }, [t]);
 
-  const startTour = (tourName = 'welcome') => {
-    if (driverObj && tours[tourName]) {
+  const startTour = React.useCallback((tourName = 'welcome') => {
+    if (driverObj && tours[tourName as keyof typeof tours]) {
       driverObj.setConfig({
         showProgress: true,
         animate: true,
         doneBtnText: t('tourDone'),
         nextBtnText: t('tourNext'),
         prevBtnText: t('tourPrev'),
-        steps: tours[tourName] as any[],
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        steps: tours[tourName as keyof typeof tours] as any[],
         onDestroyed: () => {
           localStorage.setItem(`${tourName}_tour_seen`, 'true');
         }
       });
       driverObj.drive();
     }
-  };
+  }, [driverObj, tours, t]);
 
-  const checkAndStartTour = (tourName: string) => {
+  const checkAndStartTour = React.useCallback((tourName: string) => {
     const tourSeen = localStorage.getItem(`${tourName}_tour_seen`);
     if (!tourSeen && driverObj) {
       startTour(tourName);
     }
-  };
+  }, [driverObj, startTour]);
 
   // Check on mount if we should start welcome tour
   useEffect(() => {
     if (driverObj) {
-        setTimeout(() => {
+        // Use a ref or simple condition to prevent double invocation in strict mode if needed, 
+        // but driver.js prevents double drive usually.
+        const timer = setTimeout(() => {
              // Only auto-start welcome tour on main page, logic handled by component usage or here if we check path
              if (window.location.pathname === '/') {
                 checkAndStartTour('welcome');
              }
         }, 500);
+        return () => clearTimeout(timer);
     }
-  }, [driverObj]);
+  }, [driverObj, checkAndStartTour]);
 
   return (
     <TourContext.Provider value={{ startTour, checkAndStartTour }}>

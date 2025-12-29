@@ -3,13 +3,13 @@
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { Loader2, Users, Tent, Calendar, Ship, Home, Mail, TrendingUp } from 'lucide-react';
+import { Users, Tent, Calendar, Ship, Home, Mail, TrendingUp } from 'lucide-react';
 import Header from '@/components/ui/Header';
 import Footer from '@/components/ui/Footer';
 import PageTransition from '@/components/ui/PageTransition';
 import DragonLogo from '@/components/ui/DragonLogo';
 import Link from 'next/link';
-import { useLanguage } from '@/context/LanguageContext';
+
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 import { Monitor, Send } from 'lucide-react'; // Add missing icons
@@ -42,9 +42,9 @@ interface DashboardStats {
 }
 
 export default function AdminDashboard() {
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   const router = useRouter();
-  const { t } = useLanguage();
+
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -54,34 +54,34 @@ export default function AdminDashboard() {
   const [userResolution, setUserResolution] = useState<'days' | 'months'>('days');
 
   useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        setLoading(true);
+        // No query param needed anymore, API returns all data
+        const res = await fetch('/api/admin/stats');
+        if (!res.ok) {
+          if (res.status === 403 || res.status === 401) {
+              router.push('/app');
+              return;
+          }
+          throw new Error('Failed to fetch stats');
+        }
+        const data = await res.json();
+        setStats(data);
+      } catch (err) {
+        setError('Error loading dashboard');
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     if (status === 'unauthenticated') {
       router.push('/login');
     } else if (status === 'authenticated') {
       fetchStats();
     }
   }, [status, router]);
-
-  const fetchStats = async () => {
-    try {
-      setLoading(true);
-      // No query param needed anymore, API returns all data
-      const res = await fetch('/api/admin/stats');
-      if (!res.ok) {
-        if (res.status === 403 || res.status === 401) {
-            router.push('/app');
-            return;
-        }
-        throw new Error('Failed to fetch stats');
-      }
-      const data = await res.json();
-      setStats(data);
-    } catch (err) {
-      setError('Error loading dashboard');
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   if (error) {
     return (

@@ -37,6 +37,7 @@ export async function POST(
       return NextResponse.json({ error: 'Invalid data format' }, { status: 400 });
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const eventsToCreate = events.map((e: any) => {
       // Use centralized date/time parsing utility
       const eventDate = parseEventDateTime(

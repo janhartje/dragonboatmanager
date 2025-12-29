@@ -10,9 +10,9 @@ interface PaddlerModalProps {
   isOpen: boolean;
   onClose: () => void;
   paddlerToEdit: Paddler | null;
-  onSave: (data: any) => void;
+  onSave: (data: any) => void; // eslint-disable-line @typescript-eslint/no-explicit-any
   t: (key: string) => string;
-  teamMembers?: any[];
+  teamMembers?: any[]; // eslint-disable-line @typescript-eslint/no-explicit-any
   errorMessage?: string | null;
 }
 
@@ -42,7 +42,7 @@ const PaddlerModal: React.FC<PaddlerModalProps> = ({ isOpen, onClose, paddlerToE
         setInviteSuccess(false);
         onClose();
       }, 1500);
-    } catch (e: any) {
+    } catch (e: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
       if (e.message === 'USER_ALREADY_MEMBER') {
         setInviteError(t('userAlreadyMember') || 'User is already a team member');
       } else if (e.message === 'EMAIL_ALREADY_INVITED') {

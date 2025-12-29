@@ -123,9 +123,9 @@ export const ImportModal: React.FC<ImportModalProps> = ({
           if (header) {
              let val = cell.value;
              if (typeof val === 'object' && val !== null && 'text' in val) {
-                 val = (val as any).text; 
+                 val = (val as any).text; // eslint-disable-line @typescript-eslint/no-explicit-any 
              } else if (typeof val === 'object' && val !== null && 'result' in val) {
-                 val = (val as any).result;
+                 val = (val as any).result; // eslint-disable-line @typescript-eslint/no-explicit-any
              }
              rowData[header] = val;
           }

@@ -1,7 +1,7 @@
 import React from 'react';
 import { useDraggable } from '@dnd-kit/core';
-import { CSS } from '@dnd-kit/utilities';
-import { Box, X, User } from 'lucide-react';
+
+import { Box, X } from 'lucide-react';
 import SkillBadges from '../../ui/SkillBadges';
 import { Paddler } from '@/types';
 
@@ -28,7 +28,7 @@ const PoolPaddlerItem: React.FC<PoolPaddlerItemProps> = ({
   t,
   isReadOnly
 }) => {
-  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
+  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: `pool-paddler-${paddler.id}`,
     data: {
       type: 'paddler',
@@ -72,7 +72,7 @@ const PoolPaddlerItem: React.FC<PoolPaddlerItemProps> = ({
       style={style}
       {...listeners}
       {...attributes}
-      {...attributes}
+
       onClick={isReadOnly ? undefined : onClick}
       className={`w-28 h-16 rounded-lg border-2 flex flex-col items-center justify-center cursor-grab active:cursor-grabbing transition-all relative group touch-none
         ${base} ${active} ${assignedStyle}

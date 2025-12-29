@@ -1,4 +1,4 @@
-'use client';
+
 
 import PlannerView from '@/components/drachenboot/PlannerView';
 

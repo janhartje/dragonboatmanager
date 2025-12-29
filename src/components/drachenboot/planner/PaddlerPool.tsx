@@ -1,6 +1,6 @@
 import React from 'react';
-import { User, Box, UserPlus, X } from 'lucide-react';
-import SkillBadges from '../../ui/SkillBadges';
+import { User, Box, UserPlus } from 'lucide-react';
+
 import { Paddler, Assignments, Event } from '@/types';
 import PoolPaddlerItem from './PoolPaddlerItem';
 

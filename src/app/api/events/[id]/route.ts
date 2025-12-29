@@ -50,7 +50,7 @@ export async function PUT(
       },
     });
     return NextResponse.json(event);
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed to update event' }, { status: 500 });
   }
 }

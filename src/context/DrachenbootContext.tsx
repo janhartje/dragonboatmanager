@@ -54,7 +54,7 @@ export const useDrachenboot = () => {
 
 export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { data: session, status } = useSession();
-  // --- STATE ---
+
   const [teams, setTeams] = useState<Team[]>([]);
   const [currentTeam, setCurrentTeam] = useState<Team | null>(null);
   const [paddlers, setPaddlers] = useState<Paddler[]>([]);
@@ -65,8 +65,8 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isDataLoading, setIsDataLoading] = useState<boolean>(true);
 
-  // --- API HELPERS ---
-  const fetchTeams = async () => {
+
+  const fetchTeams = useCallback(async () => {
     try {
       const res = await fetch('/api/teams');
       if (res.status === 401) {
@@ -88,7 +88,7 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
     } catch (e) {
       console.error('Failed to fetch teams', e);
     }
-  };
+  }, [currentTeam]);
 
   const fetchPaddlers = useCallback(async () => {
     if (!currentTeam) return;
@@ -113,6 +113,7 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
         const loadedEvents: Event[] = [];
         const loadedAssignments: Record<string, Assignments> = {};
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         data.forEach((apiEvent: { attendances: { paddlerId: string; status: 'yes' | 'no' | 'maybe' }[]; assignments: { isCanister: boolean; seatId: string; paddlerId?: string }[]; id: string; title: string; date: string; type: 'training' | 'regatta'; boatSize?: 'standard' | 'small'; canisterCount?: number; comment?: string; guests?: any[] }) => {
           // Transform attendance array to object
           const attendance: Record<string, 'yes' | 'no' | 'maybe'> = {};
@@ -159,8 +160,7 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
     }
   }, [currentTeam]);
 
-  // --- INITIAL LOAD ---
-  // --- INITIAL LOAD ---
+
   useEffect(() => {
     const init = async () => {
       if (status === 'loading') return;
@@ -223,9 +223,8 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
       mediaQuery.addEventListener('change', handleChange);
       return () => mediaQuery.removeEventListener('change', handleChange);
     }
-  }, [status]);
+  }, [status]); // eslint-disable-line react-hooks/exhaustive-deps
   
-  // Helper function to fetch teams with preference for activeTeamId
   const fetchTeamsWithPreference = async (preferredTeamId: string | null) => {
     // Check for teamId in URL search params
     let urlTeamId: string | null = null;
@@ -263,7 +262,10 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
             teamToSelect = data[0];
           }
           setIsDataLoading(true);
-          setCurrentTeam(teamToSelect);
+          setCurrentTeam(prev => {
+             if (prev && prev.id === teamToSelect.id && JSON.stringify(prev) === JSON.stringify(teamToSelect)) return prev;
+             return teamToSelect;
+          });
           
           // Clean up URL if we used it
           if (urlTeamId && typeof window !== 'undefined') {
@@ -277,7 +279,7 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
     }
   };
 
-  // --- TEAM DATA LOAD ---
+
   useEffect(() => {
     let isMounted = true;
 
@@ -314,7 +316,7 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
     };
   }, [currentTeam, fetchPaddlers, fetchEvents, status]);
 
-  // --- THEME EFFECT ---
+
   useEffect(() => {
     if (isDarkMode) {
       document.documentElement.classList.add('dark');
@@ -326,12 +328,12 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
     localStorage.setItem('drachenboot_theme', isDarkMode ? 'dark' : 'light');
   }, [isDarkMode]);
 
-  // --- TRIM EFFECT ---
+
   useEffect(() => {
     localStorage.setItem('drachenboot_target_trim', targetTrim.toString());
   }, [targetTrim]);
 
-  // --- ACTIONS ---
+
   const toggleDarkMode = useCallback(async () => {
     const newDarkMode = !isDarkMode;
     setIsDarkMode(newDarkMode);
@@ -350,7 +352,7 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
     }
   }, [isDarkMode, status]);
 
-  const createTeam = async (name: string) => {
+  const createTeam = useCallback(async (name: string) => {
     try {
       const res = await fetch('/api/teams', {
         method: 'POST',
@@ -368,9 +370,9 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
     } catch (e) {
       console.error('Failed to create team', e);
     }
-  };
+  }, []);
 
-  const updateTeam = async (id: string, data: Partial<Team>) => {
+  const updateTeam = useCallback(async (id: string, data: Partial<Team>) => {
     try {
       const res = await fetch(`/api/teams/${id}`, {
         method: 'PUT',
@@ -387,9 +389,9 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
     } catch (e) {
       console.error('Failed to update team', e);
     }
-  };
+  }, [currentTeam]);
 
-  const deleteTeam = async (id: string) => {
+  const deleteTeam = useCallback(async (id: string) => {
     try {
       const res = await fetch(`/api/teams/${id}`, {
         method: 'DELETE',
@@ -397,6 +399,9 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
       if (res.ok) {
         setTeams(prev => prev.filter(t => t.id !== id));
         if (currentTeam?.id === id) {
+          // We can't access 'teams' state reliably here if it's stale from closure, 
+          // but we can use functional update if we needed logic, but here we need 'teams' to find next.
+          // Since we use 'teams' in dependency, it's fine.
           const remainingTeams = teams.filter(t => t.id !== id);
           if (remainingTeams.length > 0) {
             setIsDataLoading(true);
@@ -411,7 +416,7 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
     } catch (e) {
       console.error('Failed to delete team', e);
     }
-  };
+  }, [teams, currentTeam]);
 
   const switchTeam = useCallback((teamId: string) => {
     const team = teams.find(t => t.id === teamId);
@@ -535,7 +540,7 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
 
 
   const updateEvent = useCallback(async (id: string, data: Partial<Event>) => {
-    // Optimistic update
+
     setEvents(prev => prev.map(e => e.id === id ? { ...e, ...data } : e));
 
     try {
@@ -551,7 +556,7 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
 
 
   const updateAttendance = useCallback(async (eid: string, pid: number | string, status: 'yes' | 'no' | 'maybe') => {
-    // Optimistic update
+
     setEvents(prev => prev.map(ev => ev.id !== eid ? ev : { ...ev, attendance: { ...ev.attendance, [pid]: status } }));
     
     try {
@@ -567,7 +572,7 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
   }, []);
 
   const updateAssignments = useCallback(async (eid: string, newAssignments: Assignments) => {
-    // Optimistic update
+
     setAssignmentsByEvent(prev => ({ ...prev, [eid]: newAssignments }));
 
     try {
@@ -673,6 +678,7 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
     let myPaddler = null;
     if (session?.user?.id && paddlers.length) {
       myPaddler = paddlers.find(p => p.userId === session.user.id) || null;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       role = (myPaddler as any)?.role || 'PADDLER';
     }
 
@@ -746,7 +752,7 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
     paddlers, events, assignmentsByEvent, targetTrim, isDarkMode, isLoading, isDataLoading,
     toggleDarkMode, addPaddler, updatePaddler, deletePaddler, createEvent, deleteEvent, updateEvent,
     updateAttendance, updateAssignments, addGuest, removeGuest, addCanister, removeCanister,
-    session, fetchTeams, updateTeam, fetchPaddlers, fetchEvents, deleteTeam
+    session, updateTeam, fetchPaddlers, fetchEvents, deleteTeam
   ]);
 
   return (

@@ -9,10 +9,10 @@ import { useDrachenboot } from '@/context/DrachenbootContext';
 
 interface PaddlerFormProps {
   paddlerToEdit: Paddler | null;
-  onSave: (paddler: any) => void;
+  onSave: (paddler: any) => void; // eslint-disable-line @typescript-eslint/no-explicit-any
   onCancel: () => void;
   t: (key: string) => string;
-  teamMembers?: any[];
+  teamMembers?: any[]; // eslint-disable-line @typescript-eslint/no-explicit-any
   isModal?: boolean;
   isGuest?: boolean;
 }
@@ -91,7 +91,7 @@ const PaddlerForm: React.FC<PaddlerFormProps> = ({ paddlerToEdit, onSave, onCanc
     setLinkError(null);
     
     try {
-      const result = await linkPaddlerToAccount(paddlerToEdit.id as string, linkEmail.trim());
+      await linkPaddlerToAccount(paddlerToEdit.id as string, linkEmail.trim());
       setLinkSuccess(true);
       await refetchPaddlers();
       
@@ -99,7 +99,7 @@ const PaddlerForm: React.FC<PaddlerFormProps> = ({ paddlerToEdit, onSave, onCanc
       setTimeout(() => {
         onCancel();
       }, 1500);
-    } catch (e: any) {
+    } catch (e: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
       if (e.message === 'USER_ALREADY_MEMBER') {
         setLinkError(t('userAlreadyMember') || 'User is already a team member');
       } else if (e.message === 'PADDLER_ALREADY_LINKED') {

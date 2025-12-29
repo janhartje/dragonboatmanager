@@ -12,7 +12,7 @@ interface AddGuestModalProps {
 const AddGuestModal: React.FC<AddGuestModalProps> = ({ onClose, onAdd }) => {
   const { t } = useLanguage();
 
-  const handleSave = (data: any) => {
+  const handleSave = (data: { name: string; weight: number; skills: string[] }) => {
     onAdd({
       name: data.name,
       weight: data.weight,

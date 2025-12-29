@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Sun, Moon, Info } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 
@@ -29,7 +29,7 @@ const Header: React.FC<HeaderProps> = ({
   isDarkMode, 
   toggleDarkMode,
   showLanguageToggle = true,
-  showInstallButton = false
+  // showInstallButton = false
 }) => {
   const { language, changeLanguage } = useLanguage();
 

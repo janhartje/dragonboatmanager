@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-var-requires, @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import PaddlerForm from '../PaddlerForm';
@@ -16,6 +16,7 @@ jest.mock('@/context/DrachenbootContext', () => ({
 }));
 
 jest.mock('lucide-react', () => {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const React = require('react');
   return {
     User: () => React.createElement('div', { 'data-testid': 'icon-user' }),
@@ -31,14 +32,17 @@ jest.mock('lucide-react', () => {
 
 // Mock child components to isolate unit test
 jest.mock('@/components/ui/FormInput', () => {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const React = require('react');
   return { FormInput: ({ error, ...props }: any) => React.createElement('input', { ...props, 'data-testid': 'form-input', 'data-error': error ? 'true' : undefined }) };
 });
 jest.mock('@/components/ui/WeightInput', () => {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const React = require('react');
   return { WeightInput: (props: any) => React.createElement('input', { ...props, 'data-testid': 'weight-input' }) };
 });
 jest.mock('@/components/ui/SkillSelector', () => {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const React = require('react');
   return { SkillSelector: () => React.createElement('div', { 'data-testid': 'skill-selector' }) };
 });

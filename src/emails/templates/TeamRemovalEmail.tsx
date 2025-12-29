@@ -1,4 +1,4 @@
-import { Text, Section, Heading } from '@react-email/components';
+import { Text, Heading } from '@react-email/components';
 import EmailLayout from '../components/EmailLayout';
 import { t, Language } from '../utils/i18n';
 import React from 'react';

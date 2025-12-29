@@ -40,7 +40,7 @@ export async function PUT(
       data: { name, website, icon, instagram, facebook, twitter, email },
     });
     return NextResponse.json(team);
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed to update team' }, { status: 500 });
   }
 }

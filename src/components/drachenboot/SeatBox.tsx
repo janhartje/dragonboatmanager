@@ -1,7 +1,7 @@
 import React from 'react';
-import { Drum, ShipWheel, X, Pin, Box, User } from 'lucide-react';
+import { Drum, ShipWheel, X, Pin, Box } from 'lucide-react';
 import { useDraggable, useDroppable } from '@dnd-kit/core';
-import { CSS } from '@dnd-kit/utilities';
+
 import SkillBadges from '../ui/SkillBadges';
 import { BoatConfigItem, Paddler } from '@/types';
 import { useLanguage } from '@/context/LanguageContext';
@@ -45,7 +45,6 @@ const SeatBox: React.FC<SeatBoxProps> = ({
     attributes, 
     listeners, 
     setNodeRef: setDraggableRef, 
-    transform, 
     isDragging 
   } = useDraggable({
     id: `seat-paddler-${seat.id}`,

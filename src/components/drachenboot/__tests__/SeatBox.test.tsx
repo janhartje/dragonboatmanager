@@ -4,8 +4,12 @@ import SeatBox from '../SeatBox';
 import { BoatConfigItem, Paddler } from '@/types';
 
 // Mock SkillBadges to simplify test
-// Mock SkillBadges to simplify test
-jest.mock('../../ui/SkillBadges', () => () => <div data-testid="skill-badges" />);
+
+jest.mock('../../ui/SkillBadges', () => {
+  const MockSkillBadges = () => <div data-testid="skill-badges" />;
+  MockSkillBadges.displayName = 'MockSkillBadges';
+  return MockSkillBadges;
+});
 
 // Mock LanguageContext
 jest.mock('@/context/LanguageContext', () => ({

@@ -8,12 +8,12 @@ import Header from '@/components/ui/Header';
 import Footer from '@/components/ui/Footer';
 import { Home } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useLanguage } from '@/context/LanguageContext';
+
 import PageTransition from '@/components/ui/PageTransition';
 
 const DocsPage = () => {
   const router = useRouter();
-  const { t } = useLanguage();
+
   const [spec, setSpec] = React.useState<object | null>(null);
 
   React.useEffect(() => {

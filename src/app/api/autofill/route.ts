@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { runAutoFillAlgorithm } from '@/utils/algorithm';
-import { Paddler } from '@/types';
+
 import { auth } from '@/auth';
 
 export async function POST(request: Request) {
@@ -52,7 +52,7 @@ export async function POST(request: Request) {
     // 1. Regular Paddlers & Guests (from attendance)
     // Filter: status is 'yes' or 'maybe' (assuming maybe should be included? Planner does.)
     // Wait, Planner logic was: 
-    // const regular = paddlers.filter((p) => !p.isCanister && ['yes', 'maybe'].includes(activeEvent.attendance[p.id]));
+
     
     // We iterate attendances
     const attendees = event.attendances
@@ -103,6 +103,7 @@ export async function POST(request: Request) {
       });
 
     // 2. Canisters
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const canisters: any[] = [];
     const count = event.canisterCount || 0;
     for (let i = 1; i <= count; i++) {

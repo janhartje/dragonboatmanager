@@ -20,10 +20,11 @@ export default function TeamDetailPage({ params }: { params: Promise<{ id: strin
   const { teams, updateTeam, deleteTeam, isDarkMode, toggleDarkMode, paddlers, updatePaddler, deletePaddler, refetchPaddlers, userRole, isDataLoading } = useDrachenboot();
   const { t } = useLanguage();
   
-  const [isLoading, setIsLoading] = useState(true);
+
   const [deleteConfirm, setDeleteConfirm] = useState(false);
   const [activeTab, setActiveTab] = useState<'general' | 'members'>('general');
   const [alertMessage, setAlertMessage] = useState<string | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [memberToRemove, setMemberToRemove] = useState<any>(null);
 
   const team = teams.find(t => t.id === id);
@@ -34,16 +35,13 @@ export default function TeamDetailPage({ params }: { params: Promise<{ id: strin
   const [showHelp, setShowHelp] = useState(false);
 
   useEffect(() => {
-    if (teams.length > 0) {
-      if (team) {
-        setIsLoading(false);
-      } else {
-        // Team not found, redirect
-        router.push('/app/teams');
-      }
+    if (teams.length > 0 && !team && !isDataLoading) {
+      // Team not found, redirect
+      router.push('/app/teams');
     }
-  }, [teams, team, router, id]);
+  }, [teams, team, router, isDataLoading]);
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleSave = async (data: any) => {
     if (team) {
       await updateTeam(team.id, data);
@@ -77,7 +75,7 @@ export default function TeamDetailPage({ params }: { params: Promise<{ id: strin
     }
   };
 
-  if (isLoading || isDataLoading || !team) {
+  if (isDataLoading || !team) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-100 dark:bg-slate-950">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>

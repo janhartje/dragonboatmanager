@@ -40,7 +40,10 @@ export async function POST(
     }
 
     // Separate paddlers into batch (no email) and invite (with email)
+    // Separate paddlers into batch (no email) and invite (with email)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const paddlersToBatch: any[] = [];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const paddlersToInvite: any[] = [];
 
     for (const p of paddlers) {
@@ -113,7 +116,7 @@ export async function POST(
             redirect: false,
             redirectTo: `/app/teams/${teamId}?lang=${inviterLang}`,
           });
-        } catch (err) {
+        } catch {
           // signIn throws redirect error on success in some versions, or we just catch it.
           // We ignore it to continue the loop.
         }

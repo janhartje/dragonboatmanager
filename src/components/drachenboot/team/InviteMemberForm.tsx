@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Button } from "@/components/ui/button"
+
 import { FormInput } from "@/components/ui/FormInput"
 import { Label } from "@/components/ui/label"
 import { inviteMember } from "@/app/actions/team"

@@ -86,7 +86,7 @@ export async function PUT(
       });
     }
     return NextResponse.json(paddler);
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed to update paddler' }, { status: 500 });
   }
 }

@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
-import { useDrachenboot } from '@/context/DrachenbootContext';
+
 import { ImprintModal, ChangelogModal, PrivacyModal } from './Modals';
 import { usePWAInstall } from '@/hooks/usePWAInstall';
 import { useSession } from 'next-auth/react';
