@@ -9,48 +9,45 @@ export async function GET(request: Request) {
   }
 
   const { searchParams } = new URL(request.url);
-  const teamId = searchParams.get('teamId');
+  const requestedTeamId = searchParams.get('teamId');
 
   try {
-    if (teamId) {
-      const membership = await prisma.paddler.findFirst({
-        where: {
-          teamId,
-          userId: session.user.id,
-        },
-      });
+    // Optimization: Fetch all user memberships in one go.
+    // This serves two purposes:
+    // 1. Validates access to the requested team API (or determines which teams to fetch for)
+    // 2. Provides the roles needed to determine if the user is a CAPTAIN (for guest visibility)
+    const userMemberships = await prisma.paddler.findMany({
+      where: { userId: session.user.id },
+      select: { teamId: true, role: true },
+    });
 
-      if (!membership) {
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+    const roleMap = new Map<string, string>();
+    const userTeamIds: string[] = [];
+
+    userMemberships.forEach(m => {
+      if (m.teamId) {
+        roleMap.set(m.teamId, m.role);
+        userTeamIds.push(m.teamId);
       }
-    } else {
-      // If no teamId, return empty or filter by user's teams
-      // For now, let's return empty array if no teamId is provided, as events are usually fetched per team
-      // Or we can fetch all events for all teams the user is in
-      const userTeams = await prisma.paddler.findMany({
-        where: { userId: session.user.id },
-        select: { teamId: true },
-      });
-      const teamIds = userTeams.map(t => t.teamId).filter(Boolean) as string[];
-      
-      if (teamIds.length === 0) {
-        return NextResponse.json([]);
-      }
+    });
+
+    if (userTeamIds.length === 0) {
+      return NextResponse.json([]);
     }
 
-    const where = teamId 
-      ? { teamId } 
-      : { 
-          teamId: { 
-            in: (await prisma.paddler.findMany({
-              where: { userId: session.user.id },
-              select: { teamId: true }
-            })).map(p => p.teamId).filter(Boolean) as string[]
-          } 
-        };
+    let whereClause: any = {};
+
+    if (requestedTeamId) {
+      if (!userTeamIds.includes(requestedTeamId)) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+      }
+      whereClause = { teamId: requestedTeamId };
+    } else {
+      whereClause = { teamId: { in: userTeamIds } };
+    }
 
     const events = await prisma.event.findMany({
-      where,
+      where: whereClause,
       include: {
         attendances: {
           include: {
@@ -62,19 +59,8 @@ export async function GET(request: Request) {
       orderBy: { date: 'asc' },
     });
 
-    // Check permissions
-    const teamIdsToCheck = Array.from(new Set(events.map(e => e.teamId).filter(Boolean) as string[]));
-    const requesterMemberships = await prisma.paddler.findMany({
-      where: {
-        userId: session.user.id,
-        teamId: { in: teamIdsToCheck }
-      },
-      select: { teamId: true, role: true }
-    });
-    const roleMap = new Map<string, string>();
-    requesterMemberships.forEach(m => { if (m.teamId) roleMap.set(m.teamId, m.role); });
-
     const eventsWithGuests = events.map(event => {
+      // Use the pre-fetched role map to check for CAPTAIN status
       const isCaptain = event.teamId && roleMap.get(event.teamId) === 'CAPTAIN';
       
       const guests = event.attendances
@@ -94,7 +80,8 @@ export async function GET(request: Request) {
     });
 
     return NextResponse.json(eventsWithGuests);
-  } catch {
+  } catch (error) {
+    console.error('Error fetching events:', error);
     return NextResponse.json({ error: 'Failed to fetch events' }, { status: 500 });
   }
 }

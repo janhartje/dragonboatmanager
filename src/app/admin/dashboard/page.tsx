@@ -26,7 +26,7 @@ interface DashboardStats {
   };
   recent: {
     teams: { id: string; name: string; createdAt: string }[];
-    events: { id: string; team: { name: string } | null; createdAt: string }[];
+    events: { id: string; title: string; team: { name: string } | null; createdAt: string }[];
     users: { id: string; name: string | null; email: string | null; createdAt: string }[];
   };
   history: {
@@ -308,9 +308,14 @@ export default function AdminDashboard() {
                   <div className="space-y-4">
                     {stats?.recent.events.map((event) => (
                       <div key={event.id} className="flex justify-between items-center py-2 border-b border-slate-100 dark:border-slate-700 last:border-0">
-                        <span className="font-medium text-slate-700 dark:text-slate-300">
-                          {event.team?.name || 'Unknown Team'}
-                        </span>
+                        <div className="flex flex-col">
+                            <span className="font-medium text-slate-700 dark:text-slate-300">
+                            {event.title}
+                            </span>
+                            <span className="text-xs text-slate-500 dark:text-slate-400">
+                            {event.team?.name || 'Unknown Team'}
+                            </span>
+                        </div>
                         <span className="text-xs text-slate-400">
                           {new Date(event.createdAt).toLocaleDateString()}
                         </span>
