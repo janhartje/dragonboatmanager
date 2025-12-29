@@ -32,7 +32,7 @@ jest.mock('lucide-react', () => {
 // Mock child components to isolate unit test
 jest.mock('@/components/ui/FormInput', () => {
   const React = require('react');
-  return { FormInput: ({ ...props }: any) => React.createElement('input', { ...props, 'data-testid': 'form-input' }) };
+  return { FormInput: ({ error, ...props }: any) => React.createElement('input', { ...props, 'data-testid': 'form-input', 'data-error': error ? 'true' : undefined }) };
 });
 jest.mock('@/components/ui/WeightInput', () => {
   const React = require('react');

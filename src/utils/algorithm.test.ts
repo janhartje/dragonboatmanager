@@ -51,7 +51,7 @@ describe('AutoFill Algorithm', () => {
         const avgMid = midWeight / midCount;
         const avgOuter = outerWeight / outerCount;
         
-        console.log(`Avg Mid: ${avgMid}, Avg Outer: ${avgOuter}`);
+
         expect(avgMid).toBeGreaterThan(avgOuter);
     });
 
@@ -96,7 +96,7 @@ describe('AutoFill Algorithm', () => {
              if (ass && ass['steer'] === 'steer-pref') prefCount++;
         }
         
-        console.log(`Preferred Steer Count: ${prefCount}/50`);
+
         expect(prefCount).toBeGreaterThan(30); // Expect > 60% (Logic said 80% chance)
     });
 
@@ -163,7 +163,7 @@ describe('AutoFill Algorithm', () => {
         const match = strokeSeatId!.match(/row-(\d+)/);
         const assignedStrokeRow = parseInt(match![1]);
         
-        console.log(`Stroke assigned to Row ${assignedStrokeRow}`);
+
         
         // Check if assignedStrokeRow is indeed the min occupied row
         const occupied = new Set<number>();
@@ -203,7 +203,7 @@ describe('AutoFill Algorithm', () => {
         expect(assignments?.drummer).toBe('drum-only');
     });
 
-    it('should fill boat from front, leaving empty rows at the back', () => {
+    it('should fill boat from middle outwards, placing canisters at the edges', () => {
         const pool: Paddler[] = [];
         // 10 People normal
         for(let i=0; i<10; i++) pool.push(createPaddler(`p-${i}`, 80, ['left', 'right']));
@@ -223,11 +223,27 @@ describe('AutoFill Algorithm', () => {
              }
         });
         
-        console.log('Occupied:', Array.from(occupied));
-        console.log('CanisterRows:', Array.from(canisterRows));
+        // We expect "Middle Out" behavior.
+        // For 14 people (7 rows) in a 10-row boat, we expect roughly rows 2-8 or 3-9.
+        const minRow = Math.min(...Array.from(occupied));
+        const maxRow = Math.max(...Array.from(occupied));
         
-        // Check if Canisters are in the Outer-most assigned rows.
-        expect(true).toBe(true); // Placeholder
+        // Ensure it's somewhat centered (not just 1-7 or 4-10 exclusively without variance, though 1-7 is possible if random didn't shift)
+        // Actually, just checking that it is a contiguous block is good enough, or that Canisters are at the EDGES of this block.
+        
+        const canisterRowList = Array.from(canisterRows).sort((a,b) => a-b);
+        
+        // Canisters should be in the outer-most rows of the occupied set
+        // e.g. if occupied is 3,4,5,6,7,8,9 -> Canisters should be at 3 and 9 (or similar)
+        
+        // Check if any canister row is a "boundary" row of the occupied, or close to it.
+        // Actually, since we fill "middle out", the last filled rows are the outer ones.
+        // Canisters are low prio, so they are filled LAST. 
+        // So they should end up in the OUTER rows of the assignment block.
+        
+        const isCanisterAtEdge = canisterRowList.every(r => r === minRow || r === maxRow || r === minRow + 1 || r === maxRow - 1);
+        
+        expect(isCanisterAtEdge).toBe(true);
     });
 
     it('should prefer leaving the Last Row empty if possible', () => {
