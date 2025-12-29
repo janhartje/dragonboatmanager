@@ -142,6 +142,18 @@
     "clBugfixes": "Fehlerbehebungen",
     "changelogData": [
         {
+            "version": "2.7.1",
+            "date": "Dezember 2025",
+            "features": [],
+            "technical": [
+                "Datenbank: Indexe für Event-, Paddler-, Teilnehmer- und Zuweisungstabellen hinzugefügt.",
+                "API: Optimierte Datenabfragen für Statistiken und Termine zur Reduzierung der Datenbanklast."
+            ],
+            "bugfixes": [
+                "Admin Dashboard: Fehler behoben, bei dem unter 'Aktuelle Termine' der Teamname statt des Titels angezeigt wurde."
+            ]
+        },
+        {
             "version": "2.7.0",
             "date": "Dezember 2025",
             "features": [

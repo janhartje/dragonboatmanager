@@ -51,7 +51,12 @@ export async function GET() {
       prisma.event.findMany({
         take: 5,
         orderBy: { createdAt: 'desc' },
-        include: { team: { select: { name: true } } },
+        select: {
+          id: true,
+          title: true,
+          createdAt: true,
+          team: { select: { name: true } }
+        },
       }),
       prisma.user.findMany({
         take: 5,

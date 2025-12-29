@@ -84,6 +84,9 @@ model Paddler {
 
   attendances Attendance[]
   assignments Assignment[]
+
+  @@index([userId])
+  @@index([teamId])
 }
 
 model Event {
@@ -101,6 +104,9 @@ model Event {
 
   attendances Attendance[]
   assignments Assignment[]
+
+  @@index([teamId])
+  @@index([date])
 }
 
 model Attendance {
@@ -113,6 +119,8 @@ model Attendance {
   paddler   Paddler  @relation(fields: [paddlerId], references: [id], onDelete: Cascade)
 
   @@unique([eventId, paddlerId])
+  @@index([eventId])
+  @@index([paddlerId])
 }
 
 model Assignment {
@@ -126,6 +134,7 @@ model Assignment {
   paddler   Paddler? @relation(fields: [paddlerId], references: [id], onDelete: Cascade)
 
   @@unique([eventId, seatId])
+  @@index([eventId])
 }
 
 model Team {
