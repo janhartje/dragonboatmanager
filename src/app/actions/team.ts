@@ -30,6 +30,9 @@ async function sendTeamInviteEmail(
 }
 
 export async function inviteMember(teamId: string, email: string) {
+  // Normalize email to lowercase
+  email = email.toLowerCase().trim();
+  
   const session = await auth()
   
   if (!session?.user?.id) {
@@ -65,9 +68,14 @@ export async function inviteMember(teamId: string, email: string) {
     throw new Error("Team not found")
   }
 
-  // Find user by email to check if they are already a member
-  const userToInvite = await prisma.user.findUnique({
-    where: { email },
+  // Find user by email to check if they are already a member (case-insensitive)
+  const userToInvite = await prisma.user.findFirst({
+    where: { 
+      email: {
+        equals: email,
+        mode: 'insensitive',
+      }
+    },
   })
 
   // Check if user is already a member
@@ -84,10 +92,13 @@ export async function inviteMember(teamId: string, email: string) {
     }
   }
 
-  // Check if already invited by email (pending invite)
+  // Check if already invited by email (pending invite) - case-insensitive
   const existingInvite = await prisma.paddler.findFirst({
     where: {
-      inviteEmail: email,
+      inviteEmail: {
+        equals: email,
+        mode: 'insensitive',
+      },
       teamId: teamId,
       // Ensure we don't count fully linked members (userId not null) as pending invites here
       // But typically inviteEmail is cleared when linked.
@@ -122,6 +133,9 @@ export async function inviteMember(teamId: string, email: string) {
 }
 
 export async function linkPaddlerToAccount(paddlerId: string, email: string) {
+  // Normalize email to lowercase
+  email = email.toLowerCase().trim();
+  
   const session = await auth()
   
   if (!session?.user?.id) {
@@ -163,9 +177,14 @@ export async function linkPaddlerToAccount(paddlerId: string, email: string) {
     throw new Error("PADDLER_ALREADY_LINKED")
   }
 
-  // Find user by email
-  const existingUser = await prisma.user.findUnique({
-    where: { email },
+  // Find user by email (case-insensitive)
+  const existingUser = await prisma.user.findFirst({
+    where: { 
+      email: {
+        equals: email,
+        mode: 'insensitive',
+      }
+    },
   })
 
   if (existingUser) {
