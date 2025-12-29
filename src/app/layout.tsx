@@ -18,9 +18,9 @@ export const metadata: Metadata = {
   description: "Plan your dragon boat team efficiently: member management, event planning, and optimal boat lineup with AI support. Works offline as installable app. / Plane dein Drachenboot-Team effizient mit KI-Unterstützung.",
   keywords: [
     // English keywords
-    "Dragon Boat", "Dragon Boat Manager", "Team Management", "Boat Lineup", "Paddler Management", "Training Planning", "Regatta Planning", "PWA", "Offline App", "Dragon Boat Team", "Crew Planning",
+    "Dragon Boat", "Dragon Boat Manager", "Team Management", "Boat Lineup", "Paddler Management", "Training Planning", "Regatta Planning", "PWA", "Offline App", "Dragon Boat Team", "Crew Planning", "Dragon Boat App", "Dragon Boat Software", "Dragon Boat Planner", "Dragon Boat Racing", "Paddling App", "Water Sports Planner", "Team Roster App", "Sports Team Management", "Boat Seating Chart", "Dragon Boat Lineup Builder", "Coach Assistant", "Regatta Schedule", "Training Attendance", "Lineup Optimization", "Team Management Software", "Sports App", "Boat Trim", "Boat AI", "Automatic Lineup", "Smart Lineup", "Magic AI", "Crew AI", "Paddle Sport Manager",
     // German keywords  
-    "Drachenboot", "Drachenboot Manager", "Team Management", "Bootsbesetzung", "Trainingsplanung", "Paddler", "Regatta", "Mannschaftsverwaltung"
+    "Drachenboot", "Drachenboot Manager", "Team Management", "Bootsbesetzung", "Trainingsplanung", "Paddler", "Regatta", "Mannschaftsverwaltung", "Drachenboot App", "Drachenboot Software", "Drachenboot Planer", "Drachenboot Training", "Drachenboot Verein", "Wassersport Software", "Mannschaftssport App", "Sitzplan Drachenboot", "Drachenboot Aufstellung", "Teamkapitän App", "Vereinssport Verwaltung", "Sportverein Manager", "Regattaplanung", "Trainingsbeteiligung", "Drachenboot Rennen", "Bootsbesetzung Software", "Sport App", "Bootstrim", "Boots Trimm", "Boots AI", "Automatische Besetzung", "Magic KI", "Kader Manager Alternative", "SpielerPlus Alternative"
   ],
   authors: [{ name: "Jan Hartje" }],
   creator: "Jan Hartje",
