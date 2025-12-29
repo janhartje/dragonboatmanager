@@ -15,6 +15,7 @@ export async function GET() {
         theme: true,
         language: true,
         activeTeamId: true,
+        toursSeen: true,
       },
     });
 
@@ -33,7 +34,7 @@ export async function PUT(request: Request) {
 
   try {
     const body = await request.json();
-    const { theme, language, activeTeamId } = body;
+    const { theme, language, activeTeamId, toursSeen } = body;
 
     // Validate theme
     if (theme && !['light', 'dark', 'system'].includes(theme)) {
@@ -65,11 +66,13 @@ export async function PUT(request: Request) {
         ...(theme !== undefined && { theme }),
         ...(language !== undefined && { language }),
         ...(activeTeamId !== undefined && { activeTeamId }),
+        ...(toursSeen !== undefined && { toursSeen }), // Overwrite or append logic depends on client sending full array
       },
       select: {
         theme: true,
         language: true,
         activeTeamId: true,
+        toursSeen: true,
       },
     });
 

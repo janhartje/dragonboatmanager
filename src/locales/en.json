@@ -146,13 +146,17 @@
             "date": "December 2025",
             "features": [
                 "Mail Queue System: A new robust system ensures reliable background email delivery.",
-                "Error Pages: User-friendly 404 and error pages."
+                "Error Pages: User-friendly 404 and error pages.",
+                "Tour Sync: Your tour progress is now saved to your profile and synced across devices."
             ],
             "technical": [
                 "SEO Optimization: Improved keywords and metadata for better discoverability.",
                 "Database Cleanup: Removed legacy email logs and replaced them with a centralized queuing system."
             ],
-            "bugfixes": []
+            "bugfixes": [
+                "Tour Fix: The interactive tour now starts correctly on the team dashboard and checks for an active team.",
+                "UI Fix: Prevented screen flickering on reload by immediately applying theme and language settings."
+            ]
         },
         {
             "version": "2.7.1",

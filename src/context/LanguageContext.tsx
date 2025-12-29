@@ -26,51 +26,55 @@ const translations: { [key: string]: Translations } = {
 
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { data: session, status } = useSession();
-  const [language, setLanguage] = useState<string>('de'); // Default to German
+  const [language, setLanguage] = useState<string>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('language');
+      // Validate saved language
+      if (saved && translations[saved]) {
+        return saved;
+      }
+      // Fallback to browser language
+      if (navigator.language) {
+         const browserLang = navigator.language.split('-')[0];
+         if (translations[browserLang]) return browserLang;
+      }
+    }
+    return 'de'; // Default
+  });
 
-  // Load language preference
+  // Load language preference from API
   useEffect(() => {
-    const loadLanguage = async () => {
-      // 1. Try to load from API if logged in
+    // Sync initial document lang
+    document.documentElement.lang = language;
+
+    const syncWithServer = async () => {
+      // Only sync if authenticated
       if (status === 'authenticated' && session?.user) {
         try {
           const response = await fetch('/api/user/preferences');
           if (response.ok) {
             const data = await response.json();
             if (data.language && translations[data.language]) {
-              setLanguage(data.language);
-              document.documentElement.lang = data.language;
-              return;
+              // Server wins -> update local state and storage
+              if (data.language !== language) {
+                 setLanguage(data.language);
+                 localStorage.setItem('language', data.language);
+                 document.documentElement.lang = data.language;
+              }
             }
           }
         } catch (error) {
           console.error('Failed to load language preference:', error);
         }
       }
-
-      // 2. Try localStorage
-      const savedLanguage = localStorage.getItem('language');
-      if (savedLanguage && translations[savedLanguage]) {
-        setLanguage(savedLanguage);
-        document.documentElement.lang = savedLanguage;
-        return;
-      }
-
-      // 3. Fall back to browser language
-      if (typeof navigator !== 'undefined') {
-        const browserLang = navigator.language.split('-')[0];
-        if (translations[browserLang]) {
-          setLanguage(browserLang);
-          document.documentElement.lang = browserLang;
-        }
-      }
-      // setInitialized(true);
     };
 
     if (status !== 'loading') {
-      loadLanguage();
+      syncWithServer();
     }
-  }, [session, status]);
+    // We only want to run this on mount/auth-change, not when language changes locally
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [status, session]);
 
   const changeLanguage = async (lang: string) => {
     if (translations[lang]) {

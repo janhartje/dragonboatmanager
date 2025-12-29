@@ -146,13 +146,17 @@
             "date": "Dezember 2025",
             "features": [
                 "E-Mail Warteschlange: Ein neues, robustes System sorgt für zuverlässigen E-Mail-Versand im Hintergrund.",
-                "Fehlerseiten: Benutzerfreundliche 404- und Fehlerseiten."
+                "Fehlerseiten: Benutzerfreundliche 404- und Fehlerseiten.",
+                "Tour Sync: Dein Tour-Fortschritt wird jetzt im Profil gespeichert und geräteübergreifend synchronisiert."
             ],
             "technical": [
                 "SEO Optimierung: Verbesserte Keywords und Metadaten für bessere Auffindbarkeit.",
                 "Datenbank Bereinigung: Veraltete E-Mail-Logs entfernt und durch zentrales Queuing-System ersetzt."
             ],
-            "bugfixes": []
+            "bugfixes": [
+                "Tour Fix: Die interaktive Tour startet nun korrekt auf dem Dashboard und prüft auf ein aktives Team.",
+                "UI Fix: Bildschirm-Flackern beim Neuladen behoben durch sofortige Anwendung der Design- und Spracheinstellungen."
+            ]
         },
         {
             "version": "2.7.1",

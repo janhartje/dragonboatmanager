@@ -311,7 +311,7 @@ const TeamView: React.FC = () => {
 
   return (
     <PageTransition>
-      <div className="min-h-screen font-sans text-slate-800 dark:text-slate-100 transition-colors duration-300 bg-slate-100 dark:bg-slate-950 p-2 md:p-4 pb-20">
+      <div id="tour-welcome" className="min-h-screen font-sans text-slate-800 dark:text-slate-100 transition-colors duration-300 bg-slate-100 dark:bg-slate-950 p-2 md:p-4 pb-20">
         {showHelp && <HelpModal onClose={() => setShowHelp(false)} />}
         
         <div className="max-w-6xl mx-auto">
@@ -389,7 +389,8 @@ const TeamView: React.FC = () => {
                          {t('import') || 'Import'}
                       </button>
 
-                      <button 
+                       <button 
+                          id="tour-new-event"
                          onClick={() => setShowEventModal(true)}
                          className="bg-blue-600 hover:bg-blue-700 text-white px-3 h-8 rounded text-sm font-medium flex items-center gap-2 shadow-sm transition-colors"
                        >
@@ -397,6 +398,7 @@ const TeamView: React.FC = () => {
                           {t('newTermin')}
                        </button>
                       <button 
+                        id="tour-paddler-form"
                         onClick={() => setEditingPaddlerId('new')}
                         className="bg-blue-600 hover:bg-blue-700 text-white px-3 h-8 rounded text-sm font-medium flex items-center gap-2 shadow-sm transition-colors"
                       >

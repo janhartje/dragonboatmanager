@@ -47,6 +47,7 @@ model User {
   theme         String?   // 'light', 'dark', 'system'
   language      String?   // 'de', 'en'
   activeTeamId  String?   // Last selected team ID
+  toursSeen     String[]  @default([]) // List of tours seen by the user
   
   accounts      Account[]
   sessions      Session[]

@@ -61,7 +61,15 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
   const [events, setEvents] = useState<Event[]>([]);
   const [assignmentsByEvent, setAssignmentsByEvent] = useState<Record<string, Assignments>>({});
   const [targetTrim, setTargetTrim] = useState<number>(0);
-  const [isDarkMode, setIsDarkMode] = useState<boolean>(false);
+  const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+        const stored = localStorage.getItem('drachenboot_theme');
+        if (stored === 'dark') return true;
+        if (stored === 'light') return false;
+        if (window.matchMedia('(prefers-color-scheme: dark)').matches) return true;
+    }
+    return false;
+  });
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isDataLoading, setIsDataLoading] = useState<boolean>(true);
 
@@ -165,22 +173,19 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
     const init = async () => {
       if (status === 'loading') return;
       if (status === 'authenticated') {
-        // Load user preferences from API first
+        // Load user preferences from API
         try {
           const prefsResponse = await fetch('/api/user/preferences');
           if (prefsResponse.ok) {
             const prefs = await prefsResponse.json();
             
-            // Apply theme preference
-            if (prefs.theme === 'dark') {
-              setIsDarkMode(true);
-            } else if (prefs.theme === 'light') {
-              setIsDarkMode(false);
-            } else {
-              // 'system' or null - use system preference
-              if (typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            // Sync Theme: Server wins
+            if (prefs.theme === 'dark' && !isDarkMode) {
                 setIsDarkMode(true);
-              }
+                localStorage.setItem('drachenboot_theme', 'dark');
+            } else if (prefs.theme === 'light' && isDarkMode) {
+                setIsDarkMode(false);
+                localStorage.setItem('drachenboot_theme', 'light');
             }
             
             // Fetch teams and apply activeTeamId preference
@@ -192,20 +197,15 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
           console.error('Failed to load preferences', e);
           await fetchTeams();
         }
+      } else {
+         // Not authenticated, just fetch teams
+         await fetchTeams();
       }
       
-      // Load local preferences as fallback
+      // Load local preferences as fallback for trim (non-critical)
       if (typeof window !== 'undefined') {
         const storedTrim = localStorage.getItem('drachenboot_target_trim');
         if (storedTrim) setTargetTrim(parseFloat(storedTrim));
-        
-        // Only use local theme if not authenticated
-        if (status !== 'authenticated') {
-          const storedTheme = localStorage.getItem('drachenboot_theme');
-          if (storedTheme === 'dark' || (!storedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-            setIsDarkMode(true);
-          }
-        }
       }
       
       setIsLoading(false);

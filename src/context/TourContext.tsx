@@ -4,6 +4,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { driver, Driver } from 'driver.js';
 import 'driver.js/dist/driver.css';
 
+import { useDrachenboot } from '@/context/DrachenbootContext';
 import { useLanguage } from '@/context/LanguageContext';
 
 interface TourContextType {
@@ -24,6 +25,7 @@ export const useTour = () => {
 export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [driverObj, setDriverObj] = useState<Driver | null>(null);
   const { t } = useLanguage();
+  const { currentTeam } = useDrachenboot();
 
   // Define tour configurations
   const tours = React.useMemo(() => ({
@@ -168,6 +170,43 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => clearTimeout(timer);
   }, [t]);
 
+  // Fetch seen tours from backend on mount
+  const [seenTours, setSeenTours] = useState<string[]>([]);
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  useEffect(() => {
+    const fetchPreferences = async () => {
+      try {
+        const res = await fetch('/api/user/preferences');
+        if (res.ok) {
+          const data = await res.json();
+          setSeenTours(data.toursSeen || []);
+        }
+      } catch (e) {
+        console.error('Failed to fetch user preferences', e);
+      } finally {
+        setIsLoaded(true);
+      }
+    };
+    fetchPreferences();
+  }, []);
+
+  const markTourAsSeen = React.useCallback(async (tourName: string) => {
+    // Optimistic update
+    setSeenTours(prev => [...prev, tourName]);
+    localStorage.setItem(`${tourName}_tour_seen`, 'true');
+
+    try {
+      await fetch('/api/user/preferences', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ toursSeen: [...seenTours, tourName] }),
+      });
+    } catch (e) {
+      console.error('Failed to save tour preference', e);
+    }
+  }, [seenTours]);
+
   const startTour = React.useCallback((tourName = 'welcome') => {
     if (driverObj && tours[tourName as keyof typeof tours]) {
       driverObj.setConfig({
@@ -179,34 +218,36 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         steps: tours[tourName as keyof typeof tours] as any[],
         onDestroyed: () => {
-          localStorage.setItem(`${tourName}_tour_seen`, 'true');
+          markTourAsSeen(tourName);
         }
       });
       driverObj.drive();
     }
-  }, [driverObj, tours, t]);
+  }, [driverObj, tours, t, markTourAsSeen]);
 
   const checkAndStartTour = React.useCallback((tourName: string) => {
-    const tourSeen = localStorage.getItem(`${tourName}_tour_seen`);
-    if (!tourSeen && driverObj) {
+    if (!isLoaded) return; // Wait for API
+    
+    // Check both local storage (legacy/fallback) and API state
+    const localSeen = localStorage.getItem(`${tourName}_tour_seen`);
+    const apiSeen = seenTours.includes(tourName);
+
+    if (!localSeen && !apiSeen && driverObj) {
       startTour(tourName);
     }
-  }, [driverObj, startTour]);
+  }, [driverObj, startTour, seenTours, isLoaded]);
 
   // Check on mount if we should start welcome tour
   useEffect(() => {
-    if (driverObj) {
-        // Use a ref or simple condition to prevent double invocation in strict mode if needed, 
-        // but driver.js prevents double drive usually.
+    if (driverObj && currentTeam && isLoaded) {
         const timer = setTimeout(() => {
-             // Only auto-start welcome tour on main page, logic handled by component usage or here if we check path
-             if (window.location.pathname === '/') {
+             if (window.location.pathname === '/app') {
                 checkAndStartTour('welcome');
              }
-        }, 500);
+        }, 1000); // Increased timeout slightly to ensure UI is settled
         return () => clearTimeout(timer);
     }
-  }, [driverObj, checkAndStartTour]);
+  }, [driverObj, checkAndStartTour, currentTeam, isLoaded]);
 
   return (
     <TourContext.Provider value={{ startTour, checkAndStartTour }}>
