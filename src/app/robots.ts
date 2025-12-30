@@ -1,7 +1,8 @@
 import { MetadataRoute } from 'next';
+import { getProductionUrl } from '@/utils/url';
 
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'https://drachenboot-app.vercel.app';
+  const baseUrl = getProductionUrl();
 
   return {
     rules: {
