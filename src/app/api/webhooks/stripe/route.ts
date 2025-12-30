@@ -61,9 +61,7 @@ export async function POST(req: Request) {
         }
         
         // Prefer metadata from subscription if available
-        let teamId = (invoice.subscription && typeof invoice.subscription !== 'string')
-            ? (invoice.subscription as Stripe.Subscription).metadata?.teamId
-            : null;
+        let teamId = invoice.parent?.subscription_details?.metadata?.teamId;
 
         if (!teamId && invoice.metadata?.teamId) {
             teamId = invoice.metadata.teamId;
