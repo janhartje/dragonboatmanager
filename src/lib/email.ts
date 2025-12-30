@@ -1,6 +1,7 @@
 import { render } from '@react-email/render';
 import prisma from '@/lib/prisma';
 import { Prisma } from '@prisma/client';
+import { processMailQueue } from '@/lib/mailQueue';
 
 
 interface SendEmailParams {
@@ -42,23 +43,19 @@ export const sendEmail = async ({
       },
     });
 
-    // Optimistically try to process the queue
-    // usage of fetch here might fail if the base url is not available or if network issues
-    // but the email is in the queue safe and sound
+    // Process the queue immediately and wait for completion
+    // This ensures the DB update happens before the function terminates
     try {
-        const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
-        fetch(`${baseUrl}/api/cron/mail-queue`, { method: 'GET' }).catch(err => {
-            console.warn('Failed to trigger mail queue processor optimistically', err);
-        });
-    } catch {
-        // ignore
+      await processMailQueue();
+    } catch (err) {
+      console.warn('Failed to process mail queue:', err);
+      // Email is still in queue, will be picked up by cron job
     }
 
     return { success: true };
   } catch (error) {
     console.error('Exception queuing email:', error);
-    // Log exception in SentEmail for visibility that it failed to even queue (db down?)
-    // This is a critical failure if DB is down.
     return { success: false, error };
   }
 };
+

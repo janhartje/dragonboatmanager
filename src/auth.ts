@@ -9,6 +9,7 @@ import MagicLinkEmail from "@/emails/templates/MagicLinkEmail"
 import TeamInviteEmail from "@/emails/templates/TeamInviteEmail"
 import { t, Language } from "@/emails/utils/i18n"
 import type { Adapter, AdapterUser } from "@auth/core/adapters"
+import { getBaseUrl } from "@/utils/url"
 
 // Create a custom adapter that normalizes emails to lowercase
 function CaseInsensitivePrismaAdapter(prismaClient: typeof prisma): Adapter {
@@ -92,7 +93,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                     // We modify the magic link URL to ensure the callbackUrl points to the specific team
                     try {
                         const targetUrl = new URL(url);
-                        const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || targetUrl.origin;
+                        const baseUrl = getBaseUrl();
                         // Redirect to main app with teamId param
                         const teamRedirect = `${baseUrl}/app?teamId=${invitedPaddler.teamId}`;
                         

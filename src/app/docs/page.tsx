@@ -20,10 +20,9 @@ const DocsPage = () => {
     fetch('/openapi.json')
       .then((res) => res.json())
       .then((data) => {
-        // Inject dynamic server URL from environment variable
-        if (process.env.NEXT_PUBLIC_SERVER_URL) {
-          data.servers = [{ url: process.env.NEXT_PUBLIC_SERVER_URL }];
-        }
+        // Inject dynamic server URL - use current origin for preview deployments
+        const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || window.location.origin;
+        data.servers = [{ url: serverUrl }];
         setSpec(data);
       })
       .catch((err) => console.error('Failed to load OpenAPI spec', err));

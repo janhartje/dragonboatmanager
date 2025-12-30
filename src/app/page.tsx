@@ -31,6 +31,11 @@ export default function LandingPage() {
     }
   };
 
+  // For client-side JSON-LD, use window.location.origin or explicit env variable
+  const siteUrl = typeof window !== 'undefined' 
+    ? (process.env.NEXT_PUBLIC_SERVER_URL || window.location.origin)
+    : (process.env.NEXT_PUBLIC_SERVER_URL || 'https://drachenboot-manager.vercel.app');
+
   // JSON-LD Structured Data for SEO (English/International focus)
   const jsonLd = {
     "@context": "https://schema.org",
@@ -39,8 +44,8 @@ export default function LandingPage() {
         "@type": "Organization",
         "name": language === 'de' ? "Drachenboot Manager" : "Dragon Boat Manager",
         "alternateName": language === 'de' ? "Dragon Boat Manager" : "Drachenboot Manager",
-        "url": process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:3000",
-        "logo": `${process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:3000"}/icons/logo-512.png`,
+        "url": siteUrl,
+        "logo": `${siteUrl}/icons/logo-512.png`,
         "description": language === 'de' 
           ? "Team Management Software für Drachenboot Teams" 
           : "Team Management Software for Dragon Boat Teams",
@@ -53,7 +58,7 @@ export default function LandingPage() {
       {
         "@type": "WebApplication",
         "name": language === 'de' ? "Drachenboot Manager" : "Dragon Boat Manager",
-        "url": process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:3000",
+        "url": siteUrl,
         "applicationCategory": "SportsApplication",
         "operatingSystem": "Web Browser, iOS, Android",
         "offers": {

@@ -4,6 +4,7 @@ import "./globals.css";
 import { LanguageProvider } from "@/context/LanguageContext";
 import { DrachenbootProvider } from "@/context/DrachenbootContext";
 import { SessionProvider } from "next-auth/react";
+import { getBaseUrl } from "@/utils/url";
 
 import { Analytics } from "@vercel/analytics/next"
 import { SpeedInsights } from "@vercel/speed-insights/next"
@@ -25,7 +26,7 @@ export const metadata: Metadata = {
   authors: [{ name: "Jan Hartje" }],
   creator: "Jan Hartje",
   publisher: "Jan Hartje",
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000'),
+  metadataBase: new URL(getBaseUrl()),
   alternates: {
     canonical: "/",
     languages: {

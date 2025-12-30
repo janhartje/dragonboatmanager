@@ -10,7 +10,8 @@ interface EmailLayoutProps {
 }
 
 export const EmailLayout = ({ children, previewText, headerTitle = "Drachenboot Manager", lang = 'de' }: EmailLayoutProps) => {
-  const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL ? process.env.NEXT_PUBLIC_SERVER_URL : 'https://drachenboot-manager.vercel.app';
+  // Use static fallback for emails - they should always point to production
+  const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'https://drachenboot-manager.vercel.app';
   const logoUrl = `${baseUrl}/icons/logo-192.png`;
 
   return (
