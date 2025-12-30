@@ -29,6 +29,8 @@ export async function POST(req: Request) {
   const session = event.data.object as Stripe.Checkout.Session;
   const subscription = event.data.object as Stripe.Subscription;
 
+  console.log(`Webhook Event: ${event.type} (${event.id})`);
+
   try {
     switch (event.type) {
       case 'checkout.session.completed':
@@ -43,13 +45,13 @@ export async function POST(req: Request) {
             stripeCustomerId: session.customer as string,
             plan: 'PRO',
             subscriptionStatus: 'active',
-            maxMembers: 100, // Or whatever limit PRO plan has
+            maxMembers: 100,
           },
         });
+        console.error(`PRO-FULFILLMENT: Team ${session.metadata.teamId} upgraded via checkout.session.completed`);
         break;
         
       case 'invoice.payment_succeeded': {
-        // This fires when a subscription payment goes through (initial or renewal)
         const invoice = event.data.object as Stripe.Invoice;
         const customerId = typeof invoice.customer === 'string' ? invoice.customer : invoice.customer?.id;
         
@@ -58,10 +60,18 @@ export async function POST(req: Request) {
             break;
         }
         
-        // Find team by customer ID (most reliable method)
-        const customerTeam = await prisma.team.findFirst({
-            where: { stripeCustomerId: customerId }
-        });
+        // Prefer metadata from subscription if available
+        let teamId = (invoice.subscription && typeof invoice.subscription !== 'string')
+            ? (invoice.subscription as Stripe.Subscription).metadata?.teamId
+            : null;
+
+        if (!teamId && invoice.metadata?.teamId) {
+            teamId = invoice.metadata.teamId;
+        }
+
+        const where = teamId ? { id: teamId } : { stripeCustomerId: customerId };
+        
+        const customerTeam = await prisma.team.findFirst({ where });
         
         if (customerTeam) {
             await prisma.team.update({
@@ -72,37 +82,57 @@ export async function POST(req: Request) {
                     maxMembers: 100,
                 }
             });
+            console.error(`PRO-FULFILLMENT: Team ${customerTeam.id} upgraded via invoice.payment_succeeded`);
         } else {
             console.error('Webhook: No team found for customer:', customerId);
         }
         break;
       }
 
-      case 'customer.subscription.updated':
-        // Handle plan changes, cancellations, etc.
-        // For now, just simplistic status sync
-        // We'd need to find team by stripeCustomerId, which implies uniqueness
-        if (subscription.status !== 'active' && subscription.status !== 'trialing') {
-             // Maybe revert to FREE if not active?
-             // Need to find which team this customer belongs to
+      case 'customer.subscription.created':
+      case 'customer.subscription.updated': {
+        const sub = event.data.object as Stripe.Subscription;
+        const teamId = sub.metadata?.teamId;
+        const customerId = sub.customer as string;
+
+        if (sub.status === 'active' || sub.status === 'trialing') {
+            const customerTeam = teamId 
+                ? await prisma.team.findUnique({ where: { id: teamId } })
+                : await prisma.team.findFirst({ where: { stripeCustomerId: customerId } });
+
+            if (customerTeam) {
+                await prisma.team.update({
+                    where: { id: customerTeam.id },
+                    data: {
+                        plan: 'PRO',
+                        subscriptionStatus: sub.status,
+                        maxMembers: 100,
+                    }
+                });
+                console.error(`PRO-FULFILLMENT: Team ${customerTeam.id} updated to ${sub.status} via ${event.type}`);
+            } else {
+                console.error(`Webhook ${event.type}: No team found for customer ${customerId} or teamId ${teamId}`);
+            }
+        } else if (sub.status === 'canceled' || sub.status === 'unpaid' || sub.status === 'incomplete_expired') {
              const teams = await prisma.team.findMany({
-                 where: { stripeCustomerId: subscription.customer as string }
+                 where: { stripeCustomerId: customerId }
              });
              for (const team of teams) {
                  await prisma.team.update({
                      where: { id: team.id },
                      data: {
-                         subscriptionStatus: subscription.status,
-                         plan: 'FREE', // Downgraded since not active/trialing
+                         subscriptionStatus: sub.status,
+                         plan: 'FREE',
                          maxMembers: 25,
                      }
                  });
+                 console.error(`PRO-DOWNGRADE: Team ${team.id} downgraded to FREE due to status: ${sub.status}`);
              }
         }
         break;
+      }
         
       case 'customer.subscription.deleted': {
-        // Handle cancellation
         const canceledTeams = await prisma.team.findMany({
             where: { stripeCustomerId: subscription.customer as string }
         });
@@ -115,6 +145,7 @@ export async function POST(req: Request) {
                     maxMembers: 25,
                 }
             });
+            console.error(`PRO-DOWNGRADE: Team ${team.id} downgraded due to deletion`);
         }
         break;
       }
