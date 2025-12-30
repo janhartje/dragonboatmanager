@@ -46,15 +46,12 @@ export async function POST(req: Request) {
             maxMembers: 100, // Or whatever limit PRO plan has
           },
         });
-        console.log(`Team ${session.metadata.teamId} upgraded to PRO`);
         break;
         
       case 'invoice.payment_succeeded': {
         // This fires when a subscription payment goes through (initial or renewal)
         const invoice = event.data.object as Stripe.Invoice;
         const customerId = typeof invoice.customer === 'string' ? invoice.customer : invoice.customer?.id;
-        
-        console.log('invoice.payment_succeeded received for customer:', customerId);
         
         if (!customerId) {
             console.error('Webhook invoice.payment_succeeded: No customer ID');
@@ -75,7 +72,6 @@ export async function POST(req: Request) {
                     maxMembers: 100,
                 }
             });
-            console.log(`✅ Team ${customerTeam.id} (${customerTeam.name}) upgraded to PRO`);
         } else {
             console.error('Webhook: No team found for customer:', customerId);
         }
@@ -119,7 +115,6 @@ export async function POST(req: Request) {
                     maxMembers: 25,
                 }
             });
-            console.log(`Team ${team.id} downgraded to FREE (subscription deleted)`);
         }
         break;
       }

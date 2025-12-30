@@ -59,8 +59,6 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: `Price for ${interval} interval not found` }, { status: 404 });
     }
     
-    console.log(`Selected Price: ${selectedPrice.id}, Amount: ${selectedPrice.unit_amount}, Currency: ${selectedPrice.currency}, Interval: ${selectedPrice.recurring?.interval}`);
-    
     const targetPriceId = selectedPrice.id;
     const team = membership.team;
     let customerId = team.stripeCustomerId;
@@ -74,7 +72,6 @@ export async function POST(request: Request) {
             }
         } catch (error: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
             if (error.code === 'resource_missing') {
-                console.log('Stripe customer missing, creating new one');
                 customerId = null;
             } else {
                 throw error;
@@ -114,12 +111,9 @@ export async function POST(request: Request) {
     const getExpandedInvoice = async (invId: string): Promise<InvoiceWithPaymentIntent | null> => {
         try {
             let inv = await stripe.invoices.retrieve(invId, { expand: ['payment_intent'] }) as InvoiceWithPaymentIntent;
-            console.log(`Invoice ${invId} status: ${inv.status}, has PI: ${!!inv.payment_intent}`);
             
             if (inv.status === 'draft') {
-                console.log(`Invoice ${invId} is in draft, finalizing...`);
                 inv = await stripe.invoices.finalizeInvoice(invId, { expand: ['payment_intent'] }) as InvoiceWithPaymentIntent;
-                console.log(`Finalized invoice ${invId}, status: ${inv.status}, has PI: ${!!inv.payment_intent}`);
             }
             return inv;
         } catch (e) {
@@ -148,7 +142,6 @@ export async function POST(request: Request) {
         const subPriceId = sub.items.data[0]?.price.id;
         
         if (subPriceId !== targetPriceId) {
-            console.log('Found incomplete subscription but with wrong price, cancelling:', sub.id);
             try { await stripe.subscriptions.cancel(sub.id); } catch { /* ignore */ }
             continue;
         }
@@ -161,8 +154,8 @@ export async function POST(request: Request) {
         } else {
             try {
                 await stripe.subscriptions.cancel(sub.id);
-            } catch (e) {
-                console.error('Failed to cancel broken sub:', e);
+            } catch {
+                // Ignore errors during cancellation of potentially pre-cancelled subs
             }
         }
     }
@@ -229,13 +222,6 @@ export async function POST(request: Request) {
     }
 
     if (!latestInvoice || !paymentIntent || !paymentIntent.client_secret) {
-        // Create a new fresh subscription if the old one is borked
-        // Or just return error
-         console.error('Missing invoicing details:', { 
-            hasInvoice: !!latestInvoice, 
-            hasIntent: !!paymentIntent, 
-            hasSecret: !!paymentIntent?.client_secret 
-         });
          const errorDetails = {
                 hasInvoice: !!latestInvoice,
                 hasIntent: !!paymentIntent,
@@ -244,7 +230,6 @@ export async function POST(request: Request) {
                 amount: selectedPrice.unit_amount,
                 currency: selectedPrice.currency
          };
-         console.error('Missing invoicing details:', errorDetails);
          return NextResponse.json({ 
             error: 'Failed to create payment intent. Please contact support.',
             details: errorDetails
