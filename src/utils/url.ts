@@ -3,8 +3,8 @@
  * 
  * Priority order:
  * 1. NEXT_PUBLIC_SERVER_URL - Explicit override (useful for custom domains)
- * 2. VERCEL_PROJECT_PRODUCTION_URL - Production custom domain (Vercel)
- * 3. VERCEL_URL - Auto-generated deployment URL (Preview deployments)
+ * 2. VERCEL_URL - Auto-generated deployment URL (unique per deployment, for previews)
+ * 3. VERCEL_PROJECT_PRODUCTION_URL - Production custom domain (fallback)
  * 4. Fallback to localhost for development
  * 
  * @see https://vercel.com/docs/environment-variables/system-environment-variables
@@ -15,14 +15,15 @@ export function getBaseUrl(): string {
     return process.env.NEXT_PUBLIC_SERVER_URL;
   }
 
-  // Vercel production URL (always available, even in previews)
-  if (process.env.VERCEL_PROJECT_PRODUCTION_URL) {
-    return `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`;
-  }
-
   // Vercel deployment URL (unique per deployment, good for preview envs)
+  // This comes BEFORE production URL so previews get their own URL
   if (process.env.VERCEL_URL) {
     return `https://${process.env.VERCEL_URL}`;
+  }
+
+  // Vercel production URL (fallback for production)
+  if (process.env.VERCEL_PROJECT_PRODUCTION_URL) {
+    return `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`;
   }
 
   // Local development fallback
