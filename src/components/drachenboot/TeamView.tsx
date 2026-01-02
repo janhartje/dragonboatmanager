@@ -193,7 +193,10 @@ const TeamView: React.FC = () => {
         const keys = Object.keys(row);
         const nameKey = keys.find(k => k.toLowerCase().includes('name'));
         const weightKey = keys.find(k => k.toLowerCase().includes('weight') || k.toLowerCase().includes('gewicht'));
-        const sideKey = keys.find(k => k.toLowerCase().includes('side') || k.toLowerCase().includes('seite') || k.toLowerCase().includes('rolle'));
+        const sideKey = keys.find(k => {
+          const lk = k.toLowerCase();
+          return lk.includes('side') || lk.includes('seite') || lk.includes('rolle') || lk.includes('skill');
+        });
         const emailKey = keys.find(k => k.toLowerCase().includes('email') || k.toLowerCase().includes('mail'));
         
         if (!nameKey || !row[nameKey]) return null;
@@ -219,22 +222,26 @@ const TeamView: React.FC = () => {
 
         const foundRoles = new Set<string>();
 
-        const parts = sideStrRaw.split(/[,/|&+\s]+/).filter((p: string) => p.trim().length > 0);
+         // Split by common delimiters (comma, slash, pipe, ampersand, plus)
+         // Do NOT split by whitespace directly - instead trim each part
+         const parts = sideStrRaw.split(/[,/|&+]/).map((p: string) => p.trim()).filter((p: string) => p.length > 0);
 
-        parts.forEach(part => {
-             const p = part.trim();
-             // Check against dictionaries
-             if (dict.both.some(term => p === term || p.includes(term))) {
-                foundRoles.add('left');
-                foundRoles.add('right');
-             }
-             else {
-               if (dict.left.some(term => p === term || (term.length > 2 && p.includes(term)))) foundRoles.add('left');
-               if (dict.right.some(term => p === term || (term.length > 2 && p.includes(term)))) foundRoles.add('right');
-               if (dict.drum.some(term => p === term || (term.length > 1 && p.includes(term)))) foundRoles.add('drum');
-               if (dict.steer.some(term => p === term || (term.length > 1 && p.includes(term)))) foundRoles.add('steer');
-             }
-        });
+         console.log('DEBUG Import - Paddler:', name, '| Raw Side String:', sideStrRaw, '| Parts after split:', parts);
+
+         parts.forEach(part => {
+              const p = part.trim();
+              // Check against dictionaries
+              if (dict.both.some(term => p === term || p.includes(term))) {
+                 foundRoles.add('left');
+                 foundRoles.add('right');
+              }
+              else {
+                if (dict.left.some(term => p === term || (term.length > 2 && p.includes(term)))) foundRoles.add('left');
+                if (dict.right.some(term => p === term || (term.length > 2 && p.includes(term)))) foundRoles.add('right');
+                if (dict.drum.some(term => p === term || (term.length > 1 && p.includes(term)))) foundRoles.add('drum');
+                if (dict.steer.some(term => p === term || (term.length > 1 && p.includes(term)))) foundRoles.add('steer');
+              }
+         });
 
         // Determine main 'side' property for UI preference
 

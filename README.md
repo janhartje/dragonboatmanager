@@ -186,11 +186,16 @@ Tests werden automatisch bei jedem Push und Pull Request auf den `main` Branch v
 
 For automated testing (e.g. E2E tests) or local development without email magic links, a **Test User** is available.
 
-*   **Email**: `test@drachenboot.de`
+*   **Email**: `test@drachenbootmanager.de`
 *   **Password**: `testuser123` (or set via `TEST_USER_PASSWORD` env var)
 *   **Provider**: `credentials`
 
 **Note:** This login method is **only available** in `development` and `test` environments (Node.env). It creates the user in the database if it doesn't exist.
+
+To use the Test User in a **production** environment (e.g. `npm run start`), you must explicitly enable it by setting the environment variable in your `.env`:
+```bash
+ENABLE_TEST_USER="true"
+```
 
 ## 📚 Documentation
 

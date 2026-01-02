@@ -10,7 +10,7 @@ import { ArrowLeft, Loader2, Key } from 'lucide-react';
 const TestLoginView: React.FC = () => {
   const router = useRouter();
   
-  const [email, setEmail] = useState('test@drachenboot.de');
+  const [email, setEmail] = useState('test@drachenbootmanager.de');
   const [password, setPassword] = useState('testuser123');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -77,7 +77,7 @@ const TestLoginView: React.FC = () => {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="test@drachenboot.de"
+                  placeholder="test@drachenbootmanager.de"
                   className="w-full px-4 py-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500"
                   required
                   disabled={isLoading}

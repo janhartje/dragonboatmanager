@@ -176,7 +176,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 return null;
             }
 
-            const testEmail = 'test@drachenboot.de';
+            const testEmail = 'test@drachenbootmanager.de';
             const testPassword = process.env.TEST_USER_PASSWORD || 'testuser123';
 
             if (credentials.email !== testEmail || credentials.password !== testPassword) {
