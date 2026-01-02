@@ -156,7 +156,7 @@
                 "Premium Logo-Ring: Verleihe deinem Icon einen exklusiven goldenen Schimmer (PRO).",
                 "Dynamisches Design: Akzentfarben werden jetzt app-weit in Planer, Modalen und Listen angewendet.",
                 "Personalisiertes Boot: Dein Team-Logo wird nun (optional rund) an der Bootsspitze im Planer angezeigt.",
-                "Branding auf Exports: Automatische Drachenboot Manager Werbung auf Bild-Exports (für PRO-Teams ausschaltbar).",
+                "Branding auf Exports: Automatische Drachenboot Manager Werbung auf Bild-Exports (für PRO-Teams ausgeschaltet).",
                 "InfoCards: Wichtige Hinweise können nun dauerhaft ausgeblendet werden (gespeichert in Datenbank).",
                 "Team-Wechsel: Schnellerer Wechsel zwischen Teams und verbesserte Verwaltung.",
                 "UI Optimierung: Die Auslastung des Kaders (z.B. 4/25) wird nun direkt in der Übersicht angezeigt.",
@@ -727,7 +727,7 @@
     "errorReload": "Neu laden",
     "pro": {
         "upgradeTitle": "Upgrade auf PRO",
-        "upgradeDescription": "Erhalte unbegrenzte Mitglieder, iCal Integration und PDF exporte.",
+        "upgradeDescription": "Erhalte unbegrenzte Mitglieder, iCal Integration und werbefreie Exporte.",
         "upgradeButton": "Jetzt upgraden",
         "unlockFeaturesTitle": "Pro-Features freischalten",
         "unlockFeaturesDescription": "Erhalte unbegrenzte Mitglieder, Import/Export Funktionen und bevorzugten Support.",
@@ -741,7 +741,7 @@
         "benefits": {
             "title": "Warum Pro?",
             "item1": "Unbegrenzte Mitgliederzahl",
-            "item2": "Export als PDF & Bild",
+            "item2": "Export ohne Wasserzeichen",
             "item3": "iCal Kalender Integration",
             "item4": "Bevorzugter Support",
             "item5": "Unterstütze die Weiterentwicklung"

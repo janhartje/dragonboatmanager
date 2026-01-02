@@ -156,7 +156,7 @@
                 "Premium Logo Ring: Give your icon an exclusive golden shimmer (PRO).",
                 "Dynamic Design: Accent colors are now applied app-wide in planners, modals, and lists.",
                 "Personalized Boat: Your team logo is now displayed at the boat tip in the planner.",
-                "Branding on Exports: Automatic Drachenboot Manager watermark on exports (optional for PRO).",
+                "Branding on Exports: Automatic Drachenboot Manager watermark on exports (removed for PRO).",
                 "InfoCards: Important notices can now be permanently dismissed.",
                 "Team Switching: Faster switching between teams and improved management.",
                 "Refined Aesthetics: Brand new PRO badge with shimmer effect.",
@@ -725,7 +725,7 @@
     "errorReload": "Reload",
     "pro": {
         "upgradeTitle": "Upgrade to PRO",
-        "upgradeDescription": "Get unlimited members, iCal integration, and PDF exports.",
+        "upgradeDescription": "Get unlimited members, iCal integration, and watermark-free exports.",
         "upgradeButton": "Upgrade Now",
         "unlockFeaturesTitle": "Unlock Pro Features",
         "unlockFeaturesDescription": "Get unlimited members, import/export functionality, and priority support.",
@@ -739,7 +739,7 @@
         "benefits": {
             "title": "Why go Pro?",
             "item1": "Unlimited Members",
-            "item2": "Export to PDF & Image",
+            "item2": "Export without watermark",
             "item3": "iCal Calendar Integration",
             "item4": "Priority Support",
             "item5": "Support Future Development"
