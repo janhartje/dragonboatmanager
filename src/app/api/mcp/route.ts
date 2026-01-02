@@ -40,6 +40,7 @@ export async function POST(request: Request) {
 
     const validatedInput = tool.inputSchema.parse(args || {});
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const result = await tool.execute(apiKey, validatedInput as any);
 
     if (isJsonRpc) {

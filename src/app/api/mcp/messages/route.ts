@@ -106,6 +106,7 @@ export async function POST(request: Request) {
 
           const validatedInput = tool.inputSchema.parse(args || {});
 
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const result = await tool.execute(session.apiKey, validatedInput as any);
 
           sendSseEvent(session.controller, 'message', {
