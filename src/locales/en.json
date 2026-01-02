@@ -147,6 +147,21 @@
     "clBugfixes": "Bug Fixes",
     "changelogData": [
         {
+            "version": "3.2.0",
+            "date": "January 2026",
+            "features": [
+                "MCP Documentation: Comprehensive guide for Gemini integration added."
+            ],
+            "technical": [
+                "MCP SSE Transport: Improved stability and session management.",
+                "Build Fixes: Resolved prerendering errors for error pages.",
+                "Linter Configuration: Explicit ignores for better build stability."
+            ],
+            "bugfixes": [
+                "Fix: Corrected hooks in statically rendered pages (not-found, global-error)."
+            ]
+        },
+        {
             "version": "3.1.0",
             "date": "January 2026",
             "features": [

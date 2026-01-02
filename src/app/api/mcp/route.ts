@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { validateApiKey, checkMcpAccess } from '@/lib/mcp-auth';
 import { tools } from '@/mcp/tools';
-import { createSession } from '@/lib/mcp-streams';
+import { createSession, removeSession } from '@/lib/mcp-streams';
 import { randomUUID } from 'crypto';
 
 /**
@@ -82,34 +82,31 @@ export async function GET(request: Request) {
   }
 
   const sessionId = randomUUID();
-  const responseStream = new TransformStream();
-  const writer = responseStream.writable.getWriter();
   const encoder = new TextEncoder();
-
-  // Create a controller-like object for our session store
-  const controller = {
-    enqueue: (chunk: Uint8Array) => writer.write(chunk),
-    close: () => writer.close(),
-  };
-
-  createSession(sessionId, controller as unknown as ReadableStreamDefaultController, apiKey);
-
-  // Send the 'endpoint' event to tell client where to POST messages
-  // We need the full URL or relative path. Relative is usually fine.
-  const endpoint = `/api/mcp/messages?sessionId=${sessionId}`;
   
-  // Format: event: endpoint\ndata: URL\n\n
-  const initEvent = `event: endpoint\ndata: ${endpoint}\n\n`;
-  writer.write(encoder.encode(initEvent));
+  // Create a readable stream that we control
+  const stream = new ReadableStream({
+    start(controller) {
+      // Register the session immediately when stream starts
+      createSession(sessionId, controller, apiKey);
+      
+      // Send the 'endpoint' event to tell client where to POST messages
+      const origin = new URL(request.url).origin;
+      const endpoint = `${origin}/api/mcp/messages?sessionId=${sessionId}`;
+      const initEvent = `event: endpoint\ndata: ${endpoint}\n\n`;
+      controller.enqueue(encoder.encode(initEvent));
+    },
+    cancel() {
+      removeSession(sessionId);
+    }
+  });
 
-  console.log(`[MCP] SSE Stream started for session ${sessionId}`);
-
-  // Return the readable stream
-  return new Response(responseStream.readable, {
+  return new Response(stream, {
     headers: {
       'Content-Type': 'text/event-stream',
-      'Cache-Control': 'no-cache',
+      'Cache-Control': 'no-cache, no-transform',
       'Connection': 'keep-alive',
+      'X-Accel-Buffering': 'no',
     },
   });
 }

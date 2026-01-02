@@ -1,25 +1,37 @@
 import { NextResponse } from 'next/server';
-import { getSession, sendSseEvent } from '@/lib/mcp-streams';
+import { getSession, getSessionByApiKey, waitForSession, sendSseEvent } from '@/lib/mcp-streams';
 import { tools } from '@/mcp/tools';
+
+// Return 202 Accepted for SSE-based message handling
+function accepted() {
+  return new Response(null, { status: 202 });
+}
 
 export async function POST(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const sessionId = searchParams.get('sessionId');
+    const apiKey = request.headers.get('x-api-key');
 
-    if (!sessionId) {
-      return NextResponse.json({ error: 'Session ID required' }, { status: 400 });
+    // Try to find session by sessionId first, fall back to API key
+    let session = sessionId ? getSession(sessionId) : null;
+    
+    if (!session && apiKey) {
+      // Try immediate lookup first
+      session = getSessionByApiKey(apiKey);
+      
+      if (!session) {
+        // Wait for session to be established (SSE connection is happening in parallel)
+        session = await waitForSession(apiKey, 3000);
+      }
     }
 
-    const session = getSession(sessionId);
     if (!session) {
-      return NextResponse.json({ error: 'Session not found or expired' }, { status: 404 });
+      return NextResponse.json({ error: 'Session not found. SSE connection not established.' }, { status: 404 });
     }
 
     const body = await request.json();
     const { method, id, params } = body;
-
-    console.log(`[MCP] Received message for session ${sessionId}:`, method);
 
     // Handle basic JSON-RPC methods
     if (method === 'initialize') {
@@ -37,21 +49,12 @@ export async function POST(request: Request) {
           },
         },
       });
-      
-      // Also send initialized notification
-      // setTimeout(() => {
-      //   sendSseEvent(session.controller, 'message', {
-      //     jsonrpc: '2.0',
-      //     method: 'notifications/initialized',
-      //   });
-      // }, 100);
-
-      return NextResponse.json({ accepted: true });
+      return accepted();
     }
 
-    if (method === 'notifications/initialized') {
-      // Client ack
-      return NextResponse.json({ accepted: true });
+    if (method === 'notifications/initialized' || method === 'notifications/cancelled') {
+      // Client notifications - just acknowledge
+      return accepted();
     }
 
     if (method === 'tools/list') {
@@ -80,7 +83,31 @@ export async function POST(request: Request) {
           })),
         },
       });
-      return NextResponse.json({ accepted: true });
+      return accepted();
+    }
+
+    if (method === 'prompts/list') {
+      // We don't have prompts, return empty list
+      sendSseEvent(session.controller, 'message', {
+        jsonrpc: '2.0',
+        id,
+        result: {
+          prompts: [],
+        },
+      });
+      return accepted();
+    }
+
+    if (method === 'resources/list') {
+      // We don't have resources, return empty list
+      sendSseEvent(session.controller, 'message', {
+        jsonrpc: '2.0',
+        id,
+        result: {
+          resources: [],
+        },
+      });
+      return accepted();
     }
 
     if (method === 'tools/call') {
@@ -96,14 +123,12 @@ export async function POST(request: Request) {
             message: `Unknown tool: ${name}`,
           },
         });
-        return NextResponse.json({ accepted: true });
+        return accepted();
       }
 
       // Execute tool asynchronously
       (async () => {
         try {
-          // Use apiKey from session
-
           const validatedInput = tool.inputSchema.parse(args || {});
 
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -133,16 +158,16 @@ export async function POST(request: Request) {
         }
       })();
 
-      return NextResponse.json({ accepted: true });
+      return accepted();
     }
 
     if (method === 'ping') {
-        sendSseEvent(session.controller, 'message', {
-            jsonrpc: '2.0',
-            id,
-            result: {},
-        });
-        return NextResponse.json({ accepted: true });
+      sendSseEvent(session.controller, 'message', {
+        jsonrpc: '2.0',
+        id,
+        result: {},
+      });
+      return accepted();
     }
 
     // Default: Method not found
@@ -155,7 +180,7 @@ export async function POST(request: Request) {
       },
     });
 
-    return NextResponse.json({ accepted: true });
+    return accepted();
 
   } catch (error) {
     console.error('[MCP] Error processing message:', error);

@@ -147,6 +147,21 @@
     "clBugfixes": "Fehlerbehebungen",
     "changelogData": [
         {
+            "version": "3.2.0",
+            "date": "Januar 2026",
+            "features": [
+                "MCP Dokumentation: Umfassende Anleitung für die Gemini-Integration hinzugefügt."
+            ],
+            "technical": [
+                "MCP SSE Transport: Verbesserte Stabilität und Session-Management.",
+                "Build Fixes: Prerendering-Fehler für Fehlerseiten behoben.",
+                "Linter-Konfiguration: Explizite Ignores für bessere Build-Stabilität."
+            ],
+            "bugfixes": [
+                "Fix: Hooks in statisch gerenderten Seiten korrigiert (not-found, global-error)."
+            ]
+        },
+        {
             "version": "3.1.0",
             "date": "Januar 2026",
             "features": [

@@ -38,6 +38,7 @@ Task ist ERST abgeschlossen bei:
 
 ### Code-Hygiene
 * **KEINE**: `// TODO`, `console.log`, `debugger`, Work-in-Progress Kommentare
+* **KEINE Temporary Fixes**: Keine Commits mit "temporary fix", "workaround", "hack" Kommentaren. Probleme vollständig lösen vor dem Commit.
 
 ## ⚙️ Git
 * **Commits**: Conventional (`feat(auth): ...`, `fix(ui): ...`)
