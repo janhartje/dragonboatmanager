@@ -3,10 +3,18 @@
 import Link from "next/link";
 import { Home } from "lucide-react";
 import DragonLogo from "@/components/ui/DragonLogo";
-import { useLanguage } from "@/context/LanguageContext";
 
 export default function NotFound() {
-  const { t } = useLanguage();
+  // Temporary fix for build error: useLanguage context might be missing during static build of not-found
+  const t = (key: string) => {
+      const msgs: Record<string, string> = {
+          'appTitle': 'Dragon Boat Manager',
+          'errorNotFoundTitle': 'Page Not Found',
+          'errorNotFoundMessage': "The page you are looking for doesn't exist or has been moved.",
+          'backToHome': 'Back to Home'
+      };
+      return msgs[key] || key;
+  };
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center p-4">
