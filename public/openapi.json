@@ -476,7 +476,7 @@
                         }
                     },
                     "403": {
-                        "description": "Forbidden - Requires CAPTAIN role",
+                        "description": "Forbidden - Requires CAPTAIN role or Team Limit reached",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -703,6 +703,16 @@
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/PaddlerFull"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden - Requires CAPTAIN role or Team Limit reached",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
                                 }
                             }
                         }

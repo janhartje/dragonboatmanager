@@ -15,6 +15,11 @@
     "comment": "Kommentar",
     "commentPlaceholder": "Infos zum Training...",
     "changelog": "Versionshistorie",
+    "teamLimitReached": "Team-Limit erreicht",
+    "teamLimitReachedDesc": "Du hast das Limit von {max} Mitgliedern erreicht. Upgrade auf PRO für unbegrenzte Mitglieder.",
+    "guestHint": "Hinweis: Gäste können weiterhin für einzelne Termine hinzugefügt werden.",
+    "teamLimitExceeded": "Import überschreitet Limit",
+    "importLimitWarning": "Dieser Import würde die Gesamtanzahl auf {total} erhöhen und das Limit von {max} überschreiten.",
     "cancel": "Abbruch",
     "editPaddler": "Paddler bearbeiten",
     "newMember": "Neues Mitglied",
@@ -154,8 +159,10 @@
                 "Branding auf Exports: Automatische Drachenboot Manager Werbung auf Bild-Exports (für PRO-Teams ausschaltbar).",
                 "InfoCards: Wichtige Hinweise können nun dauerhaft ausgeblendet werden (gespeichert in Datenbank).",
                 "Team-Wechsel: Schnellerer Wechsel zwischen Teams und verbesserte Verwaltung.",
-                "Refined Aesthetics: Brandneuer PRO-Badge mit Schimmer-Effekt und animierten Details.",
-                "UI Optimierung: Die Auslastung des Kaders (z.B. 4/25) wird nun direkt in der Übersicht angezeigt."
+                "UI Optimierung: Die Auslastung des Kaders (z.B. 4/25) wird nun direkt in der Übersicht angezeigt.",
+                "Team-Limit: Limits werden nun in allen Dialogen (Hinzufügen, Import, Einladen) konsistent durchgesetzt.",
+                "Import: Der Import-Dialog zeigt nun eine präzise Warnung, wenn das Limit überschritten würde.",
+                "UX: Fehler beim Schließen von Dialogen werden nun automatisch zurückgesetzt."
             ],
             "technical": [
                 "Zentralisiertes Theme-Management für konsistente Farbdarstellung über alle Komponenten.",

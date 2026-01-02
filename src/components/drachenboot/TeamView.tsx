@@ -165,7 +165,11 @@ const TeamView: React.FC = () => {
       }
       setEditingPaddlerId(null);
     } catch (e: unknown) {
-      setErrorMessage(e instanceof Error ? e.message : t('errorSavingPaddler'));
+      if (e instanceof Error && e.message === 'Team limit reached') {
+        setErrorMessage(t('teamLimitReached') || 'Team limit reached');
+      } else {
+        setErrorMessage(e instanceof Error ? e.message : t('errorSavingPaddler'));
+      }
     }
   };
 
@@ -397,8 +401,7 @@ const TeamView: React.FC = () => {
                   That works.
               */}
               
-              <div className="lg:col-span-1 flex flex-col">
-                <EventsSection sortedPaddlers={sortedPaddlers} onEdit={setEditingEvent} />
+                <div className="lg:col-span-1 flex flex-col">
                  {(currentTeam?.plan === 'FREE' || !currentTeam?.plan) && (
                     <InfoCard 
                       id={`upgrade_prompt_team_${currentTeam?.id}`}
@@ -423,6 +426,7 @@ const TeamView: React.FC = () => {
                       </button>
                     </InfoCard>
                  )}
+                <EventsSection sortedPaddlers={sortedPaddlers} onEdit={setEditingEvent} />
               </div>
 
               {/* Paddler Grid */}
@@ -502,7 +506,7 @@ const TeamView: React.FC = () => {
             <>
               <PaddlerModal
                 isOpen={!!editingPaddlerId}
-                onClose={() => setEditingPaddlerId(null)}
+                onClose={() => { setEditingPaddlerId(null); setErrorMessage(null); }}
                 paddlerToEdit={editingPaddlerId === 'new' ? null : paddlerToEdit}
                 onSave={handleSavePaddler}
                 t={t}

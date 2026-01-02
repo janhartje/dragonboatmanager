@@ -22,7 +22,7 @@ export const ImportModal: React.FC<ImportModalProps> = ({
   onImportEvents 
 }) => {
   const { t } = useLanguage();
-  const { currentTeam } = useDrachenboot();
+  const { currentTeam, paddlers } = useDrachenboot();
   const theme = currentTeam?.plan === 'PRO' ? THEME_MAP[currentTeam.primaryColor as ThemeKey] : null;
   const [activeTab, setActiveTab] = useState<ImportType>('paddler');
   const [isDragOver, setIsDragOver] = useState(false);
@@ -59,87 +59,77 @@ export const ImportModal: React.FC<ImportModalProps> = ({
   const processFile = async (file: File) => {
     setFile(file);
     setError(null);
-    setSuccess(null);
+    setIsProcessing(true);
     setPreviewData([]);
 
     try {
-      const data = await parseExcel(file);
-      setPreviewData(data);
-    } catch (err: unknown) {
-      console.error(err);
-      setError(err instanceof Error ? err.message : 'Error parsing file');
-    }
-  };
-
-  const parseExcel = async (file: File): Promise<Record<string, unknown>[]> => {
-    const buffer = await file.arrayBuffer();
-    const workbook = new ExcelJS.Workbook();
-    
-    // Check extension
-    const isCsv = file.name.toLowerCase().endsWith('.csv');
-
-    if (isCsv) {
-        // Manual CSV parsing for browser compatibility (exceljs csv.read requires node streams)
-        const text = await file.text();
-        const sheet = workbook.addWorksheet('Sheet1');
-        const rows = text.split(/\r?\n/);
-        
-        rows.forEach(r => {
+      const arrayBuffer = await file.arrayBuffer();
+      const workbook = new ExcelJS.Workbook();
+      
+      const isCsv = file.name.toLowerCase().endsWith('.csv');
+      
+      if (isCsv) {
+          const text = await file.text();
+          const sheet = workbook.addWorksheet('Sheet1');
+          const rows = text.split(/\r?\n/);
+          
+          rows.forEach(r => {
             if (r.trim()) {
-                // Split by comma, semicolon, pipe, or tab, respecting quotes
-                // Regex matches delimiters that are NOT inside quotes
                 const cells = r.split(/[,;|\t](?=(?:(?:[^"]*"){2})*[^"]*$)/); 
-                
-                // Clean up quotes (remove outer quotes, unescape double quotes)
                 const cleanedCells = cells.map(c => c.trim().replace(/^"|"$/g, '').replace(/""/g, '"'));
                 sheet.addRow(cleanedCells);
             }
-        });
-    } else {
-         await workbook.xlsx.load(buffer);
-    }
-    
-    // Get first worksheet
-    const worksheet = workbook.worksheets[0];
-    if (!worksheet) return [];
-
-    const jsonData: Record<string, unknown>[] = [];
-    
-    // Iterate over rows starting from 2 (assuming header is 1)
-    // ExcelJS rows are 1-based.
-    // We need to map headers first.
-    const headers: string[] = [];
-    
-    worksheet.eachRow((row, rowNumber) => {
-      if (rowNumber === 1) {
-        // Capture headers
-        row.eachCell((cell, colNumber) => {
-          headers[colNumber] = normalizeHeader(String(cell.value));
-        });
+          });
       } else {
-        // Capture data
-        const rowData: Record<string, unknown> = {};
-        // Initialize all known headers to null/empty
-        headers.forEach(h => { if(h) rowData[h] = ''; });
+        await workbook.xlsx.load(arrayBuffer);
+      }
+      
+      const worksheet = workbook.worksheets[0];
+      if (!worksheet) throw new Error(t('noWorksheet') || 'No worksheet found');
 
-        row.eachCell({ includeEmpty: true }, (cell, colNumber) => {
+      const data: Record<string, unknown>[] = [];
+      
+      // Get headers
+      const firstRow = worksheet.getRow(1);
+      const headers: string[] = [];
+      
+      firstRow.eachCell((cell, colNumber) => {
+        if (cell.value) {
+          headers[colNumber] = String(cell.value);
+        }
+      });
+
+      // Get data
+      worksheet.eachRow((row, rowNumber) => {
+        if (rowNumber === 1) return; // Skip header
+        const rowData: Record<string, unknown> = {};
+        let hasData = false;
+
+        row.eachCell((cell, colNumber) => {
           const header = headers[colNumber];
           if (header) {
-             let val = cell.value;
-             if (typeof val === 'object' && val !== null && 'text' in val) {
-                 val = (val as any).text; // eslint-disable-line @typescript-eslint/no-explicit-any 
-             } else if (typeof val === 'object' && val !== null && 'result' in val) {
-                 val = (val as any).result; // eslint-disable-line @typescript-eslint/no-explicit-any
-             }
-             rowData[header] = val;
+            const cleanHeader = normalizeHeader(header);
+            rowData[cleanHeader] = cell.value;
+            hasData = true; 
           }
         });
-        jsonData.push(rowData);
-      }
-    });
 
-    return jsonData;
+        if (hasData) data.push(rowData);
+      });
+
+      if (data.length === 0) {
+        throw new Error(t('noDataFound') || 'No valid data found in file');
+      }
+
+      setPreviewData(data);
+    } catch (err: unknown) {
+      console.error(err);
+      setError(t('fileParseError') || 'Failed to parse file. Please check format.');
+    } finally {
+      setIsProcessing(false);
+    }
   };
+
 
   const handleImport = async () => {
     if (!previewData.length) return;
@@ -291,6 +281,41 @@ export const ImportModal: React.FC<ImportModalProps> = ({
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-6 scrollbar-thin scrollbar-thumb-slate-300 dark:scrollbar-thumb-slate-700">
           
+          {/* Limit Warning */}
+           {activeTab === 'paddler' && currentTeam?.plan !== 'PRO' && currentTeam?.maxMembers && previewData.length > 0 && (
+             (() => {
+                const limitCaught = paddlers?.length >= currentTeam.maxMembers;
+                const willExceed = (paddlers?.length + previewData.length) > currentTeam.maxMembers;
+                
+                if (limitCaught || willExceed) {
+                  return (
+                    <div className="mb-4 p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg text-sm flex items-start gap-3">
+                      <div className="text-amber-500 mt-0.5">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-medium text-amber-800 dark:text-amber-400">
+                          {limitCaught ? (t('teamLimitReached') || 'Team limit reached') : (t('teamLimitExceeded') || 'Import exceeds limit')}
+                        </p>
+                        <p className="text-amber-700 dark:text-amber-500 mt-1 text-xs leading-relaxed">
+                          {limitCaught 
+                             ? (t('teamLimitReachedDesc') || 'Limit of {max} reached.').replace('{max}', currentTeam.maxMembers.toString())
+                             : (t('importLimitWarning') || 'Import total {total} exceeds limit {max}.')
+                                 .replace('{total}', (paddlers.length + previewData.length).toString())
+                                 .replace('{max}', currentTeam.maxMembers.toString())
+                          }
+                        </p>
+                        <p className="text-amber-800 dark:text-amber-300 mt-2 text-xs font-medium border-t border-amber-200 dark:border-amber-800/50 pt-2">
+                          {t('guestHint') || 'Note: Guests can still be added to individual trainings.'}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                }
+                return null;
+             })()
+           )}
+
           {/* Messages */}
           {error && (
             <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-lg text-sm flex items-center gap-2 border border-red-100 dark:border-red-900/30">
@@ -442,7 +467,7 @@ export const ImportModal: React.FC<ImportModalProps> = ({
           </button>
           <button 
             onClick={handleImport}
-            disabled={!file || !previewData.length || isProcessing}
+            disabled={!!(!file || !previewData.length || isProcessing || (activeTab === 'paddler' && currentTeam?.plan !== 'PRO' && currentTeam?.maxMembers && ((paddlers?.length || 0) + previewData.length > currentTeam.maxMembers)))}
             className={`px-4 py-2 text-sm font-medium text-white ${theme?.button || 'bg-blue-600 hover:bg-blue-700'} disabled:opacity-50 disabled:cursor-not-allowed rounded-lg shadow-sm transition-all flex items-center gap-2`}
           >
             {isProcessing ? (

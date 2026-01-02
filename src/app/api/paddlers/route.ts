@@ -95,10 +95,24 @@ export async function POST(request: Request) {
         teamId: body.teamId,
         userId: session.user.id,
       },
+      include: {
+        team: true
+      }
     });
 
     if (!membership || membership.role !== 'CAPTAIN') {
       return NextResponse.json({ error: 'Unauthorized: Only captains can add members' }, { status: 403 });
+    }
+
+    // Check team limit
+    if (membership.team && membership.team.plan !== 'PRO' && membership.team.maxMembers) {
+      const currentCount = await prisma.paddler.count({
+        where: { teamId: body.teamId }
+      });
+      
+      if (currentCount >= membership.team.maxMembers) {
+        return NextResponse.json({ error: 'Team limit reached' }, { status: 403 });
+      }
     }
 
     const paddler = await prisma.paddler.create({

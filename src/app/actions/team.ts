@@ -68,6 +68,18 @@ export async function inviteMember(teamId: string, email: string) {
     throw new Error("Team not found")
   }
 
+  // Check team limit
+  if (team.plan !== 'PRO' && team.maxMembers) {
+    const currentCount = await prisma.paddler.count({
+      where: { teamId: team.id }
+    });
+    
+    if (currentCount >= team.maxMembers) {
+      throw new Error("TEAM_LIMIT_REACHED");
+    }
+  }
+
+
   // Find user by email to check if they are already a member (case-insensitive)
   const userToInvite = await prisma.user.findFirst({
     where: { 

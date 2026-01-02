@@ -442,7 +442,10 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
         throw new Error(err.error || 'Failed to add paddler');
       }
     } catch (e) {
-      console.error('Failed to add paddler', e);
+      // Don't log expected validation errors
+      if (e instanceof Error && e.message !== 'Team limit reached') {
+        console.error('Failed to add paddler', e);
+      }
       throw e;
     }
   }, [currentTeam]);

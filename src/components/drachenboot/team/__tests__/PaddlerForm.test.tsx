@@ -63,4 +63,10 @@ describe('PaddlerForm', () => {
     expect(screen.getAllByTestId('form-input').length).toBeGreaterThan(0);
     expect(screen.getByTestId('weight-input')).toBeInTheDocument();
   });
+
+  it('disables save button when disabled prop is true', () => {
+    render(<PaddlerForm paddlerToEdit={null} onSave={mockSave} onCancel={mockCancel} t={mockT} disabled={true} />);
+    const saveButton = screen.getByTestId('icon-plus').closest('button'); // Finding by child icon since button has no testid
+    expect(saveButton).toBeDisabled();
+  });
 });

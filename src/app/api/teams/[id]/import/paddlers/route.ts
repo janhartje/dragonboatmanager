@@ -39,6 +39,19 @@ export async function POST(
       return NextResponse.json({ error: 'Invalid data format' }, { status: 400 });
     }
 
+    // Check team limit
+    const team = await prisma.team.findUnique({
+      where: { id: teamId },
+      select: { plan: true, maxMembers: true }
+    });
+
+    if (team && team.plan !== 'PRO' && team.maxMembers) {
+       const currentCount = await prisma.paddler.count({ where: { teamId } });
+       if ((currentCount + paddlers.length) > team.maxMembers) {
+           return NextResponse.json({ error: 'Import exceeds team limit' }, { status: 403 });
+       }
+    }
+
     // Separate paddlers into batch (no email) and invite (with email)
     // Separate paddlers into batch (no email) and invite (with email)
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

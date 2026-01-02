@@ -23,7 +23,7 @@ const PaddlerModal: React.FC<PaddlerModalProps> = ({ isOpen, onClose, paddlerToE
   const [inviteLoading, setInviteLoading] = useState(false);
   const [inviteError, setInviteError] = useState<string | null>(null);
   const [inviteSuccess, setInviteSuccess] = useState(false);
-  const { currentTeam, refetchPaddlers } = useDrachenboot();
+  const { currentTeam, refetchPaddlers, paddlers } = useDrachenboot();
   const theme = currentTeam?.plan === 'PRO' ? THEME_MAP[currentTeam.primaryColor as ThemeKey] : null;
 
   if (!isOpen) return null;
@@ -49,6 +49,8 @@ const PaddlerModal: React.FC<PaddlerModalProps> = ({ isOpen, onClose, paddlerToE
         setInviteError(t('userAlreadyMember') || 'User is already a team member');
       } else if (e.message === 'EMAIL_ALREADY_INVITED') {
         setInviteError(t('emailAlreadyInvited') || 'This email has already been invited');
+      } else if (e.message === 'TEAM_LIMIT_REACHED') {
+        setInviteError(t('teamLimitReached') || 'Team limit reached');
       } else {
         setInviteError(e.message || t('inviteError') || 'Failed to send invitation');
       }
@@ -118,6 +120,26 @@ const PaddlerModal: React.FC<PaddlerModalProps> = ({ isOpen, onClose, paddlerToE
               <X size={20} />
             </button>
           </div>
+
+          {/* Limit Warning */}
+           {currentTeam?.plan !== 'PRO' && currentTeam?.maxMembers && paddlers?.length >= currentTeam.maxMembers && (
+            <div className="mx-4 mt-4 p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg text-sm flex items-start gap-3">
+              <div className="text-amber-500 mt-0.5">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+              </div>
+              <div className="flex-1">
+                <p className="font-medium text-amber-800 dark:text-amber-400">
+                  {t('teamLimitReached') || 'Team limit reached'}
+                </p>
+                <p className="text-amber-700 dark:text-amber-500 mt-1 text-xs leading-relaxed">
+                  {(t('teamLimitReachedDesc') || 'Limit of {max} members reached.').replace('{max}', currentTeam.maxMembers.toString())}
+                </p>
+                <p className="text-amber-800 dark:text-amber-300 mt-2 text-xs font-medium border-t border-amber-200 dark:border-amber-800/50 pt-2">
+                  {t('guestHint') || 'Note: Guests can still be added to individual trainings.'}
+                </p>
+              </div>
+            </div>
+          )}
           
           {/* Tabs */}
           <div className="flex gap-1 px-4 pt-3">
@@ -162,6 +184,7 @@ const PaddlerModal: React.FC<PaddlerModalProps> = ({ isOpen, onClose, paddlerToE
                 t={t}
                 teamMembers={teamMembers}
                 isModal={true}
+                disabled={!!(currentTeam?.plan !== 'PRO' && currentTeam?.maxMembers && paddlers?.length >= currentTeam.maxMembers)}
               />
             </>
           ) : (
@@ -205,7 +228,7 @@ const PaddlerModal: React.FC<PaddlerModalProps> = ({ isOpen, onClose, paddlerToE
                 </button>
                 <button
                   type="submit"
-                  disabled={inviteLoading || !inviteEmail.trim() || inviteSuccess}
+                  disabled={inviteLoading || !inviteEmail.trim() || inviteSuccess || (currentTeam?.plan !== 'PRO' && currentTeam?.maxMembers && paddlers?.length >= currentTeam.maxMembers)}
                   className={`w-full sm:w-auto h-9 px-6 py-2 rounded text-sm font-medium flex items-center justify-center gap-2 transition-all ${
                     inviteSuccess
                       ? 'bg-green-500 text-white'

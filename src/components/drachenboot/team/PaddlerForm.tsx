@@ -16,9 +16,10 @@ interface PaddlerFormProps {
   teamMembers?: any[]; // eslint-disable-line @typescript-eslint/no-explicit-any
   isModal?: boolean;
   isGuest?: boolean;
+  disabled?: boolean;
 }
 
-const PaddlerForm: React.FC<PaddlerFormProps> = ({ paddlerToEdit, onSave, onCancel, t, teamMembers = [], isModal = false, isGuest = false }) => {
+const PaddlerForm: React.FC<PaddlerFormProps> = ({ paddlerToEdit, onSave, onCancel, t, teamMembers = [], isModal = false, isGuest = false, disabled = false }) => {
   const [name, setName] = useState<string>('');
   const [weight, setWeight] = useState<string>('');
   const [skills, setSkills] = useState<SkillsState>({ left: false, right: false, drum: false, steer: false, stroke: false, steer_preferred: false });
@@ -291,8 +292,9 @@ const PaddlerForm: React.FC<PaddlerFormProps> = ({ paddlerToEdit, onSave, onCanc
           {isModal && <button type="button" onClick={onCancel} className="w-full sm:w-auto bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 px-4 py-2 rounded text-sm">{t('cancel')}</button>}
           <button 
             type="submit" 
+            disabled={!isFormValid || disabled}
             className={`w-full sm:w-auto h-9 px-6 py-2 rounded text-sm font-medium flex items-center justify-center gap-2 transition-all
-              ${isFormValid 
+              ${isFormValid && !disabled
                 ? (paddlerToEdit ? 'bg-orange-500 hover:bg-orange-600 text-white' : (theme?.button || 'bg-blue-600 hover:bg-blue-700') + ' text-white') 
                 : 'bg-slate-200 dark:bg-slate-800 text-slate-400 cursor-not-allowed opacity-70'
               }`}

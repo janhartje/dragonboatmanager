@@ -51,6 +51,11 @@
     "pleaseChooseRole": "Please choose a role.",
     "imprint": "Imprint",
     "changelog": "Changelog",
+    "teamLimitReached": "Team limit reached",
+    "teamLimitReachedDesc": "You have reached the limit of {max} members. Upgrade to PRO for unlimited access.",
+    "guestHint": "Note: Guests can still be added to individual trainings.",
+    "teamLimitExceeded": "Import exceeds limit",
+    "importLimitWarning": "This import would bring your total to {total}, exceeding the limit of {max}.",
     "madeWithLove": "Made with ❤️ in Hannover.",
     "helpTitle": "Help & Instructions",
     "helpBoatManning": "Boat Manning",
@@ -155,7 +160,10 @@
                 "InfoCards: Important notices can now be permanently dismissed.",
                 "Team Switching: Faster switching between teams and improved management.",
                 "Refined Aesthetics: Brand new PRO badge with shimmer effect.",
-                "UI Optimization: The squad usage (e.g. 4/25) is now displayed directly in the overview."
+                "UI Optimization: The squad usage (e.g. 4/25) is now displayed directly in the overview.",
+                "Team Limit: Limits are now consistently enforced in all dialogs (Add, Import, Invite).",
+                "Import: The import dialog now shows a precise warning if the limit would be exceeded.",
+                "UX: Errors are now automatically cleared when closing dialogs."
             ],
             "technical": [
                 "Centralized theme management for consistent color display.",
