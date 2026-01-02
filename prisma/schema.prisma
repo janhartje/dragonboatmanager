@@ -168,6 +168,9 @@ model Team {
   showProRing        Boolean  @default(true)
   showProBadge       Boolean  @default(true)
   showWatermark      Boolean  @default(true)
+
+  // MCP Server API Keys
+  apiKeys            ApiKey[]
 }
 
 model EmailQueue {
@@ -199,4 +202,17 @@ model DismissedInfoCard {
 
   @@unique([userId, cardId])
   @@index([userId])
+}
+
+model ApiKey {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  name      String   // User-friendly name like "Claude Desktop" or "Development"
+  teamId    String
+  team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  lastUsed  DateTime?
+  createdAt DateTime @default(now())
+
+  @@index([teamId])
+  @@index([key])
 }

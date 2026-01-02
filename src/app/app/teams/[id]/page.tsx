@@ -17,6 +17,7 @@ import TeamSwitcher from '@/components/drachenboot/TeamSwitcher';
 import { UserMenu } from '@/components/auth/UserMenu';
 import { BillingContent, SubscriptionData } from '@/components/stripe/BillingContent';
 import { ProBadge } from '@/components/drachenboot/pro/ProBadge';
+import { ApiAccessTab } from '@/components/drachenboot/team/ApiAccessTab';
 
 const THEME_MAP = {
   amber: {
@@ -104,7 +105,7 @@ export default function TeamDetailPage({ params }: { params: Promise<{ id: strin
   // We use a helper to get safe tab value
   const getTabFromUrl = () => {
       const tab = searchParams.get('tab');
-      return (tab === 'general' || tab === 'members' || tab === 'subscription') ? tab : 'general';
+      return (tab === 'general' || tab === 'members' || tab === 'subscription' || tab === 'api') ? tab : 'general';
   };
   const activeTab = getTabFromUrl();
   
@@ -270,6 +271,18 @@ export default function TeamDetailPage({ params }: { params: Promise<{ id: strin
             >
               {t('pro.subscription') || 'Subscription'}
             </button>
+            <button
+              onClick={() => {
+                router.push(`/app/teams/${id}?tab=api`);
+              }}
+              className={`flex-1 py-4 text-sm font-medium transition-colors border-b-2 ${
+                activeTab === 'api'
+                  ? (THEME_MAP[team.primaryColor as keyof typeof THEME_MAP]?.tab || 'border-blue-600 text-blue-600 dark:border-blue-400 dark:text-blue-400 bg-blue-50/50 dark:bg-blue-900/10')
+                  : 'border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/50'
+              }`}
+            >
+              API Access
+            </button>
           </div>
 
           <div className="p-6">
@@ -397,6 +410,8 @@ export default function TeamDetailPage({ params }: { params: Promise<{ id: strin
               </div>
             ) : activeTab === 'subscription' ? (
               <SubscriptionTab team={team} />
+            ) : activeTab === 'api' ? (
+              <ApiAccessTab teamId={team.id} isPro={team.plan === 'PRO' || team.plan === 'ENTERPRISE'} />
             ) : null}
           </div>
         </div>

@@ -1,6 +1,72 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import { auth } from '@/auth';
+import { getAuthContext } from '@/lib/api-auth';
+import { auth } from '@/auth'; // Keep for legacy PUT/DELETE for now, or refactor all
+
+export async function GET(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params;
+  const auth = await getAuthContext(request);
+
+  if (auth.type === 'none') {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  // Authorization check
+  if (auth.type === 'apiKey' && auth.teamId !== id) {
+     return NextResponse.json({ error: 'Unauthorized - API Key does not match team' }, { status: 403 });
+  }
+
+  if (auth.type === 'session' && auth.user?.id) {
+    // Check if user is member
+    const membership = await prisma.paddler.findFirst({
+        where: { teamId: id, userId: auth.user.id }
+    });
+    if (!membership) {
+         return NextResponse.json({ error: 'Unauthorized - Not a member' }, { status: 403 });
+    }
+  }
+
+  try {
+    const team = await prisma.team.findUnique({
+      where: { id },
+      include: {
+        paddlers: {
+          select: {
+            id: true,
+            name: true,
+            weight: true,
+            skills: true,
+            role: true,
+            isGuest: true,
+          },
+        },
+        events: {
+          select: {
+            id: true,
+            title: true,
+            date: true,
+            type: true,
+            boatSize: true,
+          },
+          orderBy: { date: 'desc' },
+          take: 10,
+        },
+      },
+    });
+
+    if (!team) {
+      return NextResponse.json({ error: 'Team not found' }, { status: 404 });
+    }
+
+    return NextResponse.json(team);
+  } catch (error) {
+    console.error('Error fetching team:', error);
+    return NextResponse.json({ error: 'Failed to fetch team' }, { status: 500 });
+  }
+}
 
 export async function PUT(
   request: Request,

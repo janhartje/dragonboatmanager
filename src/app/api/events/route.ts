@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server';
 import { Prisma } from '@prisma/client';
 import prisma from '@/lib/prisma';
-import { auth } from '@/auth';
+import { getAuthContext } from '@/lib/api-auth';
 
 export async function GET(request: Request) {
-  const session = await auth();
-  if (!session?.user?.id) {
+  const authContext = await getAuthContext(request);
+  if (authContext.type === 'none') {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
@@ -13,38 +13,47 @@ export async function GET(request: Request) {
   const requestedTeamId = searchParams.get('teamId');
 
   try {
-    // Optimization: Fetch all user memberships in one go.
-    // This serves two purposes:
-    // 1. Validates access to the requested team API (or determines which teams to fetch for)
-    // 2. Provides the roles needed to determine if the user is a CAPTAIN (for guest visibility)
-    const userMemberships = await prisma.paddler.findMany({
-      where: { userId: session.user.id },
-      select: { teamId: true, role: true },
-    });
-
     const roleMap = new Map<string, string>();
-    const userTeamIds: string[] = [];
-
-    userMemberships.forEach(m => {
-      if (m.teamId) {
-        roleMap.set(m.teamId, m.role);
-        userTeamIds.push(m.teamId);
-      }
-    });
-
-    if (userTeamIds.length === 0) {
-      return NextResponse.json([]);
-    }
-
     let whereClause: Prisma.EventWhereInput = {};
 
-    if (requestedTeamId) {
-      if (!userTeamIds.includes(requestedTeamId)) {
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
-      }
-      whereClause = { teamId: requestedTeamId };
-    } else {
-      whereClause = { teamId: { in: userTeamIds } };
+    // API Key Case
+    if (authContext.type === 'apiKey') {
+        const teamId = authContext.teamId;
+         if (requestedTeamId && requestedTeamId !== teamId) {
+             return NextResponse.json({ error: 'Unauthorized - API Key does not match team' }, { status: 403 });
+        }
+        whereClause = { teamId };
+        roleMap.set(teamId, 'CAPTAIN'); // Treat API Key as Captain for visibility
+    } 
+    // Session Case
+    else if (authContext.type === 'session' && authContext.user?.id) {
+        // Optimization: Fetch all user memberships in one go.
+        const userMemberships = await prisma.paddler.findMany({
+        where: { userId: authContext.user.id },
+        select: { teamId: true, role: true },
+        });
+
+        const userTeamIds: string[] = [];
+
+        userMemberships.forEach(m => {
+        if (m.teamId) {
+            roleMap.set(m.teamId, m.role);
+            userTeamIds.push(m.teamId);
+        }
+        });
+
+        if (userTeamIds.length === 0) {
+        return NextResponse.json([]);
+        }
+
+        if (requestedTeamId) {
+        if (!userTeamIds.includes(requestedTeamId)) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+        }
+        whereClause = { teamId: requestedTeamId };
+        } else {
+        whereClause = { teamId: { in: userTeamIds } };
+        }
     }
 
     const events = await prisma.event.findMany({
@@ -88,24 +97,34 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const session = await auth();
-  if (!session?.user?.id) {
+  const authContext = await getAuthContext(request);
+  if (authContext.type === 'none') {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   try {
     const body = await request.json();
     
-    // Verify user is a member of the team
-    const membership = await prisma.paddler.findFirst({
-      where: {
-        teamId: body.teamId,
-        userId: session.user.id,
-      },
-    });
+    // API Key Case
+    if (authContext.type === 'apiKey') {
+        if (body.teamId && body.teamId !== authContext.teamId) {
+             return NextResponse.json({ error: 'Unauthorized - API Key does not match team' }, { status: 403 });
+        }
+        body.teamId = authContext.teamId;
+    }
+    // Session Case
+    else if (authContext.type === 'session' && authContext.user?.id) {
+        // Verify user is a member of the team
+        const membership = await prisma.paddler.findFirst({
+        where: {
+            teamId: body.teamId,
+            userId: authContext.user.id,
+        },
+        });
 
-    if (!membership || membership.role !== 'CAPTAIN') {
-      return NextResponse.json({ error: 'Unauthorized: Only captains can create events' }, { status: 403 });
+        if (!membership || membership.role !== 'CAPTAIN') {
+        return NextResponse.json({ error: 'Unauthorized: Only captains can create events' }, { status: 403 });
+        }
     }
 
     const event = await prisma.event.create({

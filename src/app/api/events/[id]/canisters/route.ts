@@ -1,14 +1,14 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import { auth } from '@/auth';
+import { getAuthContext } from '@/lib/api-auth';
 
 export async function POST(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  const session = await auth();
-  if (!session?.user?.id) {
+  const authContext = await getAuthContext(request);
+  if (authContext.type === 'none') {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
@@ -25,16 +25,23 @@ export async function POST(
       return NextResponse.json({ error: 'Event not found' }, { status: 404 });
     }
 
-    // Check if user is a member of the team
-    const membership = await prisma.paddler.findFirst({
-      where: {
-        teamId: existingEvent.teamId,
-        userId: session.user.id,
-      },
-    });
+    // Authorization
+    if (authContext.type === 'apiKey') {
+        if (existingEvent.teamId !== authContext.teamId) {
+            return NextResponse.json({ error: 'Unauthorized - API Key does not match team' }, { status: 403 });
+        }
+    } else if (authContext.type === 'session' && authContext.user?.id) {
+         // Check if user is a member of the team
+        const membership = await prisma.paddler.findFirst({
+        where: {
+            teamId: existingEvent.teamId,
+            userId: authContext.user.id,
+        },
+        });
 
-    if (!membership || membership.role !== 'CAPTAIN') {
-      return NextResponse.json({ error: 'Unauthorized: Only captains can manage canisters' }, { status: 403 });
+        if (!membership || membership.role !== 'CAPTAIN') {
+            return NextResponse.json({ error: 'Unauthorized: Only captains can manage canisters' }, { status: 403 });
+        }
     }
     
     // Transaction to safely increment
@@ -67,8 +74,8 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  const session = await auth();
-  if (!session?.user?.id) {
+  const authContext = await getAuthContext(request);
+  if (authContext.type === 'none') {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
@@ -85,16 +92,23 @@ export async function DELETE(
       return NextResponse.json({ error: 'Event not found' }, { status: 404 });
     }
 
-    // Check if user is a member of the team
-    const membership = await prisma.paddler.findFirst({
-      where: {
-        teamId: existingEvent.teamId,
-        userId: session.user.id,
-      },
-    });
+    // Authorization
+    if (authContext.type === 'apiKey') {
+        if (existingEvent.teamId !== authContext.teamId) {
+            return NextResponse.json({ error: 'Unauthorized - API Key does not match team' }, { status: 403 });
+        }
+    } else if (authContext.type === 'session' && authContext.user?.id) {
+         // Check if user is a member of the team
+        const membership = await prisma.paddler.findFirst({
+        where: {
+            teamId: existingEvent.teamId,
+            userId: authContext.user.id,
+        },
+        });
 
-    if (!membership || membership.role !== 'CAPTAIN') {
-      return NextResponse.json({ error: 'Unauthorized: Only captains can manage canisters' }, { status: 403 });
+        if (!membership || membership.role !== 'CAPTAIN') {
+            return NextResponse.json({ error: 'Unauthorized: Only captains can manage canisters' }, { status: 403 });
+        }
     }
 
     const { searchParams } = new URL(request.url);

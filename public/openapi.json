@@ -143,6 +143,225 @@
                 }
             }
         },
+        "/api/mcp": {
+            "post": {
+                "summary": "Execute MCP Tool",
+                "description": "Executes a Model Context Protocol tool. Requires Valid API Key.",
+                "tags": [
+                    "MCP"
+                ],
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "tool": {
+                                        "type": "string",
+                                        "description": "Name of the tool to execute"
+                                    },
+                                    "arguments": {
+                                        "type": "object",
+                                        "description": "Tool arguments"
+                                    },
+                                    "apiKey": {
+                                        "type": "string",
+                                        "description": "Valid API Key"
+                                    }
+                                },
+                                "required": [
+                                    "tool",
+                                    "apiKey"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Tool executed successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean"
+                                        },
+                                        "result": {
+                                            "type": "object"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized - Invalid API Key"
+                    }
+                }
+            },
+            "get": {
+                "summary": "List MCP Tools",
+                "description": "Returns a list of available MCP tools.",
+                "tags": [
+                    "MCP"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of tools",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "tools": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "name": {
+                                                        "type": "string"
+                                                    },
+                                                    "description": {
+                                                        "type": "string"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/teams/{id}/api-keys": {
+            "get": {
+                "summary": "List API Keys",
+                "description": "Lists all API keys for a team. Requires CAPTAIN role.",
+                "tags": [
+                    "API Keys"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of API keys",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/ApiKey"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "summary": "Create API Key",
+                "description": "Creates a new API Key. Requires CAPTAIN role.",
+                "tags": [
+                    "API Keys"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    }
+                                },
+                                "required": [
+                                    "name"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "API Key created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "key": {
+                                            "type": "string"
+                                        },
+                                        "record": {
+                                            "$ref": "#/components/schemas/ApiKey"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/teams/{id}/api-keys/{keyId}": {
+            "delete": {
+                "summary": "Revoke API Key",
+                "tags": [
+                    "API Keys"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "keyId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Key revoked"
+                    }
+                }
+            }
+        },
         "/api/teams": {
             "get": {
                 "summary": "Get All Teams",
@@ -2220,6 +2439,291 @@
                     }
                 }
             }
+        },
+        "/api/paddlers": {
+            "get": {
+                "summary": "List Paddlers",
+                "description": "Lists paddlers for a specific team. Supports parallel fetching.",
+                "tags": [
+                    "Paddlers"
+                ],
+                "parameters": [
+                    {
+                        "name": "teamId",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of paddlers",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Paddler"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "summary": "Create Paddler",
+                "description": "Creates a new paddler. Authenticated users only.",
+                "tags": [
+                    "Paddlers"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "teamId": {
+                                        "type": "string"
+                                    },
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "weight": {
+                                        "type": "number"
+                                    },
+                                    "skills": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "isGuest": {
+                                        "type": "boolean"
+                                    }
+                                },
+                                "required": [
+                                    "teamId",
+                                    "name"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Paddler created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Paddler"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/events": {
+            "get": {
+                "summary": "List Events",
+                "description": "Lists events for a team.",
+                "tags": [
+                    "Events"
+                ],
+                "parameters": [
+                    {
+                        "name": "teamId",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of events",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Event"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "summary": "Create Event",
+                "tags": [
+                    "Events"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "teamId": {
+                                        "type": "string"
+                                    },
+                                    "title": {
+                                        "type": "string"
+                                    },
+                                    "date": {
+                                        "type": "string",
+                                        "format": "date-time"
+                                    },
+                                    "type": {
+                                        "type": "string"
+                                    },
+                                    "boatSize": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Event created"
+                    }
+                }
+            }
+        },
+        "/api/events/{id}/assignments": {
+            "get": {
+                "summary": "Get Assignments",
+                "tags": [
+                    "Assignments"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of assignments",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Assignment"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "summary": "Update Assignment",
+                "tags": [
+                    "Assignments"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "seatId": {
+                                        "type": "string"
+                                    },
+                                    "paddlerId": {
+                                        "type": "string",
+                                        "nullable": true
+                                    },
+                                    "isCanister": {
+                                        "type": "boolean"
+                                    }
+                                },
+                                "required": [
+                                    "seatId"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Assignment updated"
+                    }
+                }
+            }
+        },
+        "/api/events/{id}/attendance": {
+            "post": {
+                "summary": "Set Attendance",
+                "tags": [
+                    "Attendance"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "paddlerId": {
+                                        "type": "string"
+                                    },
+                                    "status": {
+                                        "type": "string",
+                                        "enum": [
+                                            "yes",
+                                            "no",
+                                            "maybe"
+                                        ]
+                                    }
+                                },
+                                "required": [
+                                    "paddlerId",
+                                    "status"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Attendance updated"
+                    }
+                }
+            }
         }
     },
     "components": {
@@ -2595,6 +3099,26 @@
                     "paddlerId",
                     "status"
                 ]
+            },
+            "ApiKey": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "lastUsed": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                }
             },
             "Assignment": {
                 "type": "object",

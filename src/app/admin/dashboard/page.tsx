@@ -10,7 +10,9 @@ import PageTransition from '@/components/ui/PageTransition';
 import DragonLogo from '@/components/ui/DragonLogo';
 import Link from 'next/link';
 
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import dynamic from 'next/dynamic';
+
+const GrowthChart = dynamic(() => import('@/components/admin/GrowthChart'), { ssr: false });
 
 import { Monitor, Send } from 'lucide-react'; // Add missing icons
 
@@ -197,38 +199,13 @@ export default function AdminDashboard() {
                     </div>
                   </div>
                   <div className="h-64 w-full">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={stats?.history.teams[teamResolution]}>
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
-                        <XAxis 
-                          dataKey="date" 
-                          tickFormatter={(value) => {
-                            const date = new Date(value);
-                            if (teamResolution === 'months') {
-                                return date.toLocaleDateString('default', { month: 'short' });
-                            }
-                            return date.toLocaleDateString('default', { day: '2-digit', month: '2-digit' });
-                          }}
-                          axisLine={false}
-                          tickLine={false}
-                          tick={{ fill: '#64748B', fontSize: 12 }}
-                          dy={10}
-                          minTickGap={30}
+                    {stats?.history.teams[teamResolution] && (
+                        <GrowthChart 
+                            data={stats.history.teams[teamResolution]} 
+                            resolution={teamResolution} 
+                            color="#6366F1" 
                         />
-                        <YAxis 
-                          axisLine={false}
-                          tickLine={false}
-                          tick={{ fill: '#64748B', fontSize: 12 }}
-                          allowDecimals={false}
-                        />
-                        <Tooltip 
-                          contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                          cursor={{ fill: 'transparent' }}
-                          labelFormatter={(value) => new Date(value).toLocaleDateString()}
-                        />
-                        <Bar dataKey="count" fill="#6366F1" radius={[4, 4, 0, 0]} />
-                      </BarChart>
-                    </ResponsiveContainer>
+                    )}
                   </div>
                 </div>
 
@@ -257,38 +234,13 @@ export default function AdminDashboard() {
                     </div>
                   </div>
                   <div className="h-64 w-full">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={stats?.history.users[userResolution]}>
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
-                        <XAxis 
-                          dataKey="date" 
-                           tickFormatter={(value) => {
-                            const date = new Date(value);
-                             if (userResolution === 'months') {
-                                return date.toLocaleDateString('default', { month: 'short' });
-                            }
-                            return date.toLocaleDateString('default', { day: '2-digit', month: '2-digit' });
-                          }}
-                          axisLine={false}
-                          tickLine={false}
-                          tick={{ fill: '#64748B', fontSize: 12 }}
-                          dy={10}
-                          minTickGap={30}
+                     {stats?.history.users[userResolution] && (
+                        <GrowthChart 
+                            data={stats.history.users[userResolution]} 
+                            resolution={userResolution} 
+                            color="#3B82F6" 
                         />
-                        <YAxis 
-                          axisLine={false}
-                          tickLine={false}
-                          tick={{ fill: '#64748B', fontSize: 12 }}
-                          allowDecimals={false}
-                        />
-                         <Tooltip 
-                          contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                          cursor={{ fill: 'transparent' }}
-                          labelFormatter={(value) => new Date(value).toLocaleDateString()}
-                        />
-                        <Bar dataKey="count" fill="#3B82F6" radius={[4, 4, 0, 0]} />
-                      </BarChart>
-                    </ResponsiveContainer>
+                    )}
                   </div>
                 </div>
               </div>

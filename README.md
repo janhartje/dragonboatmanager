@@ -21,7 +21,7 @@ Der **Drachenboot Manager** ist eine Progressive Web App (PWA) zur Verwaltung vo
 *   **Hilfe & Support**: Integriertes Hilfe-Center mit Anleitungen, FAQs und direktem Kontakt zum Entwickler.
 *   **Erweiterte Mitgliederverwaltung**: Status-Tracking (Ausstehend), einfache Rollenvergabe und Verwaltungsoptionen.
 *   **Team Branding**: Personalisierung des Teams mit Akzentfarben (10 Auswahlmöglichkeiten) und individuellem Logo-Ring (PRO).
-*   **PRO Features**: Unbegrenzte Mitglieder, iCal-Integration, PDF/Bild-Export ohne Wasserzeichen und erweiterte Branding-Optionen.
+*   **PRO Features**: Unbegrenzte Mitglieder, iCal-Integration, PDF/Bild-Export ohne Wasserzeichen, erweiterte Branding-Optionen und **MCP Server API** für AI-Integration (z.B. Claude Desktop).
 *   **Admin Dashboard**: Umfassende Statistiken zu Nutzern, Teams und Events inkl. Wachstumscharts und System-Metriken (nur für Administratoren).
 
 ### 🔒 Rollen & Berechtigungen
@@ -333,6 +333,51 @@ maxMembers         Int      @default(25)      // Mitglieder-Limit
 
 - `invoice.payment_succeeded` → Team wird auf PRO upgegradet
 - `customer.subscription.deleted` → Team wird auf FREE zurückgesetzt
+
+### MCP Server (PRO)
+
+Der **Model Context Protocol (MCP) Server** ermöglicht es AI-Assistenten wie Claude Desktop, programmatisch mit der Drachenboot Manager API zu interagieren. Dies ist ein exklusives Feature für PRO-Teams.
+
+#### Features
+
+- **Team Management**: Teams auflisten und Details abrufen
+- **Paddler Management**: Paddler auflisten, erstellen, **Gäste hinzufügen/entfernen**
+- **Event Management**: Events auflisten, **erstellen**, **bearbeiten**, **löschen** und verwalten
+- **Assignments**: Bootsbesetzung abrufen, **Sitze leeren** und **komplette Sitzpläne speichern**
+
+#### Quick Start
+
+1. **API Key generieren**:
+   - Navigiere zu **Team Settings** → **API Access**
+   - Klicke auf "Generate New Key"
+   - Kopiere den generierten Key (wird nur einmal angezeigt!)
+
+2. **Claude Desktop konfigurieren**:
+   ```json
+   // ~/Library/Application Support/Claude/claude_desktop_config.json (macOS)
+   {
+     "mcpServers": {
+       "drachenboot": {
+         "command": "npx",
+         "args": ["-y", "@drachenboot/mcp"],
+         "env": {
+           "DRACHENBOOT_API_KEY": "dbm_live_xxx..."
+         }
+       }
+     }
+   }
+   ```
+
+3. **Claude Desktop neustarten** und loslegen!
+
+#### Beispiel-Prompts
+
+- "Welche Teams habe ich im Drachenboot Manager?"
+- "Liste alle Paddler in meinem Team auf"
+- "Erstelle einen neuen Paddler namens 'Max Mustermann' mit 80kg"
+- "Zeige mir die nächsten 10 Events"
+
+**Ausführliche Dokumentation**: [docs/mcp-guide.md](docs/mcp-guide.md)
 
 ## 🧠 Key Concepts
 

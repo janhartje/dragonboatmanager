@@ -147,6 +147,23 @@
     "clBugfixes": "Fehlerbehebungen",
     "changelogData": [
         {
+            "version": "3.1.0",
+            "date": "Januar 2026",
+            "features": [
+                "MCP Integration: Spezifische Tools für Event-Management und Kanister-Handling.",
+                "API Keys: Neue Verwaltung für API-Schlüssel pro Team.",
+                "Erweiterte Event-API: Verbesserte Endpunkte für Assignments und Guests."
+            ],
+            "technical": [
+                "Datenbank-Schema für API Keys erweitert.",
+                "Refactoring der API-Authentifizierung (Unified Auth Context).",
+                "OpenAPI Spec Fixes und Updates."
+            ],
+            "bugfixes": [
+                "Fix: Syntax-Fehler in OpenAPI JSON behoben."
+            ]
+        },
+        {
             "version": "3.0.0",
             "date": "Januar 2026",
             "features": [
@@ -829,5 +846,34 @@
         "helpProFeature4": "iCal Integration: Synchronisiere deine Termine direkt mit deinem persönlichen Kalender (Outlook, Google, Apple).",
         "helpProBilling": "Abo & Abrechnung",
         "helpProBillingDesc": "Du kannst dein Abo jederzeit in den Team-Einstellungen verwalten. Dort findest du auch deine Rechnungen und kannst deine Zahlungsmethode aktualisieren."
+    },
+    "api": {
+        "access": "API Zugriff",
+        "title": "MCP Server API",
+        "description": "Model Context Protocol Server für AI-Integration",
+        "generateKey": "Neuen Key generieren",
+        "keyName": "Key Name",
+        "keyNamePlaceholder": "z.B. Claude Desktop, Development",
+        "keyGenerated": "API Key generiert",
+        "saveKeyWarning": "Speichere diesen Key jetzt! Er wird nur einmal angezeigt.",
+        "yourKey": "Dein API Key",
+        "copyKey": "Kopieren",
+        "copied": "Kopiert!",
+        "revokeKey": "Löschen",
+        "lastUsed": "Zuletzt verwendet",
+        "never": "Nie",
+        "created": "Erstellt",
+        "noKeys": "Noch keine API Keys",
+        "noKeysDesc": "Erstelle einen Key, um mit der MCP Integration zu starten.",
+        "proRequired": "MCP API Zugriff ist ein PRO Feature",
+        "proRequiredDesc": "Upgrade auf PRO für programmatischen API-Zugriff und Integration mit AI Assistenten wie Claude Desktop.",
+        "upgradeBtn": "Auf PRO upgraden",
+        "learnMore": "Mehr über MCP erfahren",
+        "aboutTitle": "Über MCP API Zugriff",
+        "aboutDesc": "Das Model Context Protocol (MCP) ermöglicht es AI-Assistenten wie Claude Desktop, programmatisch mit deinen Team-Daten zu interagieren. Generiere einen API Key, um diese Integration zu aktivieren.",
+        "nextSteps": "Nächste Schritte: Claude Desktop konfigurieren",
+        "loading": "Lade...",
+        "revokeConfirm": "Möchtest du diesen API Key wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
+        "done": "Fertig"
     }
 }
