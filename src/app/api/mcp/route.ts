@@ -1,236 +1,114 @@
 import { NextResponse } from 'next/server';
-import { validateApiKey } from '@/lib/mcp-auth';
+import { validateApiKey, checkMcpAccess } from '@/lib/mcp-auth';
 import { tools } from '@/mcp/tools';
+import { createSession } from '@/lib/mcp-streams';
+import { randomUUID } from 'crypto';
 
 /**
  * POST /api/mcp
- * HTTP endpoint for MCP tool execution
- * Enables MCP server to work on Vercel (serverless)
+ * Stateless HTTP endpoint for direct tool execution (Legacy/Direct)
  */
 export async function POST(request: Request) {
   try {
     const body = await request.json();
+    const apiKey = request.headers.get('x-api-key') || body.apiKey; // Check header first
 
-    // Handle standard MCP JSON-RPC requests
-    if (body.jsonrpc === '2.0') {
-      const apiKey = request.headers.get('x-api-key') || body.params?.apiKey;
-      
-      // Basic API key validation for JSON-RPC (except for initialize which might not have it yet)
-      // Note: In a real MCP setup, auth might be handled differently, but we'll enforce it here if possible.
-      // However, 'initialize' often comes without headers in some clients.
-      
-      const { method, id, params } = body;
+    if (!apiKey || typeof apiKey !== 'string') {
+      return NextResponse.json({ error: 'API key is required' }, { status: 401 });
+    }
 
-      if (method === 'initialize') {
-        return NextResponse.json({
-          jsonrpc: '2.0',
-          id,
-          result: {
-            protocolVersion: '2024-11-05',
-            capabilities: {
-              tools: {},
-            },
-            serverInfo: {
-              name: 'drachenboot-manager',
-              version: '1.0.0',
-            },
-          },
-        });
-      }
+    const auth = await validateApiKey(apiKey);
+    if (!auth) {
+      return NextResponse.json({ error: 'Invalid API key' }, { status: 401 });
+    }
 
-      if (method === 'notifications/initialized') {
-        return NextResponse.json({
-          jsonrpc: '2.0',
-          id,
-          result: {},
-        });
-      }
+    // Direct JSON-RPC or simplified format
+    const isJsonRpc = body.jsonrpc === '2.0';
+    const toolName = isJsonRpc ? body.params?.name : body.tool;
+    const args = isJsonRpc ? body.params?.arguments : body.arguments;
 
-      // For tools/list and tools/call, require authentication
-      if (!apiKey || typeof apiKey !== 'string') {
-        // Only return error if we strictly require it. 
-        // Some discovery might happen without it? 
-        // For now, let's try to validate if present, or error if missing for critical actions.
-        if (method === 'tools/call') {
-           return NextResponse.json({
-            jsonrpc: '2.0',
-            id,
-            error: {
-              code: -32602,
-              message: 'API key is required in x-api-key header or params',
-            },
-          });
-        }
-      }
+    if (!toolName) {
+       return NextResponse.json({ error: 'Tool name required' }, { status: 400 });
+    }
 
-      if (method === 'tools/list') {
-         return NextResponse.json({
-          jsonrpc: '2.0',
-          id,
-          result: {
-            tools: tools.map((tool) => ({
-              name: tool.name,
-              description: tool.description,
-              inputSchema: {
-                type: 'object',
-                properties: tool.inputSchema.shape
-                  ? Object.entries(tool.inputSchema.shape).reduce(
-                      (acc, [key, value]) => {
-                        acc[key] = {
-                          type: 'string', // Simplified for discovery
-                          description: (value as { description?: string }).description || '',
-                        };
-                        return acc;
-                      },
-                      {} as Record<string, { type: string; description: string }>
-                    )
-                  : {},
-              },
-            })),
-          },
-        });
-      }
+    const tool = tools.find((t) => t.name === toolName);
+    if (!tool) {
+      return NextResponse.json({ error: `Unknown tool: ${toolName}` }, { status: 404 });
+    }
 
-      if (method === 'tools/call') {
-        const { name, arguments: args } = params;
-        const tool = tools.find((t) => t.name === name);
-        
-        if (!tool) {
-          return NextResponse.json({
-            jsonrpc: '2.0',
-            id,
-            error: {
-              code: -32601,
-              message: `Unknown tool: ${name}`,
-            },
-          });
-        }
+    // Execute
 
-        try {
-          const auth = await validateApiKey(apiKey);
-          if (!auth) {
-             return NextResponse.json({
-              jsonrpc: '2.0',
-              id,
-              error: {
-                code: -32602,
-                message: 'Invalid API key',
-              },
-            });
-          }
+    const validatedInput = tool.inputSchema.parse(args || {});
 
-          const validatedInput = tool.inputSchema.parse(args || {});
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const result = await tool.execute(apiKey, validatedInput as any);
+    const result = await tool.execute(apiKey, validatedInput as any);
 
-          return NextResponse.json({
-            jsonrpc: '2.0',
-            id,
-            result: {
-              content: [
-                {
-                  type: 'text',
-                  text: JSON.stringify(result, null, 2),
-                },
-              ],
-            },
-          });
-        } catch (error) {
-          return NextResponse.json({
-            jsonrpc: '2.0',
-            id,
-            error: {
-              code: -32000,
-              message: error instanceof Error ? error.message : 'Tool execution failed',
-            },
-          });
-        }
-      }
-
-      // Unknown method
-      return NextResponse.json({
+    if (isJsonRpc) {
+       return NextResponse.json({
         jsonrpc: '2.0',
-        id,
-        error: {
-          code: -32601,
-          message: `Method not found: ${method}`,
-        },
+        id: body.id,
+        result: {
+          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }]
+        }
       });
     }
 
-    const { tool: toolName, arguments: args } = body;
-
-    // Check for API key in body (legacy) or header (x-api-key)
-    const apiKey = body.apiKey || request.headers.get('x-api-key');
-
-    if (!apiKey || typeof apiKey !== 'string') {
-      return NextResponse.json(
-        { error: 'API key is required' },
-        { status: 401 }
-      );
-    }
-
-    if (!toolName || typeof toolName !== 'string') {
-      return NextResponse.json(
-        { error: 'Tool name is required' },
-        { status: 400 }
-      );
-    }
-
-    // Validate API key
-    const auth = await validateApiKey(apiKey);
-    if (!auth) {
-      return NextResponse.json(
-        { error: 'Invalid API key' },
-        { status: 401 }
-      );
-    }
-
-    // Find the tool
-    const tool = tools.find((t) => t.name === toolName);
-    if (!tool) {
-      return NextResponse.json(
-        { error: `Unknown tool: ${toolName}` },
-        { status: 404 }
-      );
-    }
-
-    // Validate input
-    const validatedInput = tool.inputSchema.parse(args || {});
-
-    // Execute the tool
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const result = await tool.execute(apiKey, validatedInput as any);
-
-    return NextResponse.json({
-      success: true,
-      result,
-    });
+    return NextResponse.json({ success: true, result });
   } catch (error) {
-    console.error('MCP tool execution error:', error);
-    
-    const message = error instanceof Error ? error.message : 'Tool execution failed';
-    const isValidationError = error instanceof Error && error.name === 'ZodError';
-
-    return NextResponse.json(
-      {
-        error: message,
-        type: isValidationError ? 'validation_error' : 'execution_error',
-      },
-      { status: isValidationError ? 400 : 500 }
-    );
+    console.error('MCP execution error:', error);
+    return NextResponse.json({ error: error instanceof Error ? error.message : 'Unknown error' }, { status: 500 });
   }
 }
 
 /**
  * GET /api/mcp
- * Returns list of available tools
+ * Establishes an SSE stream for MCP (Model Context Protocol)
  */
-export async function GET() {
-  return NextResponse.json({
-    tools: tools.map((tool) => ({
-      name: tool.name,
-      description: tool.description,
-    })),
+export async function GET(request: Request) {
+  const apiKey = request.headers.get('x-api-key');
+
+  if (!apiKey) {
+    return new Response('Missing x-api-key header', { status: 401 });
+  }
+
+  const auth = await validateApiKey(apiKey);
+  if (!auth) {
+    return new Response('Invalid API key', { status: 401 });
+  }
+
+  const hasAccess = await checkMcpAccess(auth.teamId);
+  if (!hasAccess) {
+    return new Response('Team does not have MCP access (PRO required)', { status: 403 });
+  }
+
+  const sessionId = randomUUID();
+  const responseStream = new TransformStream();
+  const writer = responseStream.writable.getWriter();
+  const encoder = new TextEncoder();
+
+  // Create a controller-like object for our session store
+  const controller = {
+    enqueue: (chunk: Uint8Array) => writer.write(chunk),
+    close: () => writer.close(),
+  };
+
+  createSession(sessionId, controller as unknown as ReadableStreamDefaultController, apiKey);
+
+  // Send the 'endpoint' event to tell client where to POST messages
+  // We need the full URL or relative path. Relative is usually fine.
+  const endpoint = `/api/mcp/messages?sessionId=${sessionId}`;
+  
+  // Format: event: endpoint\ndata: URL\n\n
+  const initEvent = `event: endpoint\ndata: ${endpoint}\n\n`;
+  writer.write(encoder.encode(initEvent));
+
+  console.log(`[MCP] SSE Stream started for session ${sessionId}`);
+
+  // Return the readable stream
+  return new Response(responseStream.readable, {
+    headers: {
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache',
+      'Connection': 'keep-alive',
+    },
   });
 }
