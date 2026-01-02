@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { BOAT_SIZES, BoatSize } from '@/types';
 
 // Base URL for API calls. In server context, we can use localhost or specific URL.
 const getBaseUrl = () => {
@@ -255,7 +256,7 @@ export const updateEventTool = {
     date: z.string().optional().describe('Date string (ISO)'),
     comment: z.string().optional().describe('Comment/Description'),
     type: z.enum(['training', 'regatta']).optional().describe('Event type'),
-    boatSize: z.enum(['standard', 'small']).optional().describe('Boat size'),
+    boatSize: z.enum(BOAT_SIZES).optional().describe('Boat size: standard (20 paddlers) or small (10 paddlers)'),
   }),
   execute: async (
     apiKey: string,
@@ -265,7 +266,7 @@ export const updateEventTool = {
       date?: string;
       comment?: string;
       type?: 'training' | 'regatta';
-      boatSize?: 'standard' | 'small';
+      boatSize?: BoatSize;
     }
   ) => {
     return fetchApi(`/api/events/${input.eventId}`, apiKey, {
@@ -287,7 +288,7 @@ export const createEventTool = {
     date: z.string().describe('Date string (ISO)'),
     comment: z.string().optional().describe('Comment/Description'),
     type: z.enum(['training', 'regatta']).optional().describe('Event type'),
-    boatSize: z.enum(['standard', 'small']).optional().describe('Boat size'),
+    boatSize: z.enum(BOAT_SIZES).optional().describe('Boat size: standard (20 paddlers) or small (10 paddlers)'),
   }),
   execute: async (
     apiKey: string,
@@ -297,7 +298,7 @@ export const createEventTool = {
       date: string;
       comment?: string;
       type?: 'training' | 'regatta';
-      boatSize?: 'standard' | 'small';
+      boatSize?: BoatSize;
     }
   ) => {
     return fetchApi('/api/events', apiKey, {
