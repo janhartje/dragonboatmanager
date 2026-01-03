@@ -38,6 +38,7 @@ interface DrachenbootContextType {
   currentPaddler: Paddler | null;
   refetchPaddlers: () => Promise<void>;
   refetchEvents: () => Promise<void>;
+  refetchTeams: () => Promise<void>;
   importPaddlers: (data: Record<string, unknown>[]) => Promise<void>;
   importEvents: (data: Record<string, unknown>[]) => Promise<void>;
 }
@@ -76,7 +77,7 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
 
   const fetchTeams = useCallback(async () => {
     try {
-      const res = await fetch('/api/teams');
+      const res = await fetch('/api/teams', { cache: 'no-store' });
       if (res.status === 401) {
         setTeams([]);
         setCurrentTeam(null);
@@ -85,12 +86,21 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
       if (res.ok) {
         const data = await res.json();
         setTeams(data);
-        // If no current team, select the first one or load from local storage
-        if (data.length > 0 && !currentTeam) {
-            const storedTeamId = localStorage.getItem('drachenboot_team_id');
-            const teamToSelect = data.find((t: Team) => t.id === storedTeamId) || data[0];
-            setIsDataLoading(true);
-            setCurrentTeam(teamToSelect);
+        
+        if (data.length > 0) {
+          // If we already have a currentTeam, find it in the new data to refresh it (e.g. for PRO status)
+          // If not, pick from localStorage or the first team
+          const teamToSelect = currentTeam 
+            ? data.find((t: Team) => t.id === currentTeam.id) 
+            : (data.find((t: Team) => t.id === localStorage.getItem('drachenboot_team_id')) || data[0]);
+
+          if (teamToSelect) {
+            setCurrentTeam(prev => {
+              // Only update if data actually changed to avoid unnecessary re-renders
+              if (prev && prev.id === teamToSelect.id && JSON.stringify(prev) === JSON.stringify(teamToSelect)) return prev;
+              return teamToSelect;
+            });
+          }
         }
       }
     } catch (e) {
@@ -234,7 +244,7 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
     }
 
     try {
-      const res = await fetch('/api/teams');
+      const res = await fetch('/api/teams', { cache: 'no-store' });
       if (res.status === 401) {
         setTeams([]);
         setCurrentTeam(null);
@@ -719,6 +729,7 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
       currentPaddler: myPaddler,
       refetchPaddlers: fetchPaddlers,
       refetchEvents: fetchEvents,
+      refetchTeams: fetchTeams,
       importPaddlers: async (data: Record<string, unknown>[]) => {
         if (!currentTeam) return;
         try {
@@ -755,7 +766,7 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
     paddlers, events, assignmentsByEvent, targetTrim, isDarkMode, isLoading, isDataLoading,
     toggleDarkMode, addPaddler, updatePaddler, deletePaddler, createEvent, deleteEvent, updateEvent,
     updateAttendance, updateAssignments, addGuest, removeGuest, addCanister, removeCanister,
-    session, updateTeam, fetchPaddlers, fetchEvents, deleteTeam
+    session, updateTeam, fetchPaddlers, fetchEvents, deleteTeam, fetchTeams
   ]);
 
   return (

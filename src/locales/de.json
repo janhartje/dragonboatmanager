@@ -147,6 +147,17 @@
     "clBugfixes": "Fehlerbehebungen",
     "changelogData": [
         {
+            "version": "3.3.4",
+            "date": "Januar 2026",
+            "features": [],
+            "technical": [
+                "DrachenbootContext: refetchTeams hinzugefügt und fetchTeams für zuverlässigere Datenaktualisierung optimiert."
+            ],
+            "bugfixes": [
+                "Fix: Pro-Status wird nun beim Wechsel zur Startseite oder nach dem Upgrade zuverlässig aktualisiert."
+            ]
+        },
+        {
             "version": "3.3.3",
             "date": "Januar 2026",
             "features": [],

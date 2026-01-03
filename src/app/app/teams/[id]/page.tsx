@@ -95,7 +95,7 @@ export default function TeamDetailPage({ params }: { params: Promise<{ id: strin
   const { id } = use(params);
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { teams, updateTeam, deleteTeam, isDarkMode, toggleDarkMode, paddlers, updatePaddler, deletePaddler, refetchPaddlers, userRole, isDataLoading } = useDrachenboot();
+  const { teams, updateTeam, deleteTeam, isDarkMode, toggleDarkMode, paddlers, updatePaddler, deletePaddler, refetchPaddlers, refetchTeams, userRole, isDataLoading } = useDrachenboot();
   const { t } = useLanguage();
   
 
@@ -125,6 +125,13 @@ export default function TeamDetailPage({ params }: { params: Promise<{ id: strin
       router.push('/app/teams');
     }
   }, [teams, team, router, isDataLoading]);
+
+  // Refetch teams if we just upgraded
+  useEffect(() => {
+     if (searchParams.get('upgrade_success') === 'true') {
+         refetchTeams();
+     }
+  }, [searchParams, refetchTeams]);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleSave = async (data: any) => {

@@ -48,6 +48,7 @@ const TeamView: React.FC = () => {
     isDataLoading,
     refetchPaddlers,
     refetchEvents,
+    refetchTeams,
     importPaddlers,
     importEvents,
     createEvent,
@@ -58,7 +59,8 @@ const TeamView: React.FC = () => {
   React.useEffect(() => {
     refetchPaddlers();
     refetchEvents();
-  }, [refetchPaddlers, refetchEvents]);
+    refetchTeams();
+  }, [refetchPaddlers, refetchEvents, refetchTeams]);
 
   // --- LOCAL UI STATE ---
   const [editingPaddlerId, setEditingPaddlerId] = useState<number | string | null>(null);
@@ -76,6 +78,7 @@ const TeamView: React.FC = () => {
   React.useEffect(() => {
     if (searchParams.get('upgrade_success') === 'true') {
       setShowUpgradeSuccess(true);
+      refetchTeams(); // Force refresh teams to see PRO status
       // Clean URL without reload
       window.history.replaceState({}, '', '/app');
     }
