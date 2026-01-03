@@ -2,14 +2,14 @@ import { runAutoFillAlgorithm } from './algorithm';
 import { Paddler } from '../types';
 
 // Mock helper
-const createPaddler = (id: string, weight: number, skills: string[] = [], priority: number = 1): Paddler => ({
+const createPaddler = (id: string, weight: number, skills: string[] = [], priority: number = 1, isCanister: boolean = false): Paddler => ({
   id,
   name: `Paddler ${id}`,
   weight,
   skills,
   priority,
   isGuest: false,
-  isCanister: false
+  isCanister
 });
 
 describe('AutoFill Algorithm', () => {
@@ -104,7 +104,7 @@ describe('AutoFill Algorithm', () => {
         const pool: Paddler[] = [];
         for(let i=0; i<10; i++) pool.push(createPaddler(`fixed-${i}`, 80, ['left', 'right'], 1));
         
-        for(let i=0; i<10; i++) pool.push(createPaddler(`canister-${i}`, 25, ['left', 'right'], 4));
+        for(let i=0; i<10; i++) pool.push(createPaddler(`canister-${i}`, 25, ['left', 'right'], 4, true));
 
         for(let i=0; i<5; i++) pool.push(createPaddler(`maybe-${i}`, 80, ['left', 'right'], 2)); // 5 Maybe (Prio 2)
         
@@ -208,7 +208,7 @@ describe('AutoFill Algorithm', () => {
         // 10 People normal
         for(let i=0; i<10; i++) pool.push(createPaddler(`p-${i}`, 80, ['left', 'right']));
         // 4 Canisters
-        for(let i=0; i<4; i++) pool.push(createPaddler(`c-${i}`, 10, ['left', 'right'], 4)); // Prio 4
+        for(let i=0; i<4; i++) pool.push(createPaddler(`c-${i}`, 10, ['left', 'right'], 4, true)); // Prio 4
         
         const assignments = runAutoFillAlgorithm(pool, {}, [], 0, 10);
         
@@ -266,8 +266,8 @@ describe('AutoFill Algorithm', () => {
         // 18 People + 2 Canisters. Total 20 = Full Boat.
         // Canisters should be in Row 10 (Last Row).
         for(let i=0; i<18; i++) pool.push(createPaddler(`p-${i}`, 80, ['left', 'right'], 1)); // Priority 1
-        pool.push(createPaddler(`c-1`, 10, ['left', 'right'], 4)); // Canister
-        pool.push(createPaddler(`c-2`, 10, ['left', 'right'], 4)); // Canister
+        pool.push(createPaddler(`c-1`, 10, ['left', 'right'], 4, true)); // Canister
+        pool.push(createPaddler(`c-2`, 10, ['left', 'right'], 4, true)); // Canister
         
         const assignments = runAutoFillAlgorithm(pool, {}, [], 0, 10);
         

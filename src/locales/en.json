@@ -147,6 +147,17 @@
     "clBugfixes": "Bug Fixes",
     "changelogData": [
         {
+            "version": "3.3.3",
+            "date": "January 2026",
+            "features": [],
+            "technical": [
+                "I18n: Improved localization of Stripe error messages and upgrade process."
+            ],
+            "bugfixes": [
+                "Fix: Added missing translation for credit card declines."
+            ]
+        },
+        {
             "version": "3.3.2",
             "date": "January 2026",
             "features": [],
@@ -921,7 +932,28 @@
         "helpProFeature3": "Team Customization: Choose your own accent color and activate the premium logo ring.",
         "helpProFeature4": "iCal Integration: Sync your events directly with your personal calendar (Outlook, Google, Apple).",
         "helpProBilling": "Subscription & Billing",
-        "helpProBillingDesc": "You can manage your subscription anytime in the team settings. There you will also find your invoices and can update your payment method."
+        "helpProBillingDesc": "You can manage your subscription anytime in the team settings. There you will also find your invoices and can update your payment method.",
+        "stripe": {
+            "errors": {
+                "card_declined": "Your card was declined. Please contact your bank.",
+                "expired_card": "Your card has expired.",
+                "incorrect_cvc": "Your card's security code is incorrect.",
+                "processing_error": "An error occurred while processing your card.",
+                "incorrect_number": "The card number is incorrect.",
+                "insufficient_funds": "Your card has insufficient funds.",
+                "generic_decline": "Your card was declined.",
+                "lost_card": "Your card was reported as lost.",
+                "stolen_card": "Your card was reported as stolen.",
+                "fraudulent": "The payment was flagged as fraudulent.",
+                "default": "An unexpected error occurred. Please try again."
+            }
+        },
+        "errors": {
+            "failedToStartCheckout": "Failed to start checkout.",
+            "failedToFetchPrice": "Failed to fetch price.",
+            "subscriptionFailed": "Subscription failed."
+        },
+        "securePayment": "SSL Encrypted & Secure Payment"
     },
     "api": {
         "access": "API Access",

@@ -57,7 +57,7 @@ export const UpgradeView: React.FC<UpgradeViewProps> = ({ team }) => {
             signal: controller.signal,
         });
 
-        if (!response.ok) throw new Error('Failed to start checkout');
+        if (!response.ok) throw new Error(t('pro.errors.failedToStartCheckout'));
         const data = await response.json();
         setClientSecret(data.clientSecret);
         
@@ -66,7 +66,7 @@ export const UpgradeView: React.FC<UpgradeViewProps> = ({ team }) => {
     } catch (err: unknown) {
         if ((err as Error).name === 'AbortError') return;
         console.error('Setup error:', err);
-        setError(err instanceof Error ? err.message : 'Setup failed');
+        setError(err instanceof Error ? err.message : t('pro.errors.failedToStartCheckout'));
     } finally {
         if (abortControllerRef.current === controller) setIsInitializing(false);
     }
@@ -89,9 +89,9 @@ export const UpgradeView: React.FC<UpgradeViewProps> = ({ team }) => {
             const data = await response.json();
             if (response.status === 400 && data.error === 'Invalid promotion code') {
                  // Don't throw, just let user know code is invalid implementation logic handled in form
-                 throw new Error(data.error);
+                 throw new Error(t('pro.invalidCode'));
             }
-            throw new Error('Failed to fetch price');
+            throw new Error(t('pro.errors.failedToFetchPrice'));
         }
 
         const data = await response.json();
@@ -123,13 +123,13 @@ export const UpgradeView: React.FC<UpgradeViewProps> = ({ team }) => {
           
           if (!response.ok) {
               const data = await response.json();
-              throw new Error(data.error || 'Subscription failed');
+              throw new Error(data.error || t('pro.errors.subscriptionFailed'));
           }
           
           return await response.json();
           
       } catch (error) {
-          setError(error instanceof Error ? error.message : 'Subscription failed');
+          setError(error instanceof Error ? error.message : t('pro.errors.subscriptionFailed'));
           throw error; // Re-throw so CheckoutForm knows it failed
       }
   };
@@ -344,7 +344,7 @@ export const UpgradeView: React.FC<UpgradeViewProps> = ({ team }) => {
                         )}
                         
                         <div className="mt-4 flex items-center justify-center gap-2 text-[10px] text-slate-400 uppercase tracking-wide">
-                             <span className="flex items-center gap-1">🔒 SSL Encrypted & Secure Payment</span>
+                             <span className="flex items-center gap-1">🔒 {t('pro.securePayment') || 'SSL Encrypted & Secure Payment'}</span>
                         </div>
                     </div>
                 </div>

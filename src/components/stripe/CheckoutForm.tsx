@@ -54,7 +54,18 @@ export const CheckoutForm = ({
     if (error) {
       // Display the actual error message from Stripe
       console.error('Stripe setup error:', error);
-      setMessage(error.message || `Ein unerwarteter Fehler ist aufgetreten (Typ: ${error.type}). Bitte erneut versuchen.`);
+      
+      // Try to translate based on decline_code, then error code, then type
+      const errorCode = error.decline_code || error.code || error.type;
+      const translatedMessage = t(`pro.stripe.errors.${errorCode}`);
+      
+      if (translatedMessage !== `pro.stripe.errors.${errorCode}`) {
+        setMessage(translatedMessage);
+      } else {
+        // Fallback: If no translation for specific code, use the one from Stripe 
+        // but only if it exists, otherwise our generic default
+        setMessage(error.message || t('pro.stripe.errors.default'));
+      }
     } else if (setupIntent && setupIntent.status === 'succeeded') {
         // SUCCESS: Valid card setup!
         // Now call the parent to create the subscription
@@ -87,7 +98,14 @@ export const CheckoutForm = ({
                     }
                     
                     if (confirmError) {
-                         setMessage(confirmError.message || 'Bestätigung fehlgeschlagen');
+                         const errorCode = confirmError.decline_code || confirmError.code || confirmError.type;
+                         const translatedMessage = t(`pro.stripe.errors.${errorCode}`);
+                         
+                         if (translatedMessage !== `pro.stripe.errors.${errorCode}`) {
+                             setMessage(translatedMessage);
+                         } else {
+                             setMessage(confirmError.message || t('pro.stripe.errors.default'));
+                         }
                          setIsLoading(false);
                          return; // Stop here
                     }

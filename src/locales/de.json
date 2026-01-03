@@ -147,6 +147,17 @@
     "clBugfixes": "Fehlerbehebungen",
     "changelogData": [
         {
+            "version": "3.3.3",
+            "date": "Januar 2026",
+            "features": [],
+            "technical": [
+                "I18n: Lokalisierung von Stripe-Fehlermeldungen und Upgrade-Prozess verbessert."
+            ],
+            "bugfixes": [
+                "Fix: Fehlende Übersetzung für Kreditkarten-Ablehnungen hinzugefügt."
+            ]
+        },
+        {
             "version": "3.3.2",
             "date": "Januar 2026",
             "features": [],
@@ -923,7 +934,28 @@
         "helpProFeature3": "Team-Individualisierung: Wähle eine eigene Akzentfarbe und aktiviere den Premium Logo Ring.",
         "helpProFeature4": "iCal Integration: Synchronisiere deine Termine direkt mit deinem persönlichen Kalender (Outlook, Google, Apple).",
         "helpProBilling": "Abo & Abrechnung",
-        "helpProBillingDesc": "Du kannst dein Abo jederzeit in den Team-Einstellungen verwalten. Dort findest du auch deine Rechnungen und kannst deine Zahlungsmethode aktualisieren."
+        "helpProBillingDesc": "Du kannst dein Abo jederzeit in den Team-Einstellungen verwalten. Dort findest du auch deine Rechnungen und kannst deine Zahlungsmethode aktualisieren.",
+        "stripe": {
+            "errors": {
+                "card_declined": "Deine Karte wurde abgelehnt. Bitte kontaktiere deine Bank.",
+                "expired_card": "Deine Karte ist abgelaufen.",
+                "incorrect_cvc": "Der Sicherheitscode deiner Karte ist falsch.",
+                "processing_error": "Beim Verarbeiten deiner Karte ist ein Fehler aufgetreten.",
+                "incorrect_number": "Die Kartennummer ist falsch.",
+                "insufficient_funds": "Deine Karte verfügt nicht über ausreichende Deckung.",
+                "generic_decline": "Deine Karte wurde abgelehnt.",
+                "lost_card": "Deine Karte wurde als verloren gemeldet.",
+                "stolen_card": "Deine Karte wurde als gestohlen gemeldet.",
+                "fraudulent": "Die Zahlung wurde als betrügerisch markiert.",
+                "default": "Ein unerwarteter Fehler ist aufgetreten. Bitte erneut versuchen."
+            }
+        },
+        "errors": {
+            "failedToStartCheckout": "Checkout konnte nicht gestartet werden.",
+            "failedToFetchPrice": "Preis konnte nicht abgerufen werden.",
+            "subscriptionFailed": "Abonnement fehlgeschlagen."
+        },
+        "securePayment": "SSL Verschlüsselt & Sichere Zahlung"
     },
     "api": {
         "access": "API Zugriff",
