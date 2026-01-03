@@ -1,6 +1,9 @@
 'use client';
 
 import React, { useState } from 'react';
+import { getBaseUrl } from '@/utils/url';
+
+
 import { X, Copy, Check, AlertCircle } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 
@@ -17,6 +20,8 @@ export function ApiKeyModal({ isOpen, onClose, onSubmit }: ApiKeyModalProps) {
   const [generatedKey, setGeneratedKey] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState('');
+  
+  const baseUrl = getBaseUrl();
 
   if (!isOpen) return null;
 
@@ -178,10 +183,13 @@ export function ApiKeyModal({ isOpen, onClose, onSubmit }: ApiKeyModalProps) {
   "mcpServers": {
     "drachenboot": {
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/http-client", "https://drachenbootmanager.app/api/mcp"],
-      "env": {
-        "DRACHENBOOT_API_KEY": "${generatedKey}"
-      }
+      "args": [
+        "-y",
+        "@mcpwizard/sse-bridge",
+        "${baseUrl}/api/mcp",
+        "--header",
+        "X-API-KEY:${generatedKey}"
+      ]
     }
   }
 }`}

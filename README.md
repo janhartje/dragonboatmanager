@@ -367,10 +367,13 @@ Der **Model Context Protocol (MCP) Server** ermöglicht es AI-Assistenten wie Cl
      "mcpServers": {
        "drachenboot": {
          "command": "npx",
-         "args": ["-y", "@drachenboot/mcp"],
-         "env": {
-           "DRACHENBOOT_API_KEY": "dbm_live_xxx..."
-         }
+         "args": [
+           "-y",
+           "@mcpwizard/sse-bridge",
+           "https://drachenbootmanager.app/api/mcp",
+           "--header",
+           "X-API-KEY:dbm_live_xxx..."
+         ]
        }
      }
    }

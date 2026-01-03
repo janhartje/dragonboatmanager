@@ -68,10 +68,13 @@ Der MCP Server wird über einen **HTTP Endpoint** angesprochen, was ideal für C
      "mcpServers": {
        "drachenboot": {
          "command": "npx",
-         "args": ["-y", "@modelcontextprotocol/http-client", "https://drachenbootmanager.app/api/mcp"],
-         "env": {
-           "DRACHENBOOT_API_KEY": "dbm_live_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-         }
+         "args": [
+           "-y",
+           "@mcpwizard/sse-bridge",
+           "https://drachenbootmanager.app/api/mcp",
+           "--header",
+           "X-API-KEY:dbm_live_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+         ]
        }
      }
    }
@@ -90,28 +93,13 @@ Wenn du die Anwendung lokal entwickelst (localhost:3000), verwende einfach die l
   "mcpServers": {
     "drachenboot": {
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/http-client", "http://localhost:3000/api/mcp"],
-      "env": {
-        "DRACHENBOOT_API_KEY": "Füge hier deinen generierten Key ein"
-      }
-    }
-  }
-}
-```json
-{
-  "mcpServers": {
-    "drachenboot": {
-      "command": "/Users/xxxxx/.nvm/versions/node/v25.2.1/bin/npx",
       "args": [
         "-y",
         "@mcpwizard/sse-bridge",
         "http://localhost:3000/api/mcp",
         "--header",
-        "X-API-KEY:dbm_live_xxxxxxxxxxxxxx"
-      ],
-      "env": {
-        "PATH": "/Users/xxxxx/.nvm/versions/node/v25.2.1/bin:/usr/local/bin:/usr/bin:/bin"
-      }
+        "X-API-KEY:dbm_live_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+      ]
     }
   }
 }
@@ -230,7 +218,7 @@ Falls dein API Key kompromittiert wurde:
 ### MCP Server startet nicht
 
 - Überprüfe, ob Node.js 24+ installiert ist: `node --version`
-- Stelle sicher, dass die`DRACHENBOOT_API_KEY` Umgebungsvariable gesetzt ist
+- Stelle sicher, dass der API Key korrekt als `--header` Argument übergeben wird
 - Schaue in die Claude Desktop Logs: `~/Library/Logs/Claude/` (macOS)
 
 ### Tools werden nicht angezeigt
