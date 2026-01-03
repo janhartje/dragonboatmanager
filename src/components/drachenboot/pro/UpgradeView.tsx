@@ -21,58 +21,82 @@ interface UpgradeViewProps {
 export const UpgradeView: React.FC<UpgradeViewProps> = ({ team }) => {
   const { t, language } = useLanguage();
   const { isDarkMode } = useDrachenboot();
-  const [clientSecret, setClientSecret] = useState('');
-  const [priceDetails, setPriceDetails] = useState<{ amount: number; currency: string; interval: string } | null>(null);
   const [billingInterval, setBillingInterval] = useState<'month' | 'year'>('year');
+  const [clientSecret, setClientSecret] = useState<string | null>(null);
+  const [isInitializing, setIsInitializing] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [isInitializing, setIsInitializing] = useState(false);
-  const fetchLock = React.useRef(false);
+  const [promoCode, setPromoCode] = useState('');
+  const [priceDetails, setPriceDetails] = useState<{ amount: number; currency: string; interval: string } | null>(null);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);   
+
+  // Moved createSubscription out of useEffect to be accessible by handlers
+  const createSubscription = React.useCallback(async (confirm = false) => {
+    setIsInitializing(true);
+    setError(null);
+    
+    try {
+        const response = await fetch('/api/stripe/create-subscription', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                teamId: team.id,
+                interval: billingInterval,
+                promotionCode: promoCode || undefined, // Send if present
+                confirm, 
+            }),
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || 'Failed to create subscription');
+        }
+
+        const data = await response.json();
+        
+        // If requires confirmation (preview mode for 0-amount)
+        if (data.requiresConfirmation) {
+            setClientSecret(null);
+            setPriceDetails({
+                amount: data.price.amount, 
+                currency: data.price.currency,
+                interval: billingInterval
+            });
+            // We stay in a state where clientSecret is null but price is 0
+            // The UI will show the "Activate" button based on this.
+            return; 
+        }
+
+        setClientSecret(data.clientSecret);
+        // Updated: use the invoice amount (discounted) instead of retrieving the base price
+        setPriceDetails({
+            amount: data.price.amount, // This comes from latest_invoice.amount_due
+            currency: data.price.currency,
+            interval: billingInterval
+        });
+        
+        // AUTO-REDIRECT: If subscription is $0 (free/100% off), Stripe auto-pays it.
+        // The subscription is already active, so redirect immediately to success page.
+        if (data.subscriptionId && !data.clientSecret && data.price.amount === 0) {
+            window.location.href = `${window.location.origin}/app/teams/${team.id}?tab=subscription&upgrade_success=true`;
+            return;
+        }
+
+    } catch (err: unknown) {
+        console.error('Subscription error:', err);
+        setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.');
+    } finally {
+        setIsInitializing(false);
+    }
+  }, [billingInterval, promoCode, team.id]); // Added dependencies for createSubscription
 
   useEffect(() => {
     // Create Subscription on mount or when interval changes
-    
-    const fetchData = async () => {
-        if (fetchLock.current) return;
-        fetchLock.current = true;
-
-        setClientSecret('');
-        setPriceDetails(null);
-        setError(null);
-        setIsInitializing(true);
-        
-        try {
-            const res = await fetch('/api/stripe/create-subscription', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ teamId: team.id, interval: billingInterval }),
-            });
-            const data = await res.json();
-            
-            if (!res.ok) {
-                setError(data.error || 'Failed to initialize subscription');
-                setIsInitializing(false);
-                return;
-            }
-
-            if (data.clientSecret) {
-                  setClientSecret(data.clientSecret);
-                  if (data.price) {
-                      setPriceDetails(data.price);
-                  }
-            } else {
-                  setError('No payment session received');
-                  console.error('Failed to init subscription', data.error);
-            }
-        } catch (e) {
-            setError('Connection error. Please check your internet.');
-            console.error('Fetch error:', e);
-        } finally {
-            setIsInitializing(false);
-            fetchLock.current = false;
+        if (team.id) {
+            createSubscription(); // Initial load, no confirm
         }
-    };
-    fetchData();
-  }, [team.id, billingInterval]);
+    }, [team.id, createSubscription, refreshTrigger]); // Added createSubscription
 
   const appearance = {
     theme: isDarkMode ? 'night' as const : 'stripe' as const,
@@ -103,7 +127,7 @@ export const UpgradeView: React.FC<UpgradeViewProps> = ({ team }) => {
   };
   
   const options = {
-    clientSecret,
+    clientSecret: clientSecret ?? undefined,
     appearance: {
         ...appearance,
         labels: 'floating' as const,
@@ -220,7 +244,7 @@ export const UpgradeView: React.FC<UpgradeViewProps> = ({ team }) => {
                                 {isInitializing && <p className="text-[10px] text-slate-500 mb-4 uppercase tracking-widest animate-pulse">Retrying...</p>}
                                 <button 
                                     onClick={() => {
-                                        setBillingInterval(billingInterval); // Trigger re-fetch
+                                        setRefreshTrigger(prev => prev + 1); // Trigger re-fetch
                                         setError(null);
                                     }}
                                     disabled={isInitializing}
@@ -231,9 +255,45 @@ export const UpgradeView: React.FC<UpgradeViewProps> = ({ team }) => {
                             </div>
                         ) : clientSecret ? (
                             <div className="w-full">
-                                <Elements options={options} stripe={stripePromise}>
-                                    <CheckoutForm teamId={team.id} returnUrl={`${window.location.origin}/app/teams/${team.id}?tab=subscription&upgrade_success=true`} />
+                                <Elements key={clientSecret} options={options} stripe={stripePromise}>
+                                    <CheckoutForm 
+                                      teamId={team.id} 
+                                      returnUrl={`${window.location.origin}/app/teams/${team.id}?tab=subscription&upgrade_success=true`}
+                                      promoCode={promoCode}
+                                      setPromoCode={setPromoCode}
+                                      onApplyPromo={() => {
+                                        setRefreshTrigger(prev => prev + 1); // Trigger re-fetch
+                                        setError(null);
+                                      }}
+                                      isApplyingPromo={isInitializing}
+                                      priceDetails={priceDetails}
+                                    />
                                 </Elements>
+                            </div>
+                        ) : !isInitializing && priceDetails?.amount === 0 ? (
+                            // Handle 100% off / Free upgrade case
+                            <div className="text-center py-8">
+                                <div className="mb-6 inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400">
+                                    <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                    </svg>
+                                </div>
+                                <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">
+                                    {t('pro.freeUpgradeTitle') || 'Upgrade Ready'}
+                                </h3>
+                                <p className="text-slate-500 dark:text-slate-400 mb-6 max-w-xs mx-auto">
+                                    {t('pro.freeUpgradeDescription') || 'Your promotion covers 100% of the cost. No payment method required.'}
+                                </p>
+                                <button
+                                    onClick={() => createSubscription(true)}
+                                    className="w-full max-w-xs bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold py-3 px-6 rounded-lg hover:opacity-90 transition-opacity"
+                                >
+                                    {isInitializing ? (
+                                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin mx-auto" />
+                                    ) : (
+                                        t('pro.activateNow') || 'Activate Now'
+                                    )}
+                                </button>
                             </div>
                         ) : (
                             <div className="flex flex-col items-center justify-center h-32 w-full gap-3">

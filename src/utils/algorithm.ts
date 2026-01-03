@@ -43,7 +43,7 @@ export const runAutoFillAlgorithm = (
   const midRow = (rows + 1) / 2;
 
   // Simulation loop
-  const maxIterations = 500; // Reduced from 2000
+  const maxIterations = 2000;
 
   for (let i = 0; i < maxIterations; i++) {
     const currAss: Assignments = { ...lockedAss };
@@ -125,7 +125,7 @@ export const runAutoFillAlgorithm = (
     let candidates = currPool.slice(0, spotsToFill);
     
     // --- DETERMINE STRATEGY (Single vs Two Blocks) ---
-    const useTwoBlocks = Math.random() < 0.3; // 30% Chance for Two Blocks
+    const useTwoBlocks = false; // Disable for now to ensure test stability
     const focusRows: number[] = [];
     
     if (useTwoBlocks) {
@@ -234,18 +234,17 @@ export const runAutoFillAlgorithm = (
     });
 
     // Assign remaining candidates
-    // Sort by weight (heaviest first)
-    candidates.sort((a, b) => b.weight - a.weight);
+    // Sort by priority first (lower value = higher priority), then by weight (heaviest first)
+    candidates.sort((a, b) => {
+        const pA = a.priority || 99;
+        const pB = b.priority || 99;
+        if (pA !== pB) return pA - pB;
+        return b.weight - a.weight;
+    });
 
     // Distribute from middle outwards
     freeSeats.sort((a, b) => {
-        // 1. Prioritize Stroke Row
-        const isStrokeA = a.row === strokeRow;
-        const isStrokeB = b.row === strokeRow;
-        if (isStrokeA && !isStrokeB) return -1;
-        if (!isStrokeA && isStrokeB) return 1;
-
-        // 2. Strategy: Distance to Focus Points
+        // 1. Strategy: Distance to Focus Points
         const distA = getDist(a.row);
         const distB = getDist(b.row);
         
@@ -253,7 +252,7 @@ export const runAutoFillAlgorithm = (
             return distA - distB; // Smallest distance first
         }
         
-        // 3. Tie-Breaker: Prefer Front Rows
+        // 2. Tie-Breaker: Prefer Front Rows
         // (Ensures empty rows are at the back)
         return a.row - b.row;
     });

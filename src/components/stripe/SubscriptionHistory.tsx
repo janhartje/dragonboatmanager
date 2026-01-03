@@ -31,8 +31,26 @@ export const SubscriptionHistory = ({ history }: { history: SubscriptionHistoryI
         </thead>
         <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
           {history.map((sub) => {
-            const startDate = new Date(sub.currentPeriodStart * 1000).toLocaleDateString();
-            const endDate = new Date(sub.currentPeriodEnd * 1000).toLocaleDateString();
+            const startDate = sub.currentPeriodStart 
+              ? new Date(sub.currentPeriodStart * 1000).toLocaleDateString() 
+              : null;
+            const endDate = sub.currentPeriodEnd 
+              ? new Date(sub.currentPeriodEnd * 1000).toLocaleDateString() 
+              : null;
+            
+            // For active, non-canceling subs, show "Since" instead of a fixed range
+            let periodDisplay = '';
+            if (sub.status === 'active' && !sub.cancelAtPeriodEnd) {
+              periodDisplay = startDate ? `Seit ${startDate}` : 'Aktuell aktiv';
+            } else if (startDate && endDate) {
+              periodDisplay = `${startDate} - ${endDate}`;
+            } else if (startDate) {
+              periodDisplay = `Ab ${startDate}`;
+            } else if (endDate) {
+              periodDisplay = sub.cancelAtPeriodEnd ? `Läuft aus am ${endDate}` : `Bis ${endDate}`;
+            } else {
+              periodDisplay = 'Unbekannter Zeitraum';
+            }
             
             let statusColor = 'text-slate-500';
             let StatusIcon = Clock;
@@ -50,7 +68,7 @@ export const SubscriptionHistory = ({ history }: { history: SubscriptionHistoryI
                 <td className="px-6 py-4 whitespace-nowrap">
                    <div className="flex items-center gap-2 text-slate-700 dark:text-slate-300">
                     <Calendar size={14} className="text-slate-400" />
-                    <span>{startDate} - {endDate}</span>
+                    <span>{periodDisplay}</span>
                    </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">

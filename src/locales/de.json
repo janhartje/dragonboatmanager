@@ -147,6 +147,22 @@
     "clBugfixes": "Fehlerbehebungen",
     "changelogData": [
         {
+            "version": "3.4.0",
+            "date": "Januar 2026",
+            "features": [
+                "Gutscheincodes: Volle Unterstützung für Promotion Codes beim Pro-Upgrade.",
+                "Bessere Abo-Übersicht: Detaillierter Status und klare Anzeige des Gültigkeitszeitraums.",
+                "Optimierte Zahlungsverwaltung: Verbessertes Formular zum Aktualisieren der Zahlungsmethode."
+            ],
+            "technical": [
+                "Datenbank-Optimierung: Eindeutige Verknüpfung von Stripe-Kunden-IDs.",
+                "UI-Verbesserung: Lokalisierung des Stripe-Checkout-Elements."
+            ],
+            "bugfixes": [
+                "Fix: Zeiträume in der Abo-Historie werden nun korrekt für aktive und kündigende Abos angezeigt."
+            ]
+        },
+        {
             "version": "3.3.0",
             "date": "Januar 2026",
             "features": [
@@ -790,8 +806,17 @@
         "processing": "Verarbeite...",
         "priceLabel": "Preis",
         "intervalYearly": "Jährlich",
+        "freeUpgradeTitle": "Upgrade bereit",
+        "freeUpgradeDescription": "Dein Gutschein deckt 100% der Kosten ab. Keine Zahlungsmethode erforderlich.",
+        "activateNow": "Jetzt aktivieren",
+        "loading": "Lädt...",
+        "initializingCheckout": "Checkout wird vorbereitet...",
         "intervalMonthly": "Monatlich",
         "productName": "Drachenboot Manager PRO",
+        "promotionCode": "Gutscheincode",
+        "enterPromoCode": "Gutschein eingeben",
+        "discountApplied": "Rabatt angewendet",
+        "invalidCode": "Ungültiger Code",
         "benefits": {
             "title": "Warum Pro?",
             "item1": "Unbegrenzte Mitgliederzahl",
@@ -809,6 +834,8 @@
         "subscription": "Abo",
         "subscriptionStatus": "Abo-Status",
         "nextBillingDate": "Nächste Abrechnung",
+        "validUntil": "Gültig bis",
+        "status_canceled_pending": "Kündigung vorgemerkt",
         "cancelSubscription": "Abo kündigen",
         "reactivateSubscription": "Kündigung zurücknehmen",
         "viewInvoices": "Rechnungen anzeigen",
@@ -913,5 +940,9 @@
         "loading": "Lade...",
         "revokeConfirm": "Möchtest du diesen API Key wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
         "done": "Fertig"
+    },
+    "common": {
+        "apply": "Einlösen",
+        "retry": "Erneut versuchen"
     }
 }

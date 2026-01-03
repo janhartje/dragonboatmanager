@@ -14,11 +14,15 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { teamId, interval = 'year' } = await request.json();
+    const { teamId, interval = 'year', promotionCode } = await request.json();
 
     if (!teamId) {
       return NextResponse.json({ error: 'Team ID is required' }, { status: 400 });
     }
+
+    // ... (rest of auth check)
+
+
 
     // Verify user is owner/captain of the team
     const membership = await prisma.paddler.findFirst({
@@ -124,6 +128,26 @@ export async function POST(request: Request) {
 
     let subscription: Stripe.Subscription | undefined;
     let paymentIntent: Stripe.PaymentIntent | null = null;
+    
+    // Lookup promotion code if provided
+    let promotionCodeId: string | undefined;
+    if (promotionCode) {
+        const promos = await stripe.promotionCodes.list({
+            code: promotionCode,
+            active: true,
+            limit: 1,
+            expand: ['data.coupon']
+        });
+        
+        if (promos.data.length > 0) {
+            promotionCodeId = promos.data[0].id;
+            // 100% discount codes will proceed normally and result in a $0 invoice
+            // which Stripe handles gracefully (auto-paid, no payment required)
+        } else {
+            // Return 400 if code provided but not valid/found
+            return NextResponse.json({ error: 'Invalid promotion code' }, { status: 400 });
+        }
+    }
 
     for (const sub of existingSubscriptions.data) {
         // Ensure latest_invoice is an object and has payment_intent
@@ -147,6 +171,13 @@ export async function POST(request: Request) {
         }
         
         if (inv && pi && pi.client_secret) {
+            // CRITICAL: If a promotion code is being applied, DO NOT reuse the existing subscription.
+            // We must create a new one to trigger the Preview Logic or apply the code correctly.
+            if (promotionCode) {
+                 try { await stripe.subscriptions.cancel(sub.id); } catch { /* ignore */ }
+                 continue;
+            }
+
             subscription = sub;
             subscription.latest_invoice = inv; // Attach the expanded one
             paymentIntent = pi;
@@ -174,6 +205,7 @@ export async function POST(request: Request) {
             metadata: {
                 teamId: team.id,
             },
+            discounts: promotionCodeId ? [{ promotion_code: promotionCodeId }] : undefined,
         });
     }
 
@@ -221,6 +253,19 @@ export async function POST(request: Request) {
         attempts++;
     }
 
+    // If invoice is paid (amount=0 or paid out of band), we might not have a PI
+    if (latestInvoice?.status === 'paid' && latestInvoice.amount_due === 0) {
+         return NextResponse.json({ 
+            subscriptionId: subscription.id, 
+            clientSecret: null, // No payment needed
+            price: {
+                amount: 0,
+                currency: latestInvoice.currency,
+                interval: priceDetails.recurring?.interval,
+            }
+        });
+    }
+
     if (!latestInvoice || !paymentIntent || !paymentIntent.client_secret) {
          const errorDetails = {
                 hasInvoice: !!latestInvoice,
@@ -240,8 +285,8 @@ export async function POST(request: Request) {
         subscriptionId: subscription.id, 
         clientSecret: paymentIntent.client_secret,
         price: {
-            amount: priceDetails.unit_amount,
-            currency: priceDetails.currency,
+            amount: latestInvoice?.amount_due ?? priceDetails.unit_amount, // Use actual invoice amount (discounted)
+            currency: latestInvoice?.currency ?? priceDetails.currency,
             interval: priceDetails.recurring?.interval,
         }
     });

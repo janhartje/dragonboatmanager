@@ -59,6 +59,7 @@ export async function POST(request: Request) {
 
     const setupIntent = await stripe.setupIntents.create({
       customer: customerId,
+      usage: 'off_session', // Ensures only recurring-payment capable methods are shown
       automatic_payment_methods: {
         enabled: true,
       },

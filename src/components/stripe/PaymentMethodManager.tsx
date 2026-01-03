@@ -56,8 +56,8 @@ const PaymentMethodUpdateForm = ({
     };
 
     return (
-        <form onSubmit={handleSubmit} className="mt-4 p-4 border border-slate-200 dark:border-slate-700 rounded-lg">
-            <PaymentElement />
+        <form onSubmit={handleSubmit} className="mt-4">
+            <PaymentElement options={{ layout: 'tabs' }} />
             {message && (
                 <div className="mt-4 p-3 bg-red-100 text-red-700 rounded text-sm">
                     {message}
@@ -146,7 +146,14 @@ export const PaymentMethodManager = ({ teamId, currentPaymentMethod }: { teamId:
                 </div>
             ) : (
                 clientSecret && (
-                    <Elements stripe={stripePromise} options={{ clientSecret, appearance: { theme: 'stripe' } }}>
+                    <Elements 
+                        stripe={stripePromise} 
+                        options={{ 
+                            clientSecret, 
+                            appearance: { theme: 'stripe' },
+                            locale: (t('common.locale') as 'auto') || 'de'
+                        }}
+                    >
                         <PaymentMethodUpdateForm 
                             onSuccess={handleSuccess}
                             onCancel={() => setIsEditing(false)}

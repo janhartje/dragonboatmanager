@@ -46,14 +46,24 @@ export const BillingContent = ({ team, subscription }: BillingContentProps) => {
                 
                 {/* Show Invoices if they are an existing customer (have payment history) */}
                 {subscription?.isCustomer && subscription?.isBillingUser && (
-                    <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
-                        <div className="p-6 border-b border-slate-100 dark:border-slate-800">
-                            <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                                {t('pro.viewInvoices')}
-                                <span className="text-xs font-normal text-slate-500 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full">History</span>
-                            </h3>
+                    <div className="space-y-6">
+                        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
+                            <div className="p-6 border-b border-slate-100 dark:border-slate-800">
+                                <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                                    {t('pro.viewInvoices')}
+                                </h3>
+                            </div>
+                            <InvoicesList teamId={team.id} />
                         </div>
-                        <InvoicesList teamId={team.id} />
+
+                        {subscription.history && subscription.history.length > 0 && (
+                            <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
+                                <div className="p-6 border-b border-slate-100 dark:border-slate-800">
+                                    <h3 className="text-lg font-bold text-slate-900 dark:text-white">{t('pro.subscriptionHistory')}</h3>
+                                </div>
+                                <SubscriptionHistory history={subscription.history} />
+                            </div>
+                        )}
                     </div>
                 )}
             </div>
@@ -101,8 +111,8 @@ export const BillingContent = ({ team, subscription }: BillingContentProps) => {
                                     </span>
                                 )}
                                 {subscription?.subscription?.cancelAtPeriodEnd && (
-                                    <span className="px-3 py-1 bg-white/20 text-white rounded-full text-xs font-bold flex items-center gap-1">
-                                        {t('pro.canceledAtPeriodEnd')}
+                                    <span className="px-3 py-1 bg-white/20 text-white rounded-full text-xs font-bold flex items-center gap-1 uppercase">
+                                        {t('pro.status_canceled_pending') || 'Kündigung vorgemerkt'}
                                     </span>
                                 )}
                             </div>
@@ -114,12 +124,14 @@ export const BillingContent = ({ team, subscription }: BillingContentProps) => {
                             <div>
                                 <p className="text-white/70 text-sm mb-1">{t('pro.interval' + (subscription?.subscription?.interval === 'year' ? 'Yearly' : 'Monthly'))}</p>
                                 <p className="text-xl font-medium">
-                                    {subscription?.subscription?.amount ? (subscription.subscription.amount / 100).toFixed(2) : '-'} {subscription?.subscription?.currency?.toUpperCase()}
+                                    {subscription?.subscription?.amount != null ? (subscription.subscription.amount / 100).toFixed(2) : '-'} {subscription?.subscription?.currency?.toUpperCase()}
                                     <span className="text-sm text-white/50 ml-1">/{subscription?.subscription?.interval === 'year' ? t('pro.perYear') : t('pro.perMonth')}</span>
                                 </p>
                             </div>
                             <div>
-                                    <p className="text-white/70 text-sm mb-1">{t('pro.nextBillingDate')}</p>
+                                    <p className="text-white/70 text-sm mb-1">
+                                        {subscription?.subscription?.cancelAtPeriodEnd ? (t('pro.validUntil') || 'Gültig bis') : t('pro.nextBillingDate')}
+                                    </p>
                                     <p className="text-xl font-medium">
                                     {subscription?.subscription?.currentPeriodEnd ? new Date(subscription.subscription.currentPeriodEnd * 1000).toLocaleDateString() : '-'}
                                     </p>

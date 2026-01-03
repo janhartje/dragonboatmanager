@@ -147,6 +147,22 @@
     "clBugfixes": "Bug Fixes",
     "changelogData": [
         {
+            "version": "3.4.0",
+            "date": "January 2026",
+            "features": [
+                "Promotion Codes: Full support for promo codes during Pro upgrade.",
+                "Better Subscription Overview: Detailed status and clear display of validity periods.",
+                "Optimized Payment Management: Improved form for updating payment methods."
+            ],
+            "technical": [
+                "Database Optimization: Unique constraint for Stripe customer IDs.",
+                "UI Improvement: Localization of the Stripe Checkout element."
+            ],
+            "bugfixes": [
+                "Fix: Subscription history periods now correctly display for active and canceling subscriptions."
+            ]
+        },
+        {
             "version": "3.3.0",
             "date": "January 2026",
             "features": [
@@ -788,8 +804,17 @@
         "processing": "Processing...",
         "priceLabel": "Price",
         "intervalYearly": "Yearly",
+        "freeUpgradeTitle": "Upgrade Ready",
+        "freeUpgradeDescription": "Your promotion covers 100% of the cost. No payment method required.",
+        "activateNow": "Activate Now",
+        "loading": "Loading...",
+        "initializingCheckout": "Preparing secure checkout...",
         "intervalMonthly": "Monthly",
-        "productName": "Drachenboot Manager PRO",
+        "productName": "Dragon Boat Manager Pro",
+        "promotionCode": "Promotion Code",
+        "enterPromoCode": "Enter code",
+        "discountApplied": "Discount applied",
+        "invalidCode": "Invalid code",
         "benefits": {
             "title": "Why go Pro?",
             "item1": "Unlimited Members",
@@ -803,9 +828,12 @@
         "manageSubscriptionDesc": "Your team is PRO! View invoices and update payment details here.",
         "upgradeSuccessTitle": "🎉 Welcome to PRO!",
         "upgradeSuccessMessage": "Your team has been successfully upgraded to PRO. Enjoy the new features!",
+        "period": "Period",
         "subscription": "Subscription",
         "subscriptionStatus": "Subscription Status",
         "nextBillingDate": "Next Billing Date",
+        "validUntil": "Valid Until",
+        "status_canceled_pending": "Cancellation Pending",
         "cancelSubscription": "Cancel Subscription",
         "reactivateSubscription": "Reactivate Subscription",
         "viewInvoices": "View Invoices",
@@ -910,5 +938,9 @@
         "loading": "Loading...",
         "revokeConfirm": "Are you sure you want to delete this API key? This action cannot be undone.",
         "done": "Done"
+    },
+    "common": {
+        "apply": "Apply",
+        "retry": "Retry"
     }
 }

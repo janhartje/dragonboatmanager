@@ -159,7 +159,7 @@ model Team {
   // Subscription / Plan
   plan               String   @default("FREE") // 'FREE', 'PRO', 'ENTERPRISE'
   subscriptionStatus String?  // 'active', 'trialing', 'past_due'
-  stripeCustomerId   String?
+  stripeCustomerId   String?  @unique
   billingUserId      String?  // User who purchased/manages the subscription
   maxMembers         Int      @default(25)
 
