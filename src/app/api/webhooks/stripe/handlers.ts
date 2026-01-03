@@ -19,7 +19,7 @@ export async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Se
       maxMembers: 100,
     },
   });
-  console.log(`PRO-FULFILLMENT: Team ${session.metadata.teamId} upgraded via checkout.session.completed`);
+
 }
 
 export async function handleInvoicePaymentSucceeded(invoice: Stripe.Invoice) {
@@ -48,7 +48,7 @@ export async function handleInvoicePaymentSucceeded(invoice: Stripe.Invoice) {
         maxMembers: 100,
       }
     });
-    console.log(`PRO-FULFILLMENT: Team ${customerTeam.id} upgraded/maintained via invoice.payment_succeeded`);
+
   } else {
     console.error('Webhook: No team found for customer:', customerId);
   }
@@ -61,7 +61,7 @@ export async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
   if (customerId) {
     const team = await prisma.team.findFirst({ where: { stripeCustomerId: customerId } });
     if (team) {
-      console.log(`ACTION-REQUIRED: Notify Team ${team.id} about failed payment`);
+
 
       // Find recipient email (Billing User or Team Email)
       let recipientEmail = team.email;
@@ -80,7 +80,7 @@ export async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
             teamId: team.id
           })
         });
-        console.log(`EMAIL-SENT: Payment failed notification sent to ${recipientEmail}`);
+
       } else {
         console.warn(`EMAIL-SKIPPED: No email found for Team ${team.id}`);
       }
@@ -112,7 +112,7 @@ export async function handleSubscriptionUpdated(sub: Stripe.Subscription, eventT
         stripeCustomerId: customerId,
       }
     });
-    console.log(`PRO-UPDATE: Team ${customerTeam.id} status updated to ${sub.status}`);
+
 
   } else if (sub.status === 'canceled' || sub.status === 'unpaid' || sub.status === 'incomplete_expired') {
     await prisma.team.update({
@@ -123,7 +123,7 @@ export async function handleSubscriptionUpdated(sub: Stripe.Subscription, eventT
         maxMembers: 25,
       }
     });
-    console.log(`PRO-DOWNGRADE: Team ${customerTeam.id} downgraded to FREE due to status: ${sub.status}`);
+
 
   } else {
     // past_due, incomplete -> just update status
@@ -131,7 +131,7 @@ export async function handleSubscriptionUpdated(sub: Stripe.Subscription, eventT
       where: { id: customerTeam.id },
       data: { subscriptionStatus: sub.status }
     });
-    console.log(`PRO-STATUS-CHANGE: Team ${customerTeam.id} status changed to ${sub.status}`);
+
   }
 }
 
@@ -151,13 +151,13 @@ export async function handleSubscriptionDeleted(sub: Stripe.Subscription) {
         maxMembers: 25,
       }
     });
-    console.log(`PRO-DOWNGRADE: Team ${team.id} downgraded due to subscription deletion`);
+
   }
 }
 
 export async function handleTrialWillEnd(sub: Stripe.Subscription) {
   const customerId = sub.customer as string;
-  console.log(`PRO-TRIAL-ENDING: Trial ending soon for Customer ${customerId}`);
+
 
   const team = await prisma.team.findFirst({ where: { stripeCustomerId: customerId } });
   if (team) {
@@ -177,16 +177,43 @@ export async function handleTrialWillEnd(sub: Stripe.Subscription) {
           teamId: team.id
         })
       });
-      console.log(`EMAIL-SENT: Trial ending notification sent to ${recipientEmail}`);
+
     }
   }
 }
 
-export async function handleCustomerUpdated(customer: Stripe.Customer) {
-  const customerId = customer.id;
-  const team = await prisma.team.findFirst({ where: { stripeCustomerId: customerId } });
 
-  if (team) {
-    console.log(`CUSTOMER-SYNC: Synced info for Team ${team.id} from Stripe`);
+
+export async function handleInvoicePaymentActionRequired(invoice: Stripe.Invoice) {
+  const customerId = typeof invoice.customer === 'string' ? invoice.customer : invoice.customer?.id;
+
+
+  if (customerId) {
+    const team = await prisma.team.findFirst({ where: { stripeCustomerId: customerId } });
+    if (team) {
+
+
+      let recipientEmail = team.email;
+      if (team.billingUserId) {
+        const billingUser = await prisma.user.findUnique({ where: { id: team.billingUserId } });
+        if (billingUser?.email) recipientEmail = billingUser.email;
+      }
+
+      if (recipientEmail) {
+        await sendEmail({
+          to: recipientEmail,
+          subject: 'Zahlung bestätigt werden - Drachenboot Manager',
+          template: 'PaymentFailedEmail', // Reusing Failed template as it conveys "Action Needed" reasonably well, or create new.
+          // Ideally we create a specific template, but to minimize scope creep we reuse 'failed' with slightly different context if possible, 
+          // or just rely on generic message. For now, reusing failed email is better than nothing, but let's see if we can substitute text.
+          // Actually, let's just use PaymentFailedEmail for now as it prompts user to check billing. 
+          react: PaymentFailedEmail({
+            teamName: team.name,
+            teamId: team.id
+          })
+        });
+
+      }
+    }
   }
 }

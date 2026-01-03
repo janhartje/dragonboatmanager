@@ -1,9 +1,13 @@
-
 import { NextResponse } from 'next/server';
-import { stripe } from '@/lib/stripe';
 import { auth } from '@/auth';
 import prisma from '@/lib/prisma';
+import { createPortalSession } from '@/services/stripe';
 
+/**
+ * POST /api/stripe/create-portal-session
+ * 
+ * Create a Stripe billing portal session.
+ */
 export async function POST(request: Request) {
   try {
     const session = await auth();
@@ -17,38 +21,30 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Team ID is required' }, { status: 400 });
     }
 
-    // Verify user is member of the team (Captain or Paddler)
+    // Verify user is member of the team
     const membership = await prisma.paddler.findFirst({
       where: {
         userId: session.user.id,
         teamId: teamId,
       },
-      include: { team: true }
     });
 
-    if (!membership || !membership.team) {
-      return NextResponse.json({ error: 'Not authorized or team not found' }, { status: 403 });
+    if (!membership) {
+      return NextResponse.json({ error: 'Not authorized' }, { status: 403 });
     }
 
-    const team = membership.team;
-    
-    if (!team.stripeCustomerId) {
-        return NextResponse.json({ error: 'No subscription found for this team' }, { status: 400 });
-    }
-
-    // Create Portal Session
-    // Return URL should be the team page
     const returnUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/app/teams/${teamId}`;
-
-    const portalSession = await stripe.billingPortal.sessions.create({
-      customer: team.stripeCustomerId,
-      return_url: returnUrl,
-    });
-
-    return NextResponse.json({ url: portalSession.url });
+    const result = await createPortalSession(teamId, returnUrl);
+    
+    return NextResponse.json(result);
 
   } catch (error) {
-    console.error('Stripe Portal Error:', error);
+    console.error('Portal Session Error:', error);
+    
+    if (error instanceof Error && error.message.includes('No subscription')) {
+      return NextResponse.json({ error: error.message }, { status: 400 });
+    }
+    
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }

@@ -147,6 +147,18 @@
     "clBugfixes": "Bug Fixes",
     "changelogData": [
         {
+            "version": "3.3.2",
+            "date": "January 2026",
+            "features": [],
+            "technical": [
+                "Code Quality: Refactoring of Stripe integration and cleanup of technical debt.",
+                "Stripe: Fixed Invoice Preview method for better stability."
+            ],
+            "bugfixes": [
+                "Fix: Resolved linting errors and type issues in Stripe service."
+            ]
+        },
+        {
             "version": "3.3.1",
             "date": "January 2026",
             "features": [

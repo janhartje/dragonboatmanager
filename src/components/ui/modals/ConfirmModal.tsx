@@ -1,5 +1,5 @@
 import React from 'react';
-import { X } from 'lucide-react';
+import { X, Loader2 } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { THEME_MAP, ThemeKey } from '@/constants/themes';
 
@@ -13,6 +13,7 @@ interface ConfirmModalProps {
   cancelLabel?: string;
   isDestructive?: boolean;
   primaryColor?: string;
+  isLoading?: boolean;
 }
 
 const ConfirmModal: React.FC<ConfirmModalProps> = ({
@@ -24,7 +25,8 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
   confirmLabel,
   cancelLabel,
   isDestructive = false,
-  primaryColor
+  primaryColor,
+  isLoading = false
 }) => {
   const { t } = useLanguage();
   const theme = primaryColor ? THEME_MAP[primaryColor as ThemeKey] : null;
@@ -54,12 +56,14 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
           </button>
           <button 
             onClick={onConfirm}
-            className={`px-4 py-2 text-sm font-bold text-white rounded-lg shadow-sm transition-all active:scale-95 ${
+            disabled={isLoading}
+            className={`px-4 py-2 text-sm font-bold text-white rounded-lg shadow-sm transition-all active:scale-95 disabled:opacity-50 disabled:pointer-events-none flex items-center gap-2 ${
               isDestructive 
                 ? 'bg-red-600 hover:bg-red-700 active:bg-red-800' 
                 : (theme?.button || 'bg-blue-600 hover:bg-blue-700 active:bg-blue-800')
             }`}
           >
+            {isLoading && <Loader2 className="animate-spin w-4 h-4" />}
             {confirmLabel || t('confirm')}
           </button>
         </div>

@@ -21,25 +21,42 @@ export const InvoicesList = ({ teamId }: { teamId: string }) => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    const controller = new AbortController();
+
     const fetchInvoices = async () => {
       try {
-        const response = await fetch(`/api/stripe/invoices?teamId=${teamId}`);
+        const response = await fetch(`/api/stripe/invoices?teamId=${teamId}`, {
+          signal: controller.signal,
+          cache: 'no-store',
+          headers: {
+            'Pragma': 'no-cache',
+            'Cache-Control': 'no-cache'
+          }
+        });
         if (!response.ok) {
           throw new Error('Failed to fetch invoices');
         }
         const data = await response.json();
         setInvoices(data.invoices);
-      } catch (err) {
+      } catch (err: unknown) {
+        if ((err as Error).name === 'AbortError') return;
         console.error(err);
         setError('Failed to load invoices');
       } finally {
-        setLoading(false);
+        if (!controller.signal.aborted) {
+            setLoading(false);
+        }
       }
     };
 
     if (teamId) {
+      setInvoices([]); 
+      setLoading(true);
+      setError(null);
       fetchInvoices();
     }
+    
+    return () => controller.abort();
   }, [teamId]);
 
   if (loading) {

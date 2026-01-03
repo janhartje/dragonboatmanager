@@ -91,6 +91,13 @@ export const PaymentMethodManager = ({ teamId, currentPaymentMethod }: { teamId:
     const [clientSecret, setClientSecret] = useState<string | null>(null);
     const [loadingSecret, setLoadingSecret] = useState(false);
 
+    // Reset state when teamId changes
+    React.useEffect(() => {
+        setIsEditing(false);
+        setClientSecret(null);
+        setLoadingSecret(false);
+    }, [teamId]);
+
     const startEditing = async () => {
         setLoadingSecret(true);
         try {

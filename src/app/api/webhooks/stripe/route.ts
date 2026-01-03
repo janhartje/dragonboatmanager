@@ -9,7 +9,8 @@ import {
   handleSubscriptionUpdated,
   handleSubscriptionDeleted,
   handleTrialWillEnd,
-  handleCustomerUpdated
+
+  handleInvoicePaymentActionRequired
 } from './handlers';
 
 export async function POST(req: Request) {
@@ -34,7 +35,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: `Webhook Error: ${message}` }, { status: 400 });
   }
 
-  console.log(`Webhook Event: ${event.type} (${event.id})`);
+
 
   try {
     switch (event.type) {
@@ -50,12 +51,9 @@ export async function POST(req: Request) {
         await handleInvoicePaymentFailed(event.data.object as Stripe.Invoice);
         break;
 
-      case 'invoice.payment_action_required': {
-        const invoice = event.data.object as Stripe.Invoice;
-        const customerId = typeof invoice.customer === 'string' ? invoice.customer : invoice.customer?.id;
-        console.log(`PRO-ACTION-REQUIRED: SCA / Authentication required for Customer ${customerId} (Invoice: ${invoice.id})`);
+      case 'invoice.payment_action_required':
+        await handleInvoicePaymentActionRequired(event.data.object as Stripe.Invoice);
         break;
-      }
 
       case 'customer.subscription.created':
       case 'customer.subscription.updated':
@@ -70,13 +68,10 @@ export async function POST(req: Request) {
         await handleTrialWillEnd(event.data.object as Stripe.Subscription);
         break; 
 
-      case 'customer.updated':
-        await handleCustomerUpdated(event.data.object as Stripe.Customer);
-        break;
+
 
       case 'charge.refunded': {
-         const charge = event.data.object as Stripe.Charge;
-         console.log(`REFUND: Charge ${charge.id} was refunded`);
+         // const charge = event.data.object as Stripe.Charge;
          break;
       }
     }

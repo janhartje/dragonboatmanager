@@ -13,6 +13,7 @@ export interface CheckoutFormProps {
   onApplyPromo?: () => void;
   isApplyingPromo?: boolean;
   priceDetails?: { amount: number; currency: string; interval: string } | null;
+  onSuccess?: (paymentMethodId: string) => Promise<{ clientSecret: string | null }>;
 }
 
 export const CheckoutForm = ({ 
@@ -22,7 +23,8 @@ export const CheckoutForm = ({
   setPromoCode, 
   onApplyPromo, 
   isApplyingPromo,
-  priceDetails
+  priceDetails,
+  onSuccess
 }: CheckoutFormProps) => {
   const stripe = useStripe();
   const elements = useElements();
@@ -41,21 +43,69 @@ export const CheckoutForm = ({
 
     setIsLoading(true);
 
-    const { error } = await stripe.confirmPayment({
+    const { error, setupIntent } = await stripe.confirmSetup({
       elements,
       confirmParams: {
-        // Make sure to change this to your payment completion page
         return_url: returnUrl || `${window.location.origin}/app?upgrade_success=true&teamId=${teamId}`,
       },
+      redirect: 'if_required', // Avoid redirect if possible
     });
 
-    // This point will only be reached if there is an immediate error when
-    // confirming the payment. Otherwise, your customer will be redirected to
-    // your `return_url`.
     if (error) {
       // Display the actual error message from Stripe
-      console.error('Stripe payment error:', error);
+      console.error('Stripe setup error:', error);
       setMessage(error.message || `Ein unerwarteter Fehler ist aufgetreten (Typ: ${error.type}). Bitte erneut versuchen.`);
+    } else if (setupIntent && setupIntent.status === 'succeeded') {
+        // SUCCESS: Valid card setup!
+        // Now call the parent to create the subscription
+        if (onSuccess && typeof setupIntent.payment_method === 'string') {
+            try {
+                // 1. Create Subscription
+                const subResult = await onSuccess(setupIntent.payment_method);
+                
+                // 2. Handle Potential SCA (3D Secure)
+                // 2. Handle Potential SCA (3D Secure)
+                if (subResult && subResult.clientSecret) {
+                    const secret = subResult.clientSecret as string;
+
+                    
+                    let confirmError;
+                    
+                    if (secret.startsWith('pi_')) {
+                        // PaymentIntent
+                         const result = await stripe.confirmCardPayment(secret);
+                         confirmError = result.error;
+                    } else if (secret.startsWith('seti_')) {
+                        // SetupIntent (e.g. Trial)
+                         const result = await stripe.confirmCardSetup(secret);
+                         confirmError = result.error;
+                    } else {
+                        // Fallback or unknown
+                        console.warn('Unknown secret format, attempting confirmCardPayment');
+                        const result = await stripe.confirmCardPayment(secret);
+                        confirmError = result.error;
+                    }
+                    
+                    if (confirmError) {
+                         setMessage(confirmError.message || 'Bestätigung fehlgeschlagen');
+                         setIsLoading(false);
+                         return; // Stop here
+                    }
+                }
+                
+                // 3. Final Success Redirect
+                window.location.href = returnUrl || `${window.location.origin}/app?upgrade_success=true&teamId=${teamId}`;
+                
+            } catch (err) {
+                 // Error already handled/set in parent mostly, but we catch here to stop loading
+                 console.error('Subscription creation error:', err);
+                 // Parent `onSuccess` sets parent error state, but we might want to set local message too?
+                 // For now, parent error display is enough, just stop loading.
+            }
+        } else {
+            console.error('Missing payment method ID');
+            setMessage('Interner Fehler: Zahlungsmethode nicht gefunden.');
+        }
     }
 
     setIsLoading(false);

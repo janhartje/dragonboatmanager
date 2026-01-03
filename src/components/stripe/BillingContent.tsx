@@ -53,7 +53,7 @@ export const BillingContent = ({ team, subscription }: BillingContentProps) => {
                                     {t('pro.viewInvoices')}
                                 </h3>
                             </div>
-                            <InvoicesList teamId={team.id} />
+                            <InvoicesList key={team.id} teamId={team.id} />
                         </div>
 
                         {subscription.history && subscription.history.length > 0 && (
@@ -145,6 +145,7 @@ export const BillingContent = ({ team, subscription }: BillingContentProps) => {
             {subscription?.isBillingUser ? (
                 <>
                 <PaymentMethodManager 
+                    key={team.id}
                     teamId={team.id} 
                     currentPaymentMethod={subscription.subscription?.paymentMethod}
                 />
@@ -185,7 +186,7 @@ export const BillingContent = ({ team, subscription }: BillingContentProps) => {
                         <div className="p-6 border-b border-slate-100 dark:border-slate-800">
                         <h3 className="text-lg font-bold text-slate-900 dark:text-white">{t('pro.viewInvoices')}</h3>
                         </div>
-                        <InvoicesList teamId={team.id} />
+                        <InvoicesList key={team.id} teamId={team.id} />
                 </div>
 
                 {subscription.history && subscription.history.length > 0 && (
@@ -212,6 +213,7 @@ export const BillingContent = ({ team, subscription }: BillingContentProps) => {
                 isDestructive={true}
                 onCancel={() => setShowCancelConfirm(false)}
                 onConfirm={() => handleAction('cancel')}
+                isLoading={actionLoading}
             />
         </div>
     );
