@@ -1,6 +1,6 @@
 {
   "name": "drachenboot-app",
-  "version": "3.4.0",
+  "version": "3.3.1",
   "private": true,
   "scripts": {
     "db:up": "docker compose up -d",

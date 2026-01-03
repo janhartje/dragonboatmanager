@@ -147,7 +147,7 @@
     "clBugfixes": "Bug Fixes",
     "changelogData": [
         {
-            "version": "3.4.0",
+            "version": "3.3.1",
             "date": "January 2026",
             "features": [
                 "Promotion Codes: Full support for promo codes during Pro upgrade.",
@@ -159,7 +159,8 @@
                 "UI Improvement: Localization of the Stripe Checkout element."
             ],
             "bugfixes": [
-                "Fix: Subscription history periods now correctly display for active and canceling subscriptions."
+                "Fix: Subscription history periods now correctly display for active and canceling subscriptions.",
+                "Fix: Promotion codes are no longer automatically applied while typing."
             ]
         },
         {

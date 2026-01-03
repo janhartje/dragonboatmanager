@@ -147,7 +147,7 @@
     "clBugfixes": "Fehlerbehebungen",
     "changelogData": [
         {
-            "version": "3.4.0",
+            "version": "3.3.1",
             "date": "Januar 2026",
             "features": [
                 "Gutscheincodes: Volle Unterstützung für Promotion Codes beim Pro-Upgrade.",
@@ -159,7 +159,8 @@
                 "UI-Verbesserung: Lokalisierung des Stripe-Checkout-Elements."
             ],
             "bugfixes": [
-                "Fix: Zeiträume in der Abo-Historie werden nun korrekt für aktive und kündigende Abos angezeigt."
+                "Fix: Zeiträume in der Abo-Historie werden nun korrekt für aktive und kündigende Abos angezeigt.",
+                "Fix: Promotion-Codes werden nicht mehr während des Tippens automatisch abgesendet."
             ]
         },
         {
