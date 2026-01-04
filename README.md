@@ -46,87 +46,86 @@ Der **Drachenboot Manager** ist eine Progressive Web App (PWA) zur Verwaltung vo
 
 ## 🏗 Gesamtarchitektur
 
-Das folgende Diagramm zeigt die Interaktion zwischen den verschiedenen Schichten der Anwendung. Das Frontend und der MCP-Server kommunizieren dabei ausschließlich über die REST-Webservices.
+Das folgende Diagramm zeigt den Top-Down-Aufbau des Systems, von der Benutzerinteraktion über die fachlichen und technischen Fähigkeiten bis hin zur Datenhaltung.
 
 ```mermaid
-flowchart TB
+flowchart TD
     %% Entry Points
     User((Nutzer / Browser))
     AI_Agent((AI Agent / Claude))
 
-    %% Customer Interaction Layer
-    subgraph Interaction ["Customer Interaction Layer"]
-        direction TB
-        subgraph PWA ["Human Interface (PWA)"]
-            UI[React 19 / Tailwind 4]
-            State[DrachenbootContext]
-        end
-        subgraph MCP ["AI Interface (MCP)"]
-            MCP_Server[MCP Server Interface]
-        end
+    %% 1. Interaction Layer
+    subgraph Interaction ["1. Interaction Layer (Client/Interface)"]
+        direction LR
+        PWA["Human UI (PWA / React)"]
+        MCP["AI Interface (MCP Server)"]
     end
 
-    %% Web Services Layer (Central API)
-    subgraph API ["Web Services Layer"]
-        API_Routes[REST API / OpenAPI]
+    %% 2. Service Layer
+    subgraph Service ["2. Service Layer (Access)"]
+        API[REST Web Services / OpenAPI]
     end
 
-    %% Logic & Capability Layer
-    subgraph Logic ["Logic & Core Capabilities"]
-        direction TB
-        subgraph Caps ["Capabilities"]
-            C1[Team/Kader]
-            C2[Optimierung]
-            C3[Billing]
-            C4[Mails]
-        end
+    %% 3. Functional Layer
+    subgraph Functional ["3. Functional Capabilities (Fachlich)"]
+        direction LR
+        F1["Team- & Kaderverwaltung"]
+        F2["Aufstellungsplanung (KI)"]
+        F3["Event- & Terminmanagement"]
+        F4["Abonnement-Features"]
     end
 
-    %% Persistence Layer
-    subgraph Data ["Persistence Layer"]
-        Prisma[Prisma 7 Client]
-        Postgres[(PostgreSQL)]
-        Prisma --- Postgres
+    %% 4. Technical Layer
+    subgraph Technical ["4. Technical Capabilities (Infrastruktur)"]
+        direction LR
+        T1["Auth.js (Identity)"]
+        T2["Prisma 7 (ORM)"]
+        T3["Stripe Integration (Payments)"]
+        T4["Mail Engine (Resend)"]
     end
 
-    %% External Services
-    subgraph External ["External Integration"]
-        Stripe[[Stripe Payments]]
-        Resend[[Resend Mail API]]
+    %% 5. Base Layer
+    subgraph Base ["5. Base Layer (Storage & External)"]
+        direction LR
+        DB[(PostgreSQL)]
+        Ext_Stripe[[Stripe API]]
+        Ext_Resend[[Resend API]]
     end
 
-    %% Connections
-    User -->|HTTPS| UI
-    AI_Agent <-->|SSE / MCP SDK| MCP_Server
+    %% Connections (Top-Down Flow)
+    User --> PWA
+    AI_Agent --> MCP
     
-    %% Both use REST
-    UI <-->|REST Requests| API_Routes
-    MCP_Server <-->|REST Requests| API_Routes
+    PWA <-->|REST| API
+    MCP <-->|REST| API
     
-    API_Routes <--> Caps
-    Caps <--> Prisma
+    API <--> Functional
+    Functional <--> Technical
     
-    Caps <--> Stripe
-    Stripe -- "Webhooks" --> API_Routes
-    Caps --> Resend
+    Technical <--> T2 <--> DB
+    Technical <--> T1
+    T3 <--> Ext_Stripe
+    T4 --> Ext_Resend
     
-    %% Styling (High Contrast Professional Theme)
-    %% Backgrounds: Solid white or very light grey
-    %% Text: Always dark grey/black (#1a1a1a)
-    %% Borders: Distinct and slightly thicker
-    
+    %% Webhook Loop
+    Ext_Stripe -- "Webhooks" --> API
+
+    %% Styling (High Contrast & Clear Hierarchy)
     classDef default fill:#ffffff,stroke:#111827,stroke-width:1px,color:#111827;
-    classDef layer fill:#f3f4f6,stroke:#374151,stroke-width:2px,stroke-dasharray: 5 5,color:#111827;
-    classDef actor fill:#dbeafe,stroke:#1e40af,stroke-width:2px,color:#111827;
-    classDef external fill:#fee2e2,stroke:#991b1b,stroke-width:1px,color:#111827;
-    classDef capability fill:#dcfce7,stroke:#166534,stroke-width:1px,color:#111827;
-    classDef api fill:#fef9c3,stroke:#854d0e,stroke-width:2px,color:#111827;
+    classDef layer fill:#f9fafb,stroke:#374151,stroke-width:2px,stroke-dasharray: 5 5,color:#111827;
+    classDef interaction fill:#dbeafe,stroke:#1e40af,stroke-width:2px,color:#111827;
+    classDef service fill:#fef9c3,stroke:#854d0e,stroke-width:2px,color:#111827;
+    classDef functional fill:#dcfce7,stroke:#166534,stroke-width:2px,color:#111827;
+    classDef technical fill:#f3f4f6,stroke:#4b5563,stroke-width:1px,color:#111827;
+    classDef base fill:#f1f5f9,stroke:#334155,stroke-width:1px,color:#111827;
+    classDef actor fill:#ffffff,stroke:#111827,stroke-width:2px,color:#111827;
 
-    class Interaction,Logic,Data layer;
+    class Interaction interaction;
+    class Service service;
+    class Functional functional;
+    class Technical technical;
+    class Base base;
     class User,AI_Agent actor;
-    class Stripe,Resend external;
-    class C1,C2,C3,C4 capability;
-    class API_Routes api;
 ```
 
 ## 📂 Projektstruktur
