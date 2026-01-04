@@ -42,6 +42,77 @@ Der **Drachenboot Manager** ist eine Progressive Web App (PWA) zur Verwaltung vo
 *   **Export**: `html-to-image` für hochauflösenden Bild-Export der Aufstellung (unterstützt moderne CSS-Features)
 *   **Charts**: `recharts` für Statistik-Visualisierung
 
+## 🏗 Gesamtarchitektur
+
+```mermaid
+graph TD
+    %% Entities
+    User((Nutzer / Browser))
+    AI((AI Agent / Claude))
+    
+    subgraph "Frontend & PWA"
+        PWA[Next.js 14 Frontend]
+        SW[Service Worker / Offline Cache]
+        State[React Context / State]
+    end
+    
+    subgraph "Vercel / Next.js Server"
+        Backend[App Router / Server Actions]
+        MCPServer[MCP Server Interface]
+        MailQueue[Mail Queue & Cron Jobs]
+        API[REST & OpenAPI Endpoints]
+    end
+
+    subgraph "Datenbank"
+        Prisma[Prisma ORM]
+        DB[(PostgreSQL)]
+    end
+
+    subgraph "Externe Services"
+        Stripe[Stripe Payments]
+        Resend[Resend Mail Service]
+    end
+
+    %% Connections
+    User <--> PWA
+    PWA <--> Backend
+    PWA <--> API
+    AI <--> MCPServer
+    
+    Backend <--> Prisma
+    API <--> Prisma
+    MCPServer <--> Prisma
+    Prisma <--> DB
+    
+    Backend <--> Stripe
+    Stripe -- "Webhooks" --> API
+    
+    Backend <--> Resend
+    MailQueue <--> Resend
+    
+    %% Capabilities
+    subgraph "System Capabilities"
+        Cap1[Team- & Mitgliederverwaltung]
+        Cap2[Bootsbesetzungs-Algorithmus]
+        Cap3[Abonnement & Zahlungen via Stripe]
+        Cap4[Transactional Email via Resend]
+        Cap5[AI Integration via MCP]
+    end
+
+    DB -.-> Cap1
+    DB -.-> Cap2
+    Stripe -.-> Cap3
+    Resend -.-> Cap4
+    MCPServer -.-> Cap5
+
+    %% Styles
+    style User fill:#f9f,stroke:#333,stroke-width:2px
+    style AI fill:#bbf,stroke:#333,stroke-width:2px
+    style DB fill:#ff9,stroke:#333,stroke-width:2px
+    style Stripe fill:#6772e5,color:#fff
+    style Resend fill:#000,color:#fff
+```
+
 ## 📂 Projektstruktur
 
 ```
@@ -197,11 +268,15 @@ To use the Test User in a **production** environment (e.g. `npm run start`), you
 ENABLE_TEST_USER="true"
 ```
 
-## 📚 Documentation
+## 📚 Dokumentation
 
-*   [API Documentation (OpenAPI)](http://localhost:3000/docs) - Interactive Swagger UI
-*   [OpenAPI Specification](public/openapi.json)
-*   [Data Model](DATA_MODEL.md) - Detaillierte Erklärung der Datenbankstruktur
+Die vollständige Dokumentation findest du im **[docs/ Ordner](docs/README.md)**.
+
+*   **[Gesamtüberblick & Navigation](docs/README.md)** - Startpunkt für die gesamte technische Dokumentation.
+*   **[API Dokumentation (OpenAPI)](http://localhost:3000/docs)** - Interaktive Swagger UI (lokal).
+*   **[Datenmodell](docs/data-model.md)** - Detaillierte Erklärung der Datenbankstruktur.
+*   **[MCP Server Guide](docs/mcp-guide.md)** - Anleitung zur Anbindung an KI-Modelle.
+*   **[Testfall-Katalog](docs/test_cases/README.md)** - Übersicht über alle funktionalen Testfälle.
 
 ## 👨‍💻 Development Guidelines
 

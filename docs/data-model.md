@@ -1,3 +1,5 @@
+[⬅️ Zurück zur Dokumentationsübersicht](README.md)
+
 # Datenmodell - Drachenboot Manager
 
 ## Übersicht

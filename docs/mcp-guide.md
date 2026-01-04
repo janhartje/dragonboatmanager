@@ -1,3 +1,5 @@
+[⬅️ Zurück zur Dokumentationsübersicht](README.md)
+
 # MCP Server Guide für Drachenboot Manager
 
 ## Was ist MCP?
