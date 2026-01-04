@@ -173,7 +173,7 @@ export const UpgradeView: React.FC<UpgradeViewProps> = ({ team }) => {
           await updatePricePreview(billingInterval, promoCode);
           // Don't reset anything, just update price
       } catch {
-          setError('Invalid promotion code');
+          setError(t('pro.invalidPromoCode'));
           // Clear invalid code from price preview if needed, or handle UI feedback
       } finally {
           setIsInitializing(false);

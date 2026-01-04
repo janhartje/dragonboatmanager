@@ -273,7 +273,7 @@ const TeamView: React.FC = () => {
          // Do NOT split by whitespace directly - instead trim each part
          const parts = sideStrRaw.split(/[,/|&+]/).map((p: string) => p.trim()).filter((p: string) => p.length > 0);
 
-         console.log('DEBUG Import - Paddler:', name, '| Raw Side String:', sideStrRaw, '| Parts after split:', parts);
+         // Side/role parsing (multilingual support)
 
          parts.forEach(part => {
               const p = part.trim();
@@ -503,7 +503,7 @@ const TeamView: React.FC = () => {
                       >
                          {isMorePaddlersLoading ? (
                            <span className="w-4 h-4 border-2 border-slate-500 border-t-transparent rounded-full animate-spin"></span>
-                         ) : 'Load More'}
+                         ) : t('loadMore')}
                       </button>
                     </div>
                   )}
@@ -526,7 +526,7 @@ const TeamView: React.FC = () => {
                       >
                          {isMorePaddlersLoading ? (
                            <span className="w-4 h-4 border-2 border-slate-500 border-t-transparent rounded-full animate-spin"></span>
-                         ) : 'Load More'}
+                         ) : t('loadMore')}
                       </button>
                     </div>
                   )}

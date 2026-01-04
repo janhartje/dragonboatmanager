@@ -58,6 +58,7 @@
     "unknownEvent": "Unknown Event",
     "pleaseChooseRole": "Please choose a role.",
     "changelog": "Changelog",
+    "loadMore": "Load More",
     "teamLimitReached": "Team limit reached",
     "teamLimitReachedDesc": "You have reached the limit of {max} members. Upgrade to PRO for unlimited access.",
     "guestHint": "Note: Guests can still be added to individual trainings.",
@@ -146,6 +147,15 @@
     "clTechnical": "Technical Changes",
     "clBugfixes": "Bug Fixes",
     "changelogData": [
+        {
+            "version": "3.4.5",
+            "date": "January 2026",
+            "features": [],
+            "technical": [
+                "Code hygiene: Removed debug logs, added missing translations."
+            ],
+            "bugfixes": []
+        },
         {
             "version": "3.4.4",
             "date": "January 2026",
@@ -856,6 +866,7 @@
         "enterPromoCode": "Enter code",
         "discountApplied": "Discount applied",
         "invalidCode": "Invalid code",
+        "invalidPromoCode": "Invalid promotion code",
         "benefits": {
             "title": "Why go Pro?",
             "item1": "Unlimited Members",

@@ -15,6 +15,7 @@
     "comment": "Kommentar",
     "commentPlaceholder": "Infos zum Training...",
     "changelog": "Versionshistorie",
+    "loadMore": "Mehr laden",
     "teamLimitReached": "Team-Limit erreicht",
     "teamLimitReachedDesc": "Du hast das Limit von {max} Mitgliedern erreicht. Upgrade auf PRO für unbegrenzte Mitglieder.",
     "guestHint": "Hinweis: Gäste können weiterhin für einzelne Termine hinzugefügt werden.",
@@ -146,6 +147,15 @@
     "clTechnical": "Technische Änderungen",
     "clBugfixes": "Fehlerbehebungen",
     "changelogData": [
+        {
+            "version": "3.4.5",
+            "date": "Januar 2026",
+            "features": [],
+            "technical": [
+                "Code-Hygiene: Debug-Logs entfernt, fehlende Übersetzungen ergänzt."
+            ],
+            "bugfixes": []
+        },
         {
             "version": "3.4.4",
             "date": "Januar 2026",
@@ -859,6 +869,7 @@
         "enterPromoCode": "Gutschein eingeben",
         "discountApplied": "Rabatt angewendet",
         "invalidCode": "Ungültiger Code",
+        "invalidPromoCode": "Ungültiger Gutscheincode",
         "benefits": {
             "title": "Warum Pro?",
             "item1": "Unbegrenzte Mitgliederzahl",
