@@ -46,71 +46,82 @@ Der **Drachenboot Manager** ist eine Progressive Web App (PWA) zur Verwaltung vo
 
 ## 🏗 Gesamtarchitektur
 
+Das folgende Diagramm zeigt die Interaktion zwischen den verschiedenen Schichten der Anwendung, von der Benutzerschnittstelle bis zur Datenhaltung.
+
 ```mermaid
 flowchart TB
     %% Entry Points
     User((Nutzer / Browser))
     AI_Agent((AI Agent / Claude))
 
-    %% Client Layer
-    subgraph Client ["Client Layer (PWA)"]
+    %% Customer Interaction Layer
+    subgraph Interaction ["Customer Interaction Layer"]
         direction TB
-        UI[React 19 / Tailwind 4]
-        State[React Context / DrachenbootContext]
-        PWA_SW[Service Worker / Offline Support]
-        Auth_Client[Auth.js Session Management]
+        subgraph PWA ["Human Interface (PWA)"]
+            UI[React 19 / Tailwind 4]
+            State[DrachenbootContext]
+        end
+        subgraph MCP ["AI Interface (MCP)"]
+            MCP_Server[MCP Server Interface]
+        end
     end
 
-    %% Server Layer
-    subgraph Server ["Next.js Server (App Router)"]
+    %% Logic & Capability Layer
+    subgraph Logic ["Logic & Core Capabilities"]
         direction TB
-        direction TB
-        ServerActions[Server Actions / Business Logic]
-        API_Routes[API Routes / REST / OpenAPI]
-        MCP_Server[MCP Server / Tool Definitions]
-        Email_Engine[Resend / Mail Queue]
+        subgraph Func ["Core Logic"]
+            ServerActions[Server Actions]
+            API_Routes[REST & Webhook API]
+        end
+        subgraph Caps ["Capabilities"]
+            C1[Team/Kader]
+            C2[Optimierung]
+            C3[Billing]
+            C4[Mails]
+        end
     end
 
-    %% Data Layer
-    subgraph Storage ["Data Layer"]
+    %% Persistence Layer
+    subgraph Data ["Persistence Layer"]
         Prisma[Prisma 7 Client]
         Postgres[(PostgreSQL)]
         Prisma --- Postgres
     end
 
     %% External Services
-    subgraph External ["Externe Services"]
-        Stripe[Stripe Checkout & Billing]
-        Resend_API[Resend Transactional Email]
+    subgraph External ["External Integration"]
+        Stripe[[Stripe Payments]]
+        Resend[[Resend Mail API]]
     end
 
     %% Connections
-    User -->|HTTPS| UI
-    AI_Agent <-->|MCP/SSE| MCP_Server
+    User -->|Web Application| UI
+    AI_Agent <-->|MCP Protocol| MCP_Server
     
     UI <--> ServerActions
-    UI <--> API_Routes
-    UI --- PWA_SW
+    MCP_Server <--> ServerActions
+    MCP_Server -.-> API_Routes
     
-    ServerActions <--> Auth_Client
-    ServerActions --> Prisma
-    API_Routes --> Prisma
-    MCP_Server --> Prisma
+    ServerActions <--> Caps
+    API_Routes <--> Caps
     
-    ServerActions -->|Payment Flow| Stripe
+    Caps <--> Prisma
+    
+    ServerActions --> Stripe
     Stripe -- "Webhooks" --> API_Routes
+    Caps --> Resend
     
-    Email_Engine -->|SMTP/API| Resend_API
-    ServerActions --> Email_Engine
+    %% Styling (Professional Monochrome Palette with Blue Accents)
+    classDef default fill:#ffffff,stroke:#374151,stroke-width:1px;
+    classDef layer fill:#f9fafb,stroke:#9ca3af,stroke-width:2px,stroke-dasharray: 5 5;
+    classDef actor fill:#eff6ff,stroke:#3b82f6,stroke-width:2px;
+    classDef external fill:#f8fafc,stroke:#64748b,stroke-width:1px;
+    classDef capability fill:#f0fdf4,stroke:#16a34a,stroke-width:1px;
 
-    %% Styling
-    style User fill:#e1f5fe,stroke:#01579b
-    style AI_Agent fill:#f3e5f5,stroke:#4a148c
-    style Server fill:#f1f8e9,stroke:#33691e
-    style Client fill:#fff3e0,stroke:#e65100
-    style Storage fill:#eceff1,stroke:#263238
-    style External fill:#fce4ec,stroke:#880e4f
-    style Postgres fill:#fff9c4,stroke:#fbc02d
+    class Interaction,Logic,Data layer;
+    class User,AI_Agent actor;
+    class Stripe,Resend external;
+    class C1,C2,C3,C4 capability;
 ```
 
 ## 📂 Projektstruktur
