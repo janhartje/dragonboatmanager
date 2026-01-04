@@ -148,6 +148,15 @@
     "clBugfixes": "Fehlerbehebungen",
     "changelogData": [
         {
+            "version": "3.4.7",
+            "date": "Januar 2026",
+            "features": [],
+            "technical": [],
+            "bugfixes": [
+                "Fix: Kritischer Fehler bei der Abo-Erstellung behoben (Unterstützung für Stripe-Produkt-IDs)."
+            ]
+        },
+        {
             "version": "3.4.6",
             "date": "Januar 2026",
             "features": [],

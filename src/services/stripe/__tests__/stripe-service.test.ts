@@ -203,5 +203,19 @@ describe('stripe-service', () => {
 
       await expect(getPriceForInterval('year')).rejects.toThrow('No price found');
     });
+
+    it('works when STRIPE_PRO_PRICE_ID is a Product ID', async () => {
+      process.env.STRIPE_PRO_PRICE_ID = 'prod_direct';
+      const yearlyPrice = { id: 'price_yearly', recurring: { interval: 'year' } };
+      (mockStripe.prices.list as jest.Mock).mockResolvedValue({
+        data: [yearlyPrice],
+      });
+
+      const result = await getPriceForInterval('year');
+
+      expect(result.id).toBe('price_yearly');
+      expect(mockStripe.prices.retrieve).not.toHaveBeenCalled();
+      expect(mockStripe.prices.list).toHaveBeenCalledWith(expect.objectContaining({ product: 'prod_direct' }));
+    });
   });
 });

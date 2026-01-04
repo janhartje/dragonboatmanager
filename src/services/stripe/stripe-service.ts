@@ -166,10 +166,18 @@ export async function getPriceForInterval(
     throw new Error('STRIPE_PRO_PRICE_ID not configured');
   }
   
-  const basePrice = await stripe.prices.retrieve(process.env.STRIPE_PRO_PRICE_ID);
-  const productId = typeof basePrice.product === 'string' 
-    ? basePrice.product 
-    : basePrice.product.id;
+  const configId = process.env.STRIPE_PRO_PRICE_ID;
+  let productId: string;
+
+  // Use simple prefix check to determine if it is a Product ID or Price ID
+  if (configId.startsWith('prod_')) {
+    productId = configId;
+  } else {
+    const basePrice = await stripe.prices.retrieve(configId);
+    productId = typeof basePrice.product === 'string' 
+      ? basePrice.product 
+      : basePrice.product.id;
+  }
   
   const prices = await stripe.prices.list({
     product: productId,

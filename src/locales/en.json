@@ -148,6 +148,15 @@
     "clBugfixes": "Bug Fixes",
     "changelogData": [
         {
+            "version": "3.4.7",
+            "date": "January 2026",
+            "features": [],
+            "technical": [],
+            "bugfixes": [
+                "Fix: Critical error during subscription creation resolved (Stripe Product ID support)."
+            ]
+        },
+        {
             "version": "3.4.6",
             "date": "January 2026",
             "features": [],
