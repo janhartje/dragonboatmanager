@@ -148,6 +148,17 @@
     "clBugfixes": "Fehlerbehebungen",
     "changelogData": [
         {
+            "version": "3.4.6",
+            "date": "Januar 2026",
+            "features": [],
+            "technical": [
+                "Refactoring der PRO-Vorteile: Die Liste wird jetzt dynamisch aus den Sprachdateien geladen."
+            ],
+            "bugfixes": [
+                "Fix: Fehlende Übersetzungen in der PRO-Upgrade-Ansicht ergänzt (Premium Badge & Vorteile)."
+            ]
+        },
+        {
             "version": "3.4.5",
             "date": "Januar 2026",
             "features": [],
@@ -853,6 +864,7 @@
     "errorGlobalMessage": "Ein kritischer Fehler ist aufgetreten und die Anwendung konnte nicht geladen werden.",
     "errorReload": "Neu laden",
     "pro": {
+        "premiumUpgrade": "Premium Upgrade",
         "upgradeTitle": "Upgrade auf PRO",
         "upgradeDescription": "Erhalte unbegrenzte Mitglieder, MCP-Zugriff für KI und werbefreie Exporte.",
         "upgradeButton": "Jetzt upgraden",
@@ -878,11 +890,14 @@
         "invalidPromoCode": "Ungültiger Gutscheincode",
         "benefits": {
             "title": "Warum Pro?",
-            "item1": "Unbegrenzte Mitgliederzahl",
-            "item3": "Export ohne Wasserzeichen",
-            "item4": "Bevorzugter Support",
-            "item5": "Unterstütze die Weiterentwicklung",
-            "item6": "MCP Server für KI-Integration"
+            "items": [
+                "Unbegrenzte Mitgliederzahl",
+                "Eigene Team-Farben & Branding",
+                "Export ohne Wasserzeichen",
+                "Bevorzugter Support",
+                "Unterstütze die Weiterentwicklung",
+                "MCP Server für KI-Integration"
+            ]
         },
         "manageSubscription": "Abo verwalten",
         "manageSubscriptionDesc": "Dein Team ist PRO! Hier kannst du Rechnungen einsehen und Zahlungsdaten ändern.",

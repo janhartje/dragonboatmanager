@@ -148,6 +148,17 @@
     "clBugfixes": "Bug Fixes",
     "changelogData": [
         {
+            "version": "3.4.6",
+            "date": "January 2026",
+            "features": [],
+            "technical": [
+                "Refactored PRO benefits: The list is now loaded dynamically from translation files."
+            ],
+            "bugfixes": [
+                "Fix: Added missing translations in the PRO upgrade view (Premium Badge & benefits)."
+            ]
+        },
+        {
             "version": "3.4.5",
             "date": "January 2026",
             "features": [],
@@ -850,6 +861,7 @@
     "errorGlobalMessage": "A critical error occurred and the application could not be loaded.",
     "errorReload": "Reload",
     "pro": {
+        "premiumUpgrade": "Premium Upgrade",
         "upgradeTitle": "Upgrade to PRO",
         "upgradeDescription": "Get unlimited members, MCP access for AI, and watermark-free exports.",
         "upgradeButton": "Upgrade Now",
@@ -875,11 +887,14 @@
         "invalidPromoCode": "Invalid promotion code",
         "benefits": {
             "title": "Why go Pro?",
-            "item1": "Unlimited Members",
-            "item3": "Watermark-free exports",
-            "item4": "Priority Support",
-            "item5": "Support development",
-            "item6": "MCP Server for AI Integration"
+            "items": [
+                "Unlimited Members",
+                "Custom Team Colors & Branding",
+                "Watermark-free exports",
+                "Priority Support",
+                "Support development",
+                "MCP Server for AI Integration"
+            ]
         },
         "manageSubscription": "Manage Subscription",
         "manageSubscriptionDesc": "Your team is PRO! View invoices and update payment details here.",

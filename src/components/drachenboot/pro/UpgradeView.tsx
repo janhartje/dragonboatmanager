@@ -156,9 +156,9 @@ export const UpgradeView: React.FC<UpgradeViewProps> = ({ team }) => {
     locale: language as 'de' | 'en' | 'auto',
   };
 
-  const benefits = [
-    'item1', 'item2', 'item3', 'item4', 'item5', 'item6'
-  ];
+  const benefitsList = t<string[]>('pro.benefits.items');
+  const benefits = Array.isArray(benefitsList) ? benefitsList : [];
+
 
   const formatCurrency = (amount: number, currency: string) => {
       return new Intl.NumberFormat(language, {
@@ -196,7 +196,7 @@ export const UpgradeView: React.FC<UpgradeViewProps> = ({ team }) => {
                  </div>
                  
                  <ul className="space-y-3">
-                     {benefits.map((key, index) => (
+                     {benefits.map((benefit, index) => (
                          <li key={index} className="flex items-center gap-3">
                              <div className="flex-shrink-0 w-6 h-6 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center shadow-md">
                                  <svg className="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -205,7 +205,7 @@ export const UpgradeView: React.FC<UpgradeViewProps> = ({ team }) => {
                              </div>
                              <div>
                                  <span className="block text-base font-medium text-slate-700 dark:text-slate-200">
-                                     {t(`pro.benefits.${key}`)}
+                                     {benefit}
                                  </span>
                              </div>
                          </li>
