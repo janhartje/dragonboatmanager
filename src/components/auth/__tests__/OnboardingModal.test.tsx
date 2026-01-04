@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import React from 'react';
 import { OnboardingModal } from '../OnboardingModal';
 import { LanguageProvider } from '@/context/LanguageContext';
@@ -17,6 +17,7 @@ describe('OnboardingModal', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    mockOnSave.mockResolvedValue(undefined);
   });
 
   it('should disable submit button if no skills are selected', () => {
@@ -69,10 +70,18 @@ describe('OnboardingModal', () => {
 
     fireEvent.click(submitButton);
     
-    await expect(mockOnSave).toHaveBeenCalledWith(expect.objectContaining({
-      name: 'Test User',
-      weight: 75,
-      skills: ['left']
-    }));
+    // Use waitFor to handle the async onSave and subsequent state updates
+    await waitFor(() => {
+      expect(mockOnSave).toHaveBeenCalledWith(expect.objectContaining({
+        name: 'Test User',
+        weight: 75,
+        skills: ['left']
+      }));
+    });
+
+    // Verify onClose was called which happens after onSave
+    await waitFor(() => {
+      expect(mockOnClose).toHaveBeenCalled();
+    });
   });
 });

@@ -13,3 +13,9 @@ jest.mock('next-auth/react', () => {
     signOut: jest.fn(),
   };
 });
+
+global.fetch = jest.fn(() =>
+  Promise.resolve({
+    json: () => Promise.resolve({}),
+  }),
+) as jest.Mock;
