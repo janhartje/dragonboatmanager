@@ -46,7 +46,7 @@ Der **Drachenboot Manager** ist eine Progressive Web App (PWA) zur Verwaltung vo
 
 ## 🏗 Gesamtarchitektur
 
-Das folgende Diagramm zeigt die Interaktion zwischen den verschiedenen Schichten der Anwendung, von der Benutzerschnittstelle bis zur Datenhaltung.
+Das folgende Diagramm zeigt die Interaktion zwischen den verschiedenen Schichten der Anwendung. Das Frontend und der MCP-Server kommunizieren dabei ausschließlich über die REST-Webservices.
 
 ```mermaid
 flowchart TB
@@ -66,13 +66,14 @@ flowchart TB
         end
     end
 
+    %% Web Services Layer (Central API)
+    subgraph API ["Web Services Layer"]
+        API_Routes[REST API / OpenAPI]
+    end
+
     %% Logic & Capability Layer
     subgraph Logic ["Logic & Core Capabilities"]
         direction TB
-        subgraph Func ["Core Logic"]
-            ServerActions[Server Actions]
-            API_Routes[REST & Webhook API]
-        end
         subgraph Caps ["Capabilities"]
             C1[Team/Kader]
             C2[Optimierung]
@@ -95,33 +96,37 @@ flowchart TB
     end
 
     %% Connections
-    User -->|Web Application| UI
-    AI_Agent <-->|MCP Protocol| MCP_Server
+    User -->|HTTPS| UI
+    AI_Agent <-->|SSE / MCP SDK| MCP_Server
     
-    UI <--> ServerActions
-    MCP_Server <--> ServerActions
-    MCP_Server -.-> API_Routes
+    %% Both use REST
+    UI <-->|REST Requests| API_Routes
+    MCP_Server <-->|REST Requests| API_Routes
     
-    ServerActions <--> Caps
     API_Routes <--> Caps
-    
     Caps <--> Prisma
     
-    ServerActions --> Stripe
+    Caps <--> Stripe
     Stripe -- "Webhooks" --> API_Routes
     Caps --> Resend
     
-    %% Styling (Professional Monochrome Palette with Blue Accents)
-    classDef default fill:#ffffff,stroke:#374151,stroke-width:1px;
-    classDef layer fill:#f9fafb,stroke:#9ca3af,stroke-width:2px,stroke-dasharray: 5 5;
-    classDef actor fill:#eff6ff,stroke:#3b82f6,stroke-width:2px;
-    classDef external fill:#f8fafc,stroke:#64748b,stroke-width:1px;
-    classDef capability fill:#f0fdf4,stroke:#16a34a,stroke-width:1px;
+    %% Styling (High Contrast Professional Theme)
+    %% Backgrounds: Solid white or very light grey
+    %% Text: Always dark grey/black (#1a1a1a)
+    %% Borders: Distinct and slightly thicker
+    
+    classDef default fill:#ffffff,stroke:#111827,stroke-width:1px,color:#111827;
+    classDef layer fill:#f3f4f6,stroke:#374151,stroke-width:2px,stroke-dasharray: 5 5,color:#111827;
+    classDef actor fill:#dbeafe,stroke:#1e40af,stroke-width:2px,color:#111827;
+    classDef external fill:#fee2e2,stroke:#991b1b,stroke-width:1px,color:#111827;
+    classDef capability fill:#dcfce7,stroke:#166534,stroke-width:1px,color:#111827;
+    classDef api fill:#fef9c3,stroke:#854d0e,stroke-width:2px,color:#111827;
 
     class Interaction,Logic,Data layer;
     class User,AI_Agent actor;
     class Stripe,Resend external;
     class C1,C2,C3,C4 capability;
+    class API_Routes api;
 ```
 
 ## 📂 Projektstruktur
