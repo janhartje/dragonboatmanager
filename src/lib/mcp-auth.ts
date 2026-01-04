@@ -1,14 +1,19 @@
-import { randomBytes } from 'crypto';
+import { randomBytes, createHash } from 'crypto';
 import prisma from './prisma';
 
 /**
  * Generate a secure API key
- * Format: dbm_live_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx (40 characters total)
+ * Returns the full key (to show once) and the hash (to store)
  */
-export function generateApiKey(): string {
+export function generateApiKey(): { key: string; hash: string, displayKey: string } {
   const prefix = 'dbm_live_';
-  const randomPart = randomBytes(20).toString('hex'); // 40 hex characters
-  return prefix + randomPart;
+  const randomPart = randomBytes(24).toString('hex'); // Increased entropy
+  const key = prefix + randomPart;
+  
+  const hash = createHash('sha256').update(key).digest('hex');
+  const displayKey = `${prefix}...${randomPart.slice(-4)}`;
+
+  return { key, hash, displayKey };
 }
 
 /**
@@ -18,8 +23,10 @@ export function generateApiKey(): string {
  */
 export async function validateApiKey(key: string) {
   try {
+    const hash = createHash('sha256').update(key).digest('hex');
+
     const apiKey = await prisma.apiKey.findUnique({
-      where: { key },
+      where: { hashedKey: hash },
       include: {
         team: {
           select: {
@@ -72,8 +79,8 @@ export async function checkMcpAccess(teamId: string): Promise<boolean> {
       return false;
     }
 
-    // MCP access is only available for PRO and ENTERPRISE teams
-    return team.plan === 'PRO' || team.plan === 'ENTERPRISE';
+    // MCP access is only available for PRO teams
+    return team.plan === 'PRO';
   } catch (error) {
     console.error('Error checking MCP access:', error);
     return false;

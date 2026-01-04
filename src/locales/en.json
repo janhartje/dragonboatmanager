@@ -731,6 +731,10 @@
     "emailPaymentFailedTitle": "Action Required",
     "emailPaymentFailedBody": "We were unable to process your latest payment for the PRO subscription. Please update your payment details to verify your subscription.",
     "emailPaymentFailedAction": "Update Payment Details",
+    "emailPaymentActionRequiredSubject": "Action Required - Payment Information",
+    "emailPaymentActionRequiredTitle": "Confirmation Required",
+    "emailPaymentActionRequiredBody": "Your latest payment requires additional confirmation (3D Secure). Please complete the process to avoid losing PRO benefits.",
+    "emailPaymentActionRequiredAction": "Confirm Payment",
     "emailTrialEndingSubject": "Your trial is ending soon",
     "emailTrialEndingTitle": "Trial Ending Soon",
     "emailTrialEndingBody": "We hope you are enjoying Dragonboat Manager PRO! Your trial period is coming to an end. Your subscription will automatically renew unless canceled.",
@@ -998,6 +1002,7 @@
                 "lost_card": "Your card was reported as lost.",
                 "stolen_card": "Your card was reported as stolen.",
                 "fraudulent": "The payment was flagged as fraudulent.",
+                "missingConfig": "Internal Error: Configuration missing.",
                 "default": "An unexpected error occurred. Please try again."
             }
         },

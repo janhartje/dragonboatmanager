@@ -10,7 +10,7 @@ export async function checkTeamPlan(teamId: string) {
     throw new Error('Team not found');
   }
 
-  const isPro = team.plan === 'PRO' || team.plan === 'ENTERPRISE';
+  const isPro = team.plan === 'PRO';
 
   return {
     isPro,

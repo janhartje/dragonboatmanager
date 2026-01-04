@@ -55,20 +55,5 @@ describe('PaddlerModal', () => {
     expect(form).toHaveAttribute('data-disabled', 'true');
   });
 
-  it('disables invite button when limit is reached', () => {
-    mockUseDrachenboot.mockReturnValue({
-      currentTeam: { plan: 'FREE', maxMembers: 5 },
-      paddlers: [{}, {}, {}, {}, {}], // 5 paddlers (full)
-    });
 
-    render(<PaddlerModal isOpen={true} onClose={mockClose} paddlerToEdit={null} onSave={jest.fn()} t={(k) => k} />);
-    
-    // Switch to Invite tab (requires clicking or finding the invite button if visible)
-    // The component renders Tabs. Assuming "inviteMember" text or button is available to switch.
-    // For simplicity, checking if the condition logic logic inside the component is sound 
-    // requires a bit more navigation in test. 
-    // But we can check specifically for the Invite button if it's rendered or disabled.
-    // Given the complexity of Tabs state in test, checking the Form prop is the strongest signal 
-    // for the "Add" case.
-  });
 });

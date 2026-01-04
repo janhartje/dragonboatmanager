@@ -19,6 +19,8 @@ type InvoiceWithPaymentIntent = Stripe.Invoice & {
 type SubscriptionWithExpansion = Stripe.Subscription & {
   latest_invoice?: InvoiceWithPaymentIntent | string | null;
   pending_setup_intent?: Stripe.SetupIntent | string | null;
+  current_period_end: number;
+  discount?: (Stripe.Discount & { coupon: Stripe.Coupon }) | null;
 };
 
 /**
@@ -292,7 +294,7 @@ export async function createOrResumeSubscription(
   if (!subscription) throw new Error('Failed to create subscription');
 
   // 7. Extract Secret for Frontend Confirmation
-  const { clientSecret, amount, currency } = extractClientSecretFromSubscription(subscription);
+  const { clientSecret, amount, currency } = extractClientSecretFromSubscription(subscription as unknown as SubscriptionWithExpansion);
 
   return {
       subscriptionId: subscription.id,
@@ -374,12 +376,11 @@ export async function getSubscriptionDetails(
       id: subscription.id,
       status: subscription.status,
       cancelAtPeriodEnd: subscription.cancel_at_period_end,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      currentPeriodEnd: (subscription as any).current_period_end,
+      // Cast to custom type to access fields that might be missing in the installed Stripe types
+      currentPeriodEnd: (subscription as unknown as SubscriptionWithExpansion).current_period_end,
       interval: price?.recurring?.interval,
       amount: (() => {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const discount = (subscription as any).discount;
+          const discount = (subscription as unknown as SubscriptionWithExpansion).discount;
           const baseAmount = price?.unit_amount ?? 0;
           if (!discount || !discount.coupon) return baseAmount;
           
@@ -528,7 +529,7 @@ export async function updateSubscriptionStatus(teamId: string, action: 'cancel' 
   throw new Error('Invalid action');
 }
 
-export async function createSetupIntent(teamId: string, userId: string, userEmail: string | null) {
+export async function createSetupIntent(teamId: string, userEmail: string | null) {
       const { customerId } = await getOrCreateCustomer(teamId, userEmail);
 
   const setupIntent = await stripe.setupIntents.create({

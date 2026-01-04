@@ -11,7 +11,7 @@ import { randomUUID } from 'crypto';
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const apiKey = request.headers.get('x-api-key') || body.apiKey; // Check header first
+    const apiKey = request.headers.get('x-api-key'); // Check header only
 
     if (!apiKey || typeof apiKey !== 'string') {
       return NextResponse.json({ error: 'API key is required' }, { status: 401 });

@@ -418,7 +418,7 @@ export default function TeamDetailPage({ params }: { params: Promise<{ id: strin
             ) : activeTab === 'subscription' ? (
               <SubscriptionTab team={team} />
             ) : activeTab === 'api' ? (
-              <ApiAccessTab teamId={team.id} isPro={team.plan === 'PRO' || team.plan === 'ENTERPRISE'} />
+              <ApiAccessTab teamId={team.id} isPro={team.plan === 'PRO'} />
             ) : null}
           </div>
         </div>

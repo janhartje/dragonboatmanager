@@ -732,6 +732,10 @@
     "emailPaymentFailedTitle": "Zahlung erforderlich",
     "emailPaymentFailedBody": "Wir konnten deine letzte Zahlung für das PRO-Abo leider nicht abbuchen. Bitte aktualisiere deine Zahlungsdaten, um weiterhin alle Vorteile nutzen zu können.",
     "emailPaymentFailedAction": "Zahlungsdaten aktualisieren",
+    "emailPaymentActionRequiredSubject": "Handlung erforderlich - Zahlungsinformationen",
+    "emailPaymentActionRequiredTitle": "Bestätigung erforderlich",
+    "emailPaymentActionRequiredBody": "Deine letzte Zahlung benötigt eine zusätzliche Bestätigung (3D Secure). Bitte schließe den Vorgang ab, um die PRO-Vorteile nicht zu verlieren.",
+    "emailPaymentActionRequiredAction": "Zahlung bestätigen",
     "emailTrialEndingSubject": "Deine Testphase endet bald",
     "emailTrialEndingTitle": "Testphase endet bald",
     "emailTrialEndingBody": "Wir hoffen, dir gefällt Drachenboot Manager PRO! Deine Testphase endet in Kürze. Dein Abo wird automatisch verlängert, sofern du nicht kündigst.",
@@ -1000,6 +1004,7 @@
                 "lost_card": "Deine Karte wurde als verloren gemeldet.",
                 "stolen_card": "Deine Karte wurde als gestohlen gemeldet.",
                 "fraudulent": "Die Zahlung wurde als betrügerisch markiert.",
+                "missingConfig": "Interner Fehler: Konfiguration fehlt.",
                 "default": "Ein unerwarteter Fehler ist aufgetreten. Bitte erneut versuchen."
             }
         },

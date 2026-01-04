@@ -114,7 +114,7 @@ export const CheckoutForm = ({
         }
     } else {
         console.error('Missing onSuccess callback');
-        setMessage('Interner Fehler: Konfiguration fehlt.');
+        setMessage(t('pro.stripe.errors.missingConfig'));
     }
 
     setIsLoading(false);

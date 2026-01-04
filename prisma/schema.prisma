@@ -206,7 +206,8 @@ model DismissedInfoCard {
 
 model ApiKey {
   id        String   @id @default(cuid())
-  key       String   @unique
+  hashedKey String   @unique
+  displayKey String   // Partial key for display (e.g. "dbm_...a1b2")
   name      String   // User-friendly name like "Claude Desktop" or "Development"
   teamId    String
   team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
@@ -214,5 +215,5 @@ model ApiKey {
   createdAt DateTime @default(now())
 
   @@index([teamId])
-  @@index([key])
+  @@index([hashedKey])
 }

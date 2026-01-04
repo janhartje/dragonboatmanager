@@ -1,0 +1,3 @@
+-- Placeholder to fix missing migration file error
+-- The column paddlerView exists in DB but was removed from schema.
+-- This file restores the 'history' so we can migrate forward.

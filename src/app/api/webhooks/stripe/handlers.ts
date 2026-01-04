@@ -1,8 +1,16 @@
 import prisma from '@/lib/prisma';
 import Stripe from 'stripe';
 import { sendEmail } from '@/lib/email';
+import { PLAN_LIMITS } from '@/lib/utils';
 import PaymentFailedEmail from '@/emails/templates/PaymentFailedEmail';
 import TrialEndingEmail from '@/emails/templates/TrialEndingEmail';
+import PaymentActionRequiredEmail from '@/emails/templates/PaymentActionRequiredEmail';
+import { t, Language } from '@/emails/utils/i18n';
+
+// Helper to determine language
+function getLanguage(user: { language: string | null } | null): Language {
+  return (user?.language === 'en' ? 'en' : 'de');
+}
 
 export async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) {
   if (!session.metadata?.teamId) {
@@ -16,7 +24,7 @@ export async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Se
       stripeCustomerId: session.customer as string,
       plan: 'PRO',
       subscriptionStatus: 'active',
-      maxMembers: 100,
+      maxMembers: PLAN_LIMITS.PRO,
     },
   });
 
@@ -45,18 +53,20 @@ export async function handleInvoicePaymentSucceeded(invoice: Stripe.Invoice) {
       data: {
         plan: 'PRO',
         subscriptionStatus: 'active',
-        maxMembers: 100,
+        maxMembers: PLAN_LIMITS.PRO,
       }
     });
 
   } else {
-    console.error('Webhook: No team found for customer:', customerId);
+    // Redacted log
+    console.error('Webhook: No team found for customer');
   }
 }
 
 export async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
   const customerId = typeof invoice.customer === 'string' ? invoice.customer : invoice.customer?.id;
-  console.error(`PRO-PAYMENT-FAILED: Payment failed for Customer ${customerId} (Invoice: ${invoice.id})`);
+  // Redacted log
+  console.error(`PRO-PAYMENT-FAILED: Payment failed for Customer (redacted) (Invoice: ${invoice.id})`);
 
   if (customerId) {
     const team = await prisma.team.findFirst({ where: { stripeCustomerId: customerId } });
@@ -65,19 +75,23 @@ export async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
 
       // Find recipient email (Billing User or Team Email)
       let recipientEmail = team.email;
+      let lang: Language = 'de';
+      
       if (team.billingUserId) {
         const billingUser = await prisma.user.findUnique({ where: { id: team.billingUserId } });
         if (billingUser?.email) recipientEmail = billingUser.email;
+        lang = getLanguage(billingUser);
       }
 
       if (recipientEmail) {
         await sendEmail({
           to: recipientEmail,
-          subject: 'Zahlung fehlgeschlagen - Drachenboot Manager',
+          subject: t(lang, 'emailPaymentFailedSubject'),
           template: 'PaymentFailedEmail',
           react: PaymentFailedEmail({
             teamName: team.name,
-            teamId: team.id
+            teamId: team.id,
+            lang
           })
         });
 
@@ -98,7 +112,8 @@ export async function handleSubscriptionUpdated(sub: Stripe.Subscription, eventT
     : await prisma.team.findFirst({ where: { stripeCustomerId: customerId } });
 
   if (!customerTeam) {
-    console.error(`Webhook ${eventType}: No team found for customer ${customerId} or teamId ${teamId}`);
+    // Redacted log
+    console.error(`Webhook ${eventType}: No team found for customer (redacted) or teamId (redacted)`);
     return;
   }
 
@@ -108,7 +123,7 @@ export async function handleSubscriptionUpdated(sub: Stripe.Subscription, eventT
       data: {
         plan: 'PRO',
         subscriptionStatus: sub.status,
-        maxMembers: 100,
+        maxMembers: PLAN_LIMITS.PRO,
         stripeCustomerId: customerId,
       }
     });
@@ -120,7 +135,7 @@ export async function handleSubscriptionUpdated(sub: Stripe.Subscription, eventT
       data: {
         subscriptionStatus: sub.status,
         plan: 'FREE',
-        maxMembers: 25,
+        maxMembers: PLAN_LIMITS.FREE,
       }
     });
 
@@ -138,21 +153,15 @@ export async function handleSubscriptionUpdated(sub: Stripe.Subscription, eventT
 export async function handleSubscriptionDeleted(sub: Stripe.Subscription) {
   const customerId = sub.customer as string;
 
-  const canceledTeams = await prisma.team.findMany({
-    where: { stripeCustomerId: customerId }
+  // Use updateMany to handle multiple teams and avoid race conditions
+  await prisma.team.updateMany({
+    where: { stripeCustomerId: customerId },
+    data: {
+      plan: 'FREE',
+      subscriptionStatus: 'canceled',
+      maxMembers: PLAN_LIMITS.FREE,
+    }
   });
-
-  for (const team of canceledTeams) {
-    await prisma.team.update({
-      where: { id: team.id },
-      data: {
-        plan: 'FREE',
-        subscriptionStatus: 'canceled',
-        maxMembers: 25,
-      }
-    });
-
-  }
 }
 
 export async function handleTrialWillEnd(sub: Stripe.Subscription) {
@@ -162,19 +171,23 @@ export async function handleTrialWillEnd(sub: Stripe.Subscription) {
   const team = await prisma.team.findFirst({ where: { stripeCustomerId: customerId } });
   if (team) {
     let recipientEmail = team.email;
+    let lang: Language = 'de';
+
     if (team.billingUserId) {
       const billingUser = await prisma.user.findUnique({ where: { id: team.billingUserId } });
       if (billingUser?.email) recipientEmail = billingUser.email;
+      lang = getLanguage(billingUser);
     }
 
     if (recipientEmail) {
       await sendEmail({
         to: recipientEmail,
-        subject: 'Deine Testphase endet bald',
+        subject: t(lang, 'emailTrialEndingSubject'),
         template: 'TrialEndingEmail',
         react: TrialEndingEmail({
           teamName: team.name,
-          teamId: team.id
+          teamId: team.id,
+          lang
         })
       });
 
@@ -194,22 +207,23 @@ export async function handleInvoicePaymentActionRequired(invoice: Stripe.Invoice
 
 
       let recipientEmail = team.email;
+      let lang: Language = 'de';
+
       if (team.billingUserId) {
         const billingUser = await prisma.user.findUnique({ where: { id: team.billingUserId } });
         if (billingUser?.email) recipientEmail = billingUser.email;
+        lang = getLanguage(billingUser);
       }
 
       if (recipientEmail) {
         await sendEmail({
           to: recipientEmail,
-          subject: 'Zahlung bestätigt werden - Drachenboot Manager',
-          template: 'PaymentFailedEmail', // Reusing Failed template as it conveys "Action Needed" reasonably well, or create new.
-          // Ideally we create a specific template, but to minimize scope creep we reuse 'failed' with slightly different context if possible, 
-          // or just rely on generic message. For now, reusing failed email is better than nothing, but let's see if we can substitute text.
-          // Actually, let's just use PaymentFailedEmail for now as it prompts user to check billing. 
-          react: PaymentFailedEmail({
+          subject: t(lang, 'emailPaymentActionRequiredSubject'),
+          template: 'PaymentActionRequiredEmail',
+          react: PaymentActionRequiredEmail({
             teamName: team.name,
-            teamId: team.id
+            teamId: team.id,
+            lang
           })
         });
 

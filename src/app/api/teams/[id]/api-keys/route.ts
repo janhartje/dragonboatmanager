@@ -116,10 +116,11 @@ export async function POST(
     }
 
     // Generate and store the API key
-    const key = generateApiKey();
+    const { key, hash, displayKey } = generateApiKey();
     const apiKey = await prisma.apiKey.create({
       data: {
-        key,
+        hashedKey: hash,
+        displayKey,
         name: name.trim(),
         teamId,
       },
@@ -130,7 +131,8 @@ export async function POST(
     return NextResponse.json({
       id: apiKey.id,
       name: apiKey.name,
-      key: apiKey.key, // Only returned on creation!
+      key: key, // Only returned on creation!
+      displayKey: apiKey.displayKey,
       createdAt: apiKey.createdAt,
     });
   } catch (error) {
