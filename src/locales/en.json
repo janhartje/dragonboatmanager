@@ -847,6 +847,7 @@
     "onlyCaptainsCanEditTeam": "Only team captains can edit team settings and manage members.",
     "backToDashboard": "Back to Dashboard",
     "importData": "Import Data",
+    "importType": "Import Type",
     "paddlers": "Paddlers",
     "events": "Events",
     "dragDropOrClick": "Click to upload or Drag & Drop",

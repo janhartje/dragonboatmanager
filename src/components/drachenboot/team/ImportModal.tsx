@@ -293,6 +293,7 @@ export const ImportModal: React.FC<ImportModalProps> = ({
             ]}
             value={activeTab}
             onChange={(val) => { setActiveTab(val as ImportType); setFile(null); setPreviewData([]); setError(null); }}
+            isFullWidth
           />
         </div>
 
