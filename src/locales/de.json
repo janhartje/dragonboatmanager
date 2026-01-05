@@ -163,6 +163,15 @@
             "bugfixes": []
         },
         {
+            "version": "3.4.9",
+            "date": "Januar 2026",
+            "features": [],
+            "technical": [],
+            "bugfixes": [
+                "Fix: Kontostand-Anzeige korrigiert (Guthaben wird jetzt positiv, offene Beträge negativ dargestellt)."
+            ]
+        },
+        {
             "version": "3.4.8",
             "date": "Januar 2026",
             "features": [

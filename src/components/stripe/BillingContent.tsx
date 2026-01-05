@@ -195,7 +195,7 @@ export const BillingContent = ({ team, subscription }: BillingContentProps) => {
                             {t('pro.accountBalance')}
                         </h3>
                         <p className="text-3xl font-black tracking-tight mb-1">
-                            {(subscription.accountBalance / 100).toFixed(2)} {(subscription.currency || 'eur').toUpperCase()}
+                            {(-1 * subscription.accountBalance / 100).toFixed(2)} {(subscription.currency || 'eur').toUpperCase()}
                         </p>
                         
                         {/* Minimum charge warning */}
