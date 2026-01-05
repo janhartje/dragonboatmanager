@@ -149,6 +149,20 @@
     "clBugfixes": "Bug Fixes",
     "changelogData": [
         {
+            "version": "3.5.0",
+            "date": "January 2026",
+            "features": [
+                "SEO Update: Improved sitemap and structured data for better discoverability on Google.",
+                "Google Icon: App icon is now correctly displayed in Google search results.",
+                "Sitemap expanded: All legal and help pages are now indexed."
+            ],
+            "technical": [
+                "Enabled indexing for /docs and /help pages.",
+                "Implemented JSON-LD Structured Data Schema."
+            ],
+            "bugfixes": []
+        },
+        {
             "version": "3.4.9",
             "date": "January 2026",
             "features": [],
