@@ -110,7 +110,7 @@ export async function findExistingSubscription(
   const subscriptions = await stripe.subscriptions.list({
     customer: customerId,
     limit: 10,
-    expand: ['data.latest_invoice.payment_intent', 'data.pending_setup_intent', 'data.default_payment_method', 'data.discount'],
+    expand: ['data.latest_invoice.payment_intent', 'data.pending_setup_intent', 'data.default_payment_method', 'data.discount', 'data.customer'],
   });
   
   // Priority: active/trialing > incomplete > nothing
@@ -342,6 +342,8 @@ export async function getSubscriptionDetails(
   plan: 'FREE' | 'PRO';
   isBillingUser: boolean;
   isCustomer: boolean;
+  accountBalance?: number;
+  currency?: string;
   subscription?: {
     id: string;
     status: string;
@@ -420,13 +422,45 @@ export async function getSubscriptionDetails(
           return baseAmount;
       })(),
       currency: price?.currency,
-      paymentMethod: subscription.default_payment_method && typeof subscription.default_payment_method === 'object' && subscription.default_payment_method.card ? {
-          brand: subscription.default_payment_method.card.brand,
-          last4: subscription.default_payment_method.card.last4,
-          expMonth: subscription.default_payment_method.card.exp_month,
-          expYear: subscription.default_payment_method.card.exp_year,
-      } : null,
+      paymentMethod: (() => {
+        // 1. Try Subscription default payment method
+        const subPM = subscription.default_payment_method;
+        if (subPM && typeof subPM === 'object' && subPM.card) {
+          return {
+            brand: subPM.card.brand,
+            last4: subPM.card.last4,
+            expMonth: subPM.card.exp_month,
+            expYear: subPM.card.exp_year,
+          };
+        }
+        
+        // 2. Fallback: Customer default payment method
+        // Since we expanded 'customer' in findExistingSubscription, we can use it here
+        const customer = subscription.customer;
+        if (customer && typeof customer === 'object' && !('deleted' in customer)) {
+          const custPM = customer.invoice_settings?.default_payment_method;
+          if (custPM && typeof custPM === 'object' && custPM.card) {
+             return {
+              brand: custPM.card.brand,
+              last4: custPM.card.last4,
+              expMonth: custPM.card.exp_month,
+              expYear: custPM.card.exp_year,
+             };
+          }
+        }
+        
+        return null;
+      })(),
     },
+    // Extract Balance
+    accountBalance: (() => {
+        const customer = subscription.customer;
+        if (customer && typeof customer === 'object' && !('deleted' in customer)) {
+            return customer.balance;
+        }
+        return 0;
+    })(),
+    currency: (subscription as unknown as SubscriptionWithExpansion).currency,
   };
 }
 

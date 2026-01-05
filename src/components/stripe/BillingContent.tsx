@@ -24,6 +24,8 @@ export interface SubscriptionData {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         paymentMethod: any;
     } | null;
+    accountBalance?: number;
+    currency?: string;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     history: any[];
 }
@@ -181,6 +183,30 @@ export const BillingContent = ({ team, subscription }: BillingContentProps) => {
                         </div>
                     )}
                     </div>
+
+                {/* Account Balance Section */}
+                {subscription.accountBalance !== undefined && subscription.accountBalance !== 0 && (
+                    <div className={`rounded-xl shadow-sm border p-6 ${
+                        subscription.accountBalance > 0 
+                        ? 'bg-red-50 dark:bg-red-900/10 border-red-200 dark:border-red-900/30 text-red-800 dark:text-red-200' 
+                        : 'bg-green-50 dark:bg-green-900/10 border-green-200 dark:border-green-900/30 text-green-800 dark:text-green-200'
+                    }`}>
+                        <h3 className="text-lg font-bold mb-2 flex items-center gap-2">
+                            {t('pro.accountBalance')}
+                        </h3>
+                        <p className="text-3xl font-black tracking-tight mb-1">
+                            {(subscription.accountBalance / 100).toFixed(2)} {(subscription.currency || 'eur').toUpperCase()}
+                        </p>
+                        
+                        {/* Minimum charge warning */}
+                        {subscription.accountBalance > 0 && subscription.accountBalance < 50 && (
+                            <div className="mt-4 flex gap-3 text-sm bg-white/60 dark:bg-black/20 p-3 rounded-lg border border-red-100 dark:border-red-900/20">
+                                <AlertCircle className="shrink-0 w-5 h-5" />
+                                <p>{t('pro.balanceMinimumNote')}</p>
+                            </div>
+                        )}
+                    </div>
+                )}
 
                 <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
                         <div className="p-6 border-b border-slate-100 dark:border-slate-800">

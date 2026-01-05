@@ -108,6 +108,9 @@
     "helpStartTour": "Start Tour",
     "helpUnderstood": "Understood",
     "close": "Close",
+    "managedByOther": "The subscription is managed by another team member.",
+    "accountBalance": "Account Balance",
+    "balanceMinimumNote": "Open amounts are collected until the minimum charge of €0.50 is reached.",
     "guestAddTitle": "Add Guest",
     "guestName": "Guest Name",
     "weightKg": "Weight (kg)",
@@ -147,6 +150,18 @@
     "clTechnical": "Technical Changes",
     "clBugfixes": "Bug Fixes",
     "changelogData": [
+        {
+            "version": "3.4.8",
+            "date": "January 2026",
+            "features": [
+                "Added account balance display on the billing page.",
+                "Added notice for small open amounts below the minimum charge threshold."
+            ],
+            "technical": [],
+            "bugfixes": [
+                "Fix: Missing payment method for subscriptions with 0€ initial charge is now correctly displayed via fallback to customer data."
+            ]
+        },
         {
             "version": "3.4.7",
             "date": "January 2026",
