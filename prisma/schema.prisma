@@ -177,6 +177,23 @@ model Team {
 
   // iCal Integration
   icalUrl            String?
+  syncLogs           SyncLog[]
+}
+
+model SyncLog {
+  id           String   @id @default(cuid())
+  teamId       String
+  team         Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  status       String   // 'SUCCESS' | 'ERROR'
+  createdCount Int
+  updatedCount Int
+  deletedCount Int      @default(0)
+  details      String[]
+  error        String?  @db.Text
+  createdAt    DateTime @default(now())
+
+  @@index([teamId])
+  @@index([createdAt])
 }
 
 model EmailQueue {

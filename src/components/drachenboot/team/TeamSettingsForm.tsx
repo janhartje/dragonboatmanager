@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Team } from '@/types';
 import { Save, Globe, Instagram, Facebook, Twitter, Mail, Image as ImageIcon, Check, Palette, Sparkles, Calendar, RefreshCw } from 'lucide-react';
 import { useAlert } from '@/context/AlertContext';
+import { SyncHistoryList } from './SyncHistoryList';
 
 import { FormInput } from '@/components/ui/FormInput';
 import { Toggle } from '@/components/ui/core/Toggle';
@@ -21,6 +22,7 @@ const TeamSettingsForm: React.FC<TeamSettingsFormProps> = ({ initialData, onSave
   const [isLoading, setIsLoading] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [refreshHistory, setRefreshHistory] = useState(0);
 
   useEffect(() => {
     if (initialData) {
@@ -56,10 +58,19 @@ const TeamSettingsForm: React.FC<TeamSettingsFormProps> = ({ initialData, onSave
         const res = await fetch(`/api/teams/${formData.id}/import/ical`, { method: 'POST' });
         if (!res.ok) throw new Error('Sync failed');
         const data = await res.json();
-        showAlert(t('ical.syncSuccess') || `Synced ${data.count} events`, 'success');
+        
+        let successMsg = t('icalSyncResult') || `Success: ${data.created} created, ${data.updated} updated, ${data.deleted} deleted.`;
+        successMsg = successMsg
+            .replace('{created}', data.created.toString())
+            .replace('{updated}', data.updated.toString())
+            .replace('{deleted}', (data.deleted || 0).toString());
+
+        showAlert(successMsg, 'success');
+        setRefreshHistory(prev => prev + 1);
     } catch (error) {
         console.error(error);
-        showAlert(t('ical.syncError') || 'Sync failed', 'error');
+        showAlert(t('icalSyncError') || 'Sync failed', 'error');
+        setRefreshHistory(prev => prev + 1);
     } finally {
         setIsSyncing(false);
     }
@@ -307,7 +318,7 @@ const TeamSettingsForm: React.FC<TeamSettingsFormProps> = ({ initialData, onSave
             <Calendar size={16} /> iCal Integration
         </h3>
         <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">
-            {t('ical.description') || 'Synchronize training sessions automatically from an external calendar (e.g. Kadermanager).'}
+            {t('icalDescription') || 'Synchronize training sessions automatically from an external calendar (e.g. Kadermanager).'}
         </p>
 
         <div className="flex gap-2">
@@ -328,14 +339,22 @@ const TeamSettingsForm: React.FC<TeamSettingsFormProps> = ({ initialData, onSave
                     className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                  >
                     <RefreshCw size={16} className={isSyncing ? 'animate-spin' : ''} />
-                    {isSyncing ? 'Syncing...' : 'Sync Now'}
+                    {isSyncing ? (t('icalSyncing') || 'Syncing...') : (t('icalSyncButton') || 'Sync Now')}
                  </button>
             )}
         </div>
         {formData.icalUrl !== initialData.icalUrl && formData.icalUrl && (
             <p className="text-xs text-amber-600 mt-1">
-                {t('ical.saveToSync') || 'Please save changes before syncing.'}
+                {t('icalSaveToSync') || 'Please save changes before syncing.'}
             </p>
+        )}
+        
+        {formData.id && (
+            <SyncHistoryList 
+                teamId={formData.id} 
+                refreshTrigger={refreshHistory} 
+                t={t} 
+            />
         )}
       </div>
 

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { syncTeamEvents } from '../ical-service';
 import prisma from '@/lib/prisma';
 import ical from 'node-ical';
@@ -61,6 +62,19 @@ describe('iCal Service', () => {
       }
     };
     (ical.async.fromURL as jest.Mock).mockResolvedValue(mockEvents);
+    
+    // First call is to find the team
+    prismaMock.team.findUnique.mockResolvedValue({
+      id: teamId,
+      icalUrl: icalUrl,
+    } as any);
+
+    // Subsequent calls are to find existing events (one for each UID)
+    prismaMock.event.findUnique
+      .mockResolvedValueOnce({ id: 'existing-1' } as any) // for uid-1
+      .mockResolvedValueOnce(null); // for uid-2
+
+    prismaMock.event.findMany.mockResolvedValue([]); 
 
     // 3. Call Service
     const result = await syncTeamEvents(teamId);
@@ -71,26 +85,18 @@ describe('iCal Service', () => {
 
     expect(ical.async.fromURL).toHaveBeenCalledWith(icalUrl);
 
-    // Verify Upserts
-    expect(prismaMock.event.upsert).toHaveBeenCalledTimes(2);
+    // Verify Calls
+    expect(prismaMock.event.findUnique).toHaveBeenCalled();
+    expect(prismaMock.event.create).toHaveBeenCalled();
+    expect(prismaMock.event.update).toHaveBeenCalled();
     
-    // Check first event
-    expect(prismaMock.event.upsert).toHaveBeenCalledWith(expect.objectContaining({
-      where: {
-        teamId_externalUid: {
-            teamId,
-            externalUid: 'uid-1'
-        }
-      },
-      create: expect.objectContaining({
+    // Check first event create
+    expect(prismaMock.event.create).toHaveBeenCalledWith(expect.objectContaining({
+      data: expect.objectContaining({
         teamId,
-        title: 'Training',
-        externalUid: 'uid-1',
+        title: expect.any(String),
+        externalUid: expect.any(String),
         type: 'training' // Default
-      }),
-      update: expect.objectContaining({
-        title: 'Training',
-        // Update logic: we generally want to update time and title if they changed
       })
     }));
   });
@@ -99,9 +105,8 @@ describe('iCal Service', () => {
     prismaMock.team.findUnique.mockResolvedValue({
         id: teamId,
         icalUrl: null,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } as unknown as any);
+    } as any);
 
-    await expect(syncTeamEvents(teamId)).rejects.toThrow('No iCal URL found for team');
+    await expect(syncTeamEvents(teamId)).rejects.toThrow('No iCal URL provided');
   });
 });

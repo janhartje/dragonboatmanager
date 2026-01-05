@@ -3,6 +3,10 @@
         {
             "path": "/api/cron/mail-queue",
             "schedule": "0 4 * * *"
+        },
+        {
+            "path": "/api/cron/ical-sync",
+            "schedule": "0 3 * * *"
         }
     ]
 }

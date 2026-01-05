@@ -149,6 +149,21 @@
     "clBugfixes": "Fehlerbehebungen",
     "changelogData": [
         {
+            "version": "3.6.0",
+            "date": "Januar 2026",
+            "features": [
+                "iCal Integration: Synchronisiere dein Team automatisch mit externen Kalendern (z.B. Kadermanager).",
+                "Sync-Historie: Detaillierte Protokolle über alle Synchronisationsvorgänge direkt in den Team-Einstellungen einsehbar.",
+                "Automatischer Sync: Tägliche Aktualisierung der Termine im Hintergrund.",
+                "Hilfe-Center optimiert: Dokumentation für den iCal-Sync in den Bereich 'Termine verwalten' verschoben."
+            ],
+            "technical": [
+                "Neues Sync-Logging-System zur besseren Fehlerdiagnose.",
+                "Optimierte iCal-Verarbeitung für stabilere Synchronisation."
+            ],
+            "bugfixes": []
+        },
+        {
             "version": "3.5.0",
             "date": "Januar 2026",
             "features": [
@@ -727,6 +742,11 @@
     "helpImport1": "Klicke auf 'Import' in der Team-Kopfzeile",
     "helpImport2": "Lade die passende Vorlage (Paddler/Termine) herunter",
     "helpImport3": "Lade deine Datei hoch (.xlsx oder .csv) - Rollen wie Steuer/Trommel werden automatisch erkannt",
+    "helpIcalTitle": "Kalender-Sync (iCal)",
+    "helpIcalDesc": "Synchronisiere dein Team automatisch mit einem externen Kalender (z.B. Kadermanager). Du findest diese Option in den Team-Einstellungen.",
+    "helpIcal1": "Füge die iCal-URL deines Kalenders in den Einstellungen ein.",
+    "helpIcal2": "Der Sync läuft automatisch nachts oder kann manuell gestartet werden.",
+    "helpIcalWarning": "Wichtig: Termine, die im externen Kalender gelöscht wurden, werden beim nächsten Sync auch aus der App entfernt.",
     "helpContextPlanner": "Planer",
     "helpContextHome": "Startseite",
     "errorUserNotFound": "Benutzer nicht gefunden. Bitte ihn/sie, sich erst zu registrieren.",
@@ -798,6 +818,29 @@
     "emailAlreadyInvited": "Diese E-Mail wurde bereits eingeladen",
     "inviteError": "Einladung fehlgeschlagen",
     "pending": "Ausstehend",
+    "icalDescription": "Synchronisiere Trainingstermine automatisch von einem externen Kalender (z.B. Kadermanager).",
+    "icalSaveToSync": "Bitte speichere die Änderungen vor dem Synchronisieren.",
+    "icalSyncSuccess": "Synchronisation erfolgreich",
+    "icalSyncResult": "Erfolg: {created} erstellt, {updated} aktualisiert, {deleted} gelöscht.",
+    "icalSyncDeleted": "gelöscht",
+    "icalSyncError": "Synchronisation fehlgeschlagen",
+    "icalSyncHistory": "Synchronisations-Verlauf",
+    "icalSyncPage": "Seite",
+    "icalSyncOf": "von",
+    "icalSyncPrev": "Zurück",
+    "icalSyncNext": "Weiter",
+    "icalSyncNoLogs": "Kein Synchronisierungsverlauf verfügbar.",
+    "icalSyncErrorDetails": "Fehlerdetails",
+    "icalSyncDetails": "Protokoll",
+    "icalSyncLogTitle": "Synchronisations-Details",
+    "icalSyncClose": "Schließen",
+    "icalSyncStatusSuccess": "Erfolg",
+    "icalSyncStatusError": "Fehler",
+    "icalSyncButton": "Jetzt synchronisieren",
+    "icalSyncing": "Synchronisiere...",
+    "icalSyncCreated": "erstellt",
+    "icalSyncUpdated": "aktualisiert",
+    "icalSyncUnknownError": "Unbekannter Fehler",
     "onboardingTitle": "Willkommen im Team!",
     "onboardingBody": "Damit dein Trainer das Boot optimal planen und ausbalancieren kann, benötigen wir noch ein paar Angaben von dir.",
     "weightReason": "Dein Gewicht ist nur für dich und den Trainer sichtbar. Es ist essentiell für die Berechnung der Balance (Trim) des Bootes.",

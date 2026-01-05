@@ -143,6 +143,47 @@
                 }
             }
         },
+        "/api/cron/ical-sync": {
+            "get": {
+                "summary": "Trigger iCal Sync (Cron)",
+                "description": "Triggers automated iCal synchronization for all teams. Requires CRON_SECRET token.",
+                "tags": [
+                    "Cron",
+                    "iCal"
+                ],
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Sync completed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean"
+                                        },
+                                        "results": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized - Missing or invalid CRON_SECRET"
+                    }
+                }
+            }
+        },
         "/api/mcp": {
             "post": {
                 "summary": "Execute MCP Tool",
@@ -851,6 +892,139 @@
                                 }
                             }
                         }
+                    }
+                }
+            }
+        },
+        "/api/teams/{id}/import/ical": {
+            "post": {
+                "summary": "Trigger Manual iCal Sync",
+                "description": "Triggers an immediate iCal sync for the team. Requires CAPTAIN role.",
+                "tags": [
+                    "Teams",
+                    "iCal"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "Team ID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Sync successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean"
+                                        },
+                                        "created": {
+                                            "type": "integer"
+                                        },
+                                        "updated": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Sync failed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/teams/{id}/sync-history": {
+            "get": {
+                "summary": "Get Sync History",
+                "description": "Fetches iCal synchronization history for a team. Requires CAPTAIN role.",
+                "tags": [
+                    "Teams",
+                    "iCal"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "Team ID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Page number (default 1)",
+                        "schema": {
+                            "type": "integer",
+                            "default": 1
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "description": "Items per page (default 10)",
+                        "schema": {
+                            "type": "integer",
+                            "default": 10
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Sync history list",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/SyncLog"
+                                            }
+                                        },
+                                        "pagination": {
+                                            "type": "object",
+                                            "properties": {
+                                                "total": {
+                                                    "type": "integer"
+                                                },
+                                                "page": {
+                                                    "type": "integer"
+                                                },
+                                                "limit": {
+                                                    "type": "integer"
+                                                },
+                                                "totalPages": {
+                                                    "type": "integer"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden"
                     }
                 }
             }
@@ -3206,6 +3380,44 @@
                         }
                     }
                 }
+            },
+            "SyncLog": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "teamId": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "SUCCESS",
+                            "ERROR"
+                        ]
+                    },
+                    "createdCount": {
+                        "type": "integer"
+                    },
+                    "updatedCount": {
+                        "type": "integer"
+                    },
+                    "error": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "required": [
+                    "id",
+                    "teamId",
+                    "status",
+                    "createdAt"
+                ]
             },
             "Error": {
                 "type": "object",

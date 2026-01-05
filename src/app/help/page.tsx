@@ -157,19 +157,31 @@ export default function HelpPage() {
                  <span className="text-slate-400 group-open:rotate-180 transition-transform">▼</span>
                </summary>
                <div className="px-6 pb-6 text-slate-600 dark:text-slate-400 text-sm leading-relaxed border-t border-slate-100 dark:border-slate-800 pt-6 space-y-6">
-                   <ul className="list-disc list-inside space-y-1 ml-1">
-                      <li>{t('helpManageEvents1')}</li>
-                      <li>{t('helpManageEvents2')}</li>
-                      <li>{t('helpManageEvents3')}</li>
-                   </ul>
-                   <div>
-                      <h4 className="font-bold text-slate-900 dark:text-white mb-2">{t('helpMembers')}</h4>
+                    <ul className="list-disc list-inside space-y-1 ml-1">
+                       <li>{t('helpManageEvents1')}</li>
+                       <li>{t('helpManageEvents2')}</li>
+                       <li>{t('helpManageEvents3')}</li>
+                    </ul>
+
+                    {/* iCal Sync */}
+                    <div>
+                      <h4 className="font-bold text-slate-900 dark:text-white mb-2">{t('helpIcalTitle')}</h4>
+                      <p className="mb-2">{t('helpIcalDesc')}</p>
                       <ul className="list-disc list-inside space-y-1 ml-1">
-                        <li>{t('helpMembers1')}</li>
-                        <li>{t('helpMembers2')}</li>
-                        <li>{t('helpMembers3')}</li>
+                        <li>{t('helpIcal1')}</li>
+                        <li>{t('helpIcal2')}</li>
+                        <li><span className="font-bold text-amber-600 dark:text-amber-400">{t('helpIcalWarning')}</span></li>
                       </ul>
-                   </div>
+                    </div>
+
+                    <div>
+                       <h4 className="font-bold text-slate-900 dark:text-white mb-2">{t('helpMembers')}</h4>
+                       <ul className="list-disc list-inside space-y-1 ml-1">
+                         <li>{t('helpMembers1')}</li>
+                         <li>{t('helpMembers2')}</li>
+                         <li>{t('helpMembers3')}</li>
+                       </ul>
+                    </div>
                </div>
             </details>
 

@@ -149,6 +149,21 @@
     "clBugfixes": "Bug Fixes",
     "changelogData": [
         {
+            "version": "3.6.0",
+            "date": "January 2026",
+            "features": [
+                "iCal Integration: Automatically sync your team with external calendars (e.g., Kadermanager).",
+                "Sync History: Detailed logs for all sync runs are now viewable directly in Team Settings.",
+                "Automatic Sync: Daily background updates for your events.",
+                "Help Center Optimized: iCal sync documentation moved to 'Manage Events' for better discoverability."
+            ],
+            "technical": [
+                "New sync logging system for improved diagnostics.",
+                "Optimized iCal processing for more stable synchronization."
+            ],
+            "bugfixes": []
+        },
+        {
             "version": "3.5.0",
             "date": "January 2026",
             "features": [
@@ -725,6 +740,11 @@
     "helpImport1": "Click 'Import' in the team header",
     "helpImport2": "Download the appropriate template (Paddlers/Events)",
     "helpImport3": "Upload your file (.xlsx or .csv) - Roles like Steer/Drum are automatically detected",
+    "helpIcalTitle": "Calendar Sync (iCal)",
+    "helpIcalDesc": "Automatically sync your team with an external calendar (e.g. Kadermanager). You can find this option in Team Settings.",
+    "helpIcal1": "Paste the iCal URL of your calendar in the settings.",
+    "helpIcal2": "Sync runs automatically at night or can be triggered manually.",
+    "helpIcalWarning": "Important: Events deleted in the external calendar will also be removed from the app during the next sync.",
     "helpContextPlanner": "Planner",
     "helpContextHome": "Home",
     "errorUserNotFound": "User not found. Please ask them to sign up first.",
@@ -798,6 +818,29 @@
     "onboardingTitle": "Welcome to the Team!",
     "onboardingBody": "To help your coach plan and balance the boat optimally, we need a few details from you.",
     "weightReason": "Your weight is visible only to you and the coach. It is essential for calculating the boat's balance (trim).",
+    "icalDescription": "Synchronize training sessions automatically from an external calendar (e.g. Kadermanager).",
+    "icalSaveToSync": "Please save changes before syncing.",
+    "icalSyncSuccess": "Sync successful",
+    "icalSyncResult": "Success: {created} created, {updated} updated, {deleted} deleted.",
+    "icalSyncDeleted": "deleted",
+    "icalSyncError": "Sync failed",
+    "icalSyncHistory": "Sync History",
+    "icalSyncPage": "Page",
+    "icalSyncOf": "of",
+    "icalSyncPrev": "Previous",
+    "icalSyncNext": "Next",
+    "icalSyncNoLogs": "No sync history available.",
+    "icalSyncErrorDetails": "Error Details",
+    "icalSyncDetails": "Log",
+    "icalSyncLogTitle": "Sync Details",
+    "icalSyncClose": "Close",
+    "icalSyncStatusSuccess": "Success",
+    "icalSyncStatusError": "Error",
+    "icalSyncButton": "Sync Now",
+    "icalSyncing": "Syncing...",
+    "icalSyncCreated": "created",
+    "icalSyncUpdated": "updated",
+    "icalSyncUnknownError": "Unknown error",
     "skillsReason": "Your preferred position (left/right/drum/steer) helps with creating the seating plan.",
     "nameRequired": "Name is required.",
     "weightRequired": "Please provide a valid weight.",
