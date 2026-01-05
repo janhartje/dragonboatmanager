@@ -108,6 +108,9 @@
     "helpStartTour": "Tour starten",
     "helpUnderstood": "Verstanden",
     "close": "Schließen",
+    "managedByOther": "Das Abonnement wird von einem anderen Teammitglied verwaltet.",
+    "accountBalance": "Kontostand",
+    "balanceMinimumNote": "Offene Beträge werden gesammelt, bis der Mindestbetrag von 0,50 € erreicht ist.",
     "guestAddTitle": "Gast hinzufügen",
     "guestName": "Gast Name",
     "weightKg": "Gewicht (kg)",
@@ -147,6 +150,18 @@
     "clTechnical": "Technische Änderungen",
     "clBugfixes": "Fehlerbehebungen",
     "changelogData": [
+        {
+            "version": "3.4.8",
+            "date": "Januar 2026",
+            "features": [
+                "Anzeige des aktuellen Kontostands auf der Abrechnungsseite hinzugefügt.",
+                "Hinweis bei kleinen offenen Beträgen unter der Mindestbuchungsmenge."
+            ],
+            "technical": [],
+            "bugfixes": [
+                "Fix: Fehlende Zahlungsmethode bei Abos mit 0€ Startbetrag wird nun durch Fallback auf Kunden-Daten korrekt angezeigt."
+            ]
+        },
         {
             "version": "3.4.7",
             "date": "Januar 2026",
