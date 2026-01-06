@@ -22,17 +22,21 @@ export async function GET(req: NextRequest) {
     }
   });
 
-  const results = [];
-
-  for (const team of teams) {
+  // Sync in parallel with Promise.allSettled to ensure one failure doesn't stop others
+  const promises = teams.map(async (team) => {
     try {
       const result = await syncTeamEvents(team.id);
-      results.push({ team: team.name, ...result });
+      return { team: team.name, ...result };
     } catch (error) {
        console.error(`Failed to sync team ${team.name}:`, error);
-       results.push({ team: team.name, success: false, error: error instanceof Error ? error.message : 'Unknown error' });
+       return { team: team.name, success: false, error: error instanceof Error ? error.message : 'Unknown error' };
     }
-  }
+  });
+
+  const results = (await Promise.allSettled(promises)).map(p => {
+    if (p.status === 'fulfilled') return p.value;
+    return { success: false, error: 'Promise rejected' }; // Should not happen with try-catch block above
+  });
 
   return Response.json({ success: true, results });
 }

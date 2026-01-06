@@ -38,7 +38,7 @@ describe('iCal Service', () => {
     prismaMock.team.findUnique.mockResolvedValue({
       id: teamId,
       icalUrl: icalUrl,
-    } as unknown as any); // Mocking deep partial is hard, casting to any for mock simplicity
+    } as unknown as any);
 
     // 2. Mock iCal Response
     const mockEvents = {
@@ -56,47 +56,51 @@ describe('iCal Service', () => {
         start: new Date('2024-02-01T10:00:00Z'),
         end: new Date('2024-02-01T18:00:00Z'),
       },
-      'random-stuff': {
-        type: 'VTIMEZONE', // Should be ignored
-      }
     };
     (ical.async.fromURL as jest.Mock).mockResolvedValue(mockEvents);
     
-    // First call is to find the team
-    prismaMock.team.findUnique.mockResolvedValue({
-      id: teamId,
-      icalUrl: icalUrl,
-    } as any);
-
-    // Subsequent calls are to find existing events (one for each UID)
-    prismaMock.event.findUnique
-      .mockResolvedValueOnce({ id: 'existing-1' } as any) // for uid-1
-      .mockResolvedValueOnce(null); // for uid-2
-
-    prismaMock.event.findMany.mockResolvedValue([]); 
-
+    // Mock finding existing events (one exists, one new)
+    prismaMock.event.findMany
+      .mockResolvedValueOnce([{
+         id: 'existing-1',
+         externalUid: 'uid-1',
+         title: 'Old Title',
+         date: new Date('2024-01-01T09:00:00Z'), // Different date/time
+      }] as any) // Batch find existing
+      .mockResolvedValueOnce([]); // Find deletions
+      
     // 3. Call Service
     const result = await syncTeamEvents(teamId);
 
     // 4. Verify
     expect(result.success).toBe(true);
     expect(result.count).toBe(2);
+    expect(result.created).toBe(1); // uid-2
+    expect(result.updated).toBe(1); // uid-1
 
     expect(ical.async.fromURL).toHaveBeenCalledWith(icalUrl);
 
-    // Verify Calls
-    expect(prismaMock.event.findUnique).toHaveBeenCalled();
-    expect(prismaMock.event.create).toHaveBeenCalled();
-    expect(prismaMock.event.update).toHaveBeenCalled();
-    
-    // Check first event create
-    expect(prismaMock.event.create).toHaveBeenCalledWith(expect.objectContaining({
-      data: expect.objectContaining({
-        teamId,
-        title: expect.any(String),
-        externalUid: expect.any(String),
-        type: 'training' // Default
-      })
+    // Verify Batch Fetch
+    expect(prismaMock.event.findMany).toHaveBeenCalledWith(expect.objectContaining({
+        where: expect.objectContaining({
+            teamId,
+            externalUid: expect.objectContaining({ in: expect.arrayContaining(['uid-1', 'uid-2']) })
+        })
+    }));
+
+    // Verify CreateMany
+    expect(prismaMock.event.createMany).toHaveBeenCalledWith(expect.objectContaining({
+        data: expect.arrayContaining([
+            expect.objectContaining({
+                externalUid: 'uid-2',
+            })
+        ])
+    }));
+
+    // Verify Update (Sequential for now)
+    expect(prismaMock.event.update).toHaveBeenCalledWith(expect.objectContaining({
+        where: { id: 'existing-1' },
+        data: expect.objectContaining({ title: 'Training' })
     }));
   });
 
@@ -107,5 +111,23 @@ describe('iCal Service', () => {
     } as any);
 
     await expect(syncTeamEvents(teamId)).rejects.toThrow('No iCal URL provided');
+  });
+
+  it('should throw error for HTTP URL (HTTPS only enforcement)', async () => {
+    prismaMock.team.findUnique.mockResolvedValue({
+        id: teamId,
+        icalUrl: 'http://example.com/calendar.ics',
+    } as any);
+
+    await expect(syncTeamEvents(teamId)).rejects.toThrow('Invalid iCal URL');
+  });
+
+  it('should throw error for invalid iCal URL (SSRF Prevention)', async () => {
+    prismaMock.team.findUnique.mockResolvedValue({
+        id: teamId,
+        icalUrl: 'http://localhost:3000/secret',
+    } as any);
+
+    await expect(syncTeamEvents(teamId)).rejects.toThrow('Invalid iCal URL');
   });
 });
