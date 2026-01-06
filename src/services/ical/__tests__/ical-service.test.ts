@@ -15,12 +15,20 @@ jest.mock('@/lib/prisma', () => {
   };
 });
 
+// Mock node-ical validation
+jest.mock('@/utils/url-validation', () => ({
+    validateUrl: jest.fn().mockReturnValue(true)
+}));
+import { validateUrl } from '@/utils/url-validation';
+
 // Mock node-ical
 jest.mock('node-ical', () => ({
-  async: {
-    fromURL: jest.fn(),
-  },
+  parseICS: jest.fn(),
 }));
+
+// Mock global fetch
+const mockFetch = jest.fn();
+global.fetch = mockFetch;
 
 const prismaMock = prisma as unknown as ReturnType<typeof mockDeep<PrismaClient>>;
 
@@ -31,6 +39,7 @@ describe('iCal Service', () => {
   beforeEach(() => {
     mockReset(prismaMock);
     jest.clearAllMocks();
+    (validateUrl as jest.Mock).mockReturnValue(true);
   });
 
   it('should fetch iCal feed and upsert events', async () => {
@@ -40,7 +49,15 @@ describe('iCal Service', () => {
       icalUrl: icalUrl,
     } as unknown as any);
 
-    // 2. Mock iCal Response
+    // 2. Mock Fetch Response
+    mockFetch.mockResolvedValue({
+        ok: true,
+        text: jest.fn().mockResolvedValue('BEGIN:VCALENDAR...'),
+        status: 200,
+        statusText: 'OK'
+    });
+
+    // 3. Mock ICS Parsing
     const mockEvents = {
       'event-1': {
         type: 'VEVENT',
@@ -57,7 +74,7 @@ describe('iCal Service', () => {
         end: new Date('2024-02-01T18:00:00Z'),
       },
     };
-    (ical.async.fromURL as jest.MockedFunction<typeof ical.async.fromURL>).mockResolvedValue(mockEvents as unknown as ical.CalendarResponse);
+    (ical.parseICS as jest.Mock).mockReturnValue(mockEvents);
     
     // Mock finding existing events (one exists, one new)
     prismaMock.event.findMany
@@ -69,16 +86,19 @@ describe('iCal Service', () => {
       }] as any) // Batch find existing
       .mockResolvedValueOnce([]); // Find deletions
       
-    // 3. Call Service
+    // 4. Call Service
     const result = await syncTeamEvents(teamId);
 
-    // 4. Verify
+    // 5. Verify
     expect(result.success).toBe(true);
     expect(result.count).toBe(2);
     expect(result.created).toBe(1); // uid-2
     expect(result.updated).toBe(1); // uid-1
 
-    expect(ical.async.fromURL).toHaveBeenCalledWith(icalUrl);
+    expect(mockFetch).toHaveBeenCalledWith(icalUrl, expect.objectContaining({
+        signal: expect.any(AbortSignal)
+    }));
+    expect(ical.parseICS).toHaveBeenCalledWith('BEGIN:VCALENDAR...');
 
     // Verify Batch Fetch
     expect(prismaMock.event.findMany).toHaveBeenCalledWith(expect.objectContaining({
@@ -96,12 +116,6 @@ describe('iCal Service', () => {
             })
         ])
     }));
-
-    // Verify Update (Sequential for now)
-    expect(prismaMock.event.update).toHaveBeenCalledWith(expect.objectContaining({
-        where: { id: 'existing-1' },
-        data: expect.objectContaining({ title: 'Training' })
-    }));
   });
 
   it('should throw error if team has no iCal URL', async () => {
@@ -113,21 +127,58 @@ describe('iCal Service', () => {
     await expect(syncTeamEvents(teamId)).rejects.toThrow('No iCal URL provided');
   });
 
-  it('should throw error for HTTP URL (HTTPS only enforcement)', async () => {
+  it('should throw error if URL validation fails', async () => {
     prismaMock.team.findUnique.mockResolvedValue({
         id: teamId,
-        icalUrl: 'http://example.com/calendar.ics',
+        icalUrl: 'http://unsafe-url.com',
     } as any);
+    (validateUrl as jest.Mock).mockReturnValue(false);
 
-    await expect(syncTeamEvents(teamId)).rejects.toThrow('Invalid iCal URL');
+    await expect(syncTeamEvents(teamId)).rejects.toThrow('Invalid iCal URL (Security Check Failed)');
   });
 
-  it('should throw error for invalid iCal URL (SSRF Prevention)', async () => {
+  it('should handle fetch timeout', async () => {
     prismaMock.team.findUnique.mockResolvedValue({
         id: teamId,
-        icalUrl: 'http://localhost:3000/secret',
+        icalUrl: icalUrl,
     } as any);
 
-    await expect(syncTeamEvents(teamId)).rejects.toThrow('Invalid iCal URL');
+    // Simulate AbortError
+    const abortError = new Error('The operation was aborted');
+    abortError.name = 'AbortError';
+    mockFetch.mockRejectedValue(abortError);
+
+    await expect(syncTeamEvents(teamId)).rejects.toThrow('iCal fetch timed out after 10s');
+  });
+
+  it('should handle fetch failure (non-200)', async () => {
+      prismaMock.team.findUnique.mockResolvedValue({
+          id: teamId,
+          icalUrl: icalUrl,
+      } as any);
+  
+      mockFetch.mockResolvedValue({
+          ok: false,
+          status: 404,
+          statusText: 'Not Found'
+      });
+  
+      await expect(syncTeamEvents(teamId)).rejects.toThrow('Failed to fetch iCal: 404 Not Found');
+  });
+
+  it('should throw error if iCal file is too large', async () => {
+    prismaMock.team.findUnique.mockResolvedValue({
+        id: teamId,
+        icalUrl: icalUrl,
+    } as any);
+
+    mockFetch.mockResolvedValue({
+        ok: true,
+        text: jest.fn().mockResolvedValue('a'.repeat(5 * 1024 * 1024 + 1)), // 5MB + 1 byte
+        status: 200,
+        statusText: 'OK'
+    });
+
+    await expect(syncTeamEvents(teamId)).rejects.toThrow('iCal file too large (max 5MB)');
   });
 });

@@ -1,4 +1,5 @@
 import prisma from '@/lib/prisma';
+import { Prisma } from '@prisma/client';
 import ical from 'node-ical';
 import { validateUrl } from '@/utils/url-validation';
 
@@ -24,8 +25,33 @@ export async function syncTeamEvents(teamId: string, icalUrl?: string) {
         throw new Error('Invalid iCal URL (Security Check Failed)');
     }
 
-    // Fetch and parse iCal
-    const events = await ical.async.fromURL(urlToUse);
+    // Fetch and parse iCal with timeout
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 10000); // 10s timeout
+
+    let events: ical.CalendarResponse;
+    try {
+        const response = await fetch(urlToUse, { signal: controller.signal });
+        if (!response.ok) {
+            throw new Error(`Failed to fetch iCal: ${response.status} ${response.statusText}`);
+        }
+        const text = await response.text();
+        
+        // Safety: Prevent processing excessively large files (limit to 5MB)
+        if (text.length > 5 * 1024 * 1024) {
+            throw new Error('iCal file too large (max 5MB)');
+        }
+
+        events = ical.parseICS(text);
+    } catch (error: unknown) {
+        if (error instanceof Error && error.name === 'AbortError') {
+             throw new Error('iCal fetch timed out after 10s');
+        }
+        throw error;
+    } finally {
+        clearTimeout(timeout);
+    }
+
     let createdCount = 0;
     let updatedCount = 0;
 
@@ -64,8 +90,8 @@ export async function syncTeamEvents(teamId: string, icalUrl?: string) {
 
     const existingMap = new Map(existingEvents.map(e => [e.externalUid, e]));
     
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const eventsToCreate: any[] = [];
+    // Use correct Prisma input type
+    const eventsToCreate: Prisma.EventCreateManyInput[] = [];
     const eventsToUpdate: { id: string, title: string, date: Date }[] = [];
 
     for (const p of parsedEvents) {
