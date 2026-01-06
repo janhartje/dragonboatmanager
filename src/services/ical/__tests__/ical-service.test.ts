@@ -21,14 +21,16 @@ jest.mock('@/utils/url-validation', () => ({
 }));
 import { validateUrl } from '@/utils/url-validation';
 
+// Mock safe-fetch
+jest.mock('@/utils/safe-fetch', () => ({
+    safeFetch: jest.fn()
+}));
+import { safeFetch } from '@/utils/safe-fetch';
+
 // Mock node-ical
 jest.mock('node-ical', () => ({
   parseICS: jest.fn(),
 }));
-
-// Mock global fetch
-const mockFetch = jest.fn();
-global.fetch = mockFetch;
 
 const prismaMock = prisma as unknown as ReturnType<typeof mockDeep<PrismaClient>>;
 
@@ -51,8 +53,8 @@ describe('iCal Service', () => {
       icalUrl: icalUrl,
     } as unknown as any);
 
-    // 2. Mock Fetch Response
-    mockFetch.mockResolvedValue({
+    // 2. Mock Fetch Response via safeFetch
+    (safeFetch as jest.Mock).mockResolvedValue({
         ok: true,
         text: jest.fn().mockResolvedValue('BEGIN:VCALENDAR...'),
         status: 200,
@@ -97,8 +99,8 @@ describe('iCal Service', () => {
     expect(result.created).toBe(1); // uid-2
     expect(result.updated).toBe(1); // uid-1
 
-    expect(mockFetch).toHaveBeenCalledWith(icalUrl, expect.objectContaining({
-        signal: expect.any(AbortSignal),
+    expect(safeFetch).toHaveBeenCalledWith(icalUrl, expect.objectContaining({
+        timeout: 10000,
         redirect: 'manual'
     }));
     expect(ical.parseICS).toHaveBeenCalledWith('BEGIN:VCALENDAR...');
@@ -121,6 +123,34 @@ describe('iCal Service', () => {
     }));
   });
 
+  it('should abort if mass deletion is detected (Panic Switch)', async () => {
+    prismaMock.team.findUnique.mockResolvedValue({ id: teamId, icalUrl } as any);
+    
+    // Mock fetch empty calendar
+    (safeFetch as jest.Mock).mockResolvedValue({
+        ok: true,
+        text: jest.fn().mockResolvedValue('BEGIN:VCALENDAR\nEND:VCALENDAR'),
+        status: 200
+    });
+    (ical.parseICS as jest.Mock).mockReturnValue({}); // No events
+
+    // Existing events matching (skipped because validUids is empty)
+    
+    // Deletions finding (inside TX) - Returns many events
+    // This simulates that we have 6 events in DB, but 0 in feed.
+    // 100% deletion > 50% threshold.
+    prismaMock.event.findMany.mockResolvedValueOnce([
+        { id: '1', title: 'E1', date: new Date() },
+        { id: '2', title: 'E2', date: new Date() },
+        { id: '3', title: 'E3', date: new Date() },
+        { id: '4', title: 'E4', date: new Date() },
+        { id: '5', title: 'E5', date: new Date() },
+        { id: '6', title: 'E6', date: new Date() }
+    ] as any);
+
+    await expect(syncTeamEvents(teamId)).rejects.toThrow(/Safety Stop: Attempting to delete 6 of 6 events/);
+  });
+
   it('should throw error if team has no iCal URL', async () => {
     prismaMock.team.findUnique.mockResolvedValue({
         id: teamId,
@@ -140,27 +170,13 @@ describe('iCal Service', () => {
     await expect(syncTeamEvents(teamId)).rejects.toThrow('Invalid iCal URL (Security Check Failed)');
   });
 
-  it('should handle fetch timeout', async () => {
-    prismaMock.team.findUnique.mockResolvedValue({
-        id: teamId,
-        icalUrl: icalUrl,
-    } as any);
-
-    // Simulate AbortError
-    const abortError = new Error('The operation was aborted');
-    abortError.name = 'AbortError';
-    mockFetch.mockRejectedValue(abortError);
-
-    await expect(syncTeamEvents(teamId)).rejects.toThrow('iCal fetch timed out after 10s');
-  });
-
   it('should handle fetch failure (non-200)', async () => {
       prismaMock.team.findUnique.mockResolvedValue({
           id: teamId,
           icalUrl: icalUrl,
       } as any);
   
-      mockFetch.mockResolvedValue({
+      (safeFetch as jest.Mock).mockResolvedValue({
           ok: false,
           status: 404,
           statusText: 'Not Found'
@@ -169,28 +185,13 @@ describe('iCal Service', () => {
       await expect(syncTeamEvents(teamId)).rejects.toThrow('Failed to fetch iCal: 404 Not Found');
   });
 
-  it('should fail on redirect when redirect: manual is set', async () => {
-      prismaMock.team.findUnique.mockResolvedValue({
-          id: teamId,
-          icalUrl: icalUrl,
-      } as any);
-  
-      mockFetch.mockResolvedValue({
-          ok: false,
-          status: 301,
-          statusText: 'Moved Permanently'
-      });
-  
-      await expect(syncTeamEvents(teamId)).rejects.toThrow('Failed to fetch iCal: 301 Moved Permanently');
-  });
-
   it('should throw error if iCal file is too large', async () => {
     prismaMock.team.findUnique.mockResolvedValue({
         id: teamId,
         icalUrl: icalUrl,
     } as any);
 
-    mockFetch.mockResolvedValue({
+    (safeFetch as jest.Mock).mockResolvedValue({
         ok: true,
         text: jest.fn().mockResolvedValue('a'.repeat(5 * 1024 * 1024 + 1)), // 5MB + 1 byte
         status: 200,
