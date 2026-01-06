@@ -5,6 +5,8 @@ import { useLanguage } from '@/context/LanguageContext';
 import { Event, Paddler } from '@/types';
 import EventList from './EventList';
 
+import { filterFutureEvents } from '@/utils/event-utils';
+
 interface EventsSectionProps {
   sortedPaddlers: Paddler[];
   onEdit: (event: Event) => void;
@@ -19,6 +21,8 @@ export const EventsSection: React.FC<EventsSectionProps> = ({ sortedPaddlers, on
     updateAttendance, 
   } = useDrachenboot();
 
+  const filteredEvents = React.useMemo(() => filterFutureEvents(events), [events]);
+
   const handleDeleteEvent = (id: string) => {
     deleteEvent(id);
   };
@@ -30,7 +34,7 @@ export const EventsSection: React.FC<EventsSectionProps> = ({ sortedPaddlers, on
   return (
     <div className="flex flex-col gap-4 h-full">
       <EventList 
-        events={events} 
+        events={filteredEvents} 
         sortedPaddlers={sortedPaddlers} 
         onPlan={handlePlanEvent}
         onEdit={onEdit}
