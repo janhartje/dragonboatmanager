@@ -149,6 +149,15 @@
     "clBugfixes": "Fehlerbehebungen",
     "changelogData": [
         {
+            "version": "3.6.1",
+            "date": "Januar 2026",
+            "features": [],
+            "technical": [],
+            "bugfixes": [
+                "Fix: Endlosschleife beim Laden von Paddler-Daten behoben (verringert Netzwerklast und Speicherverbrauch)."
+            ]
+        },
+        {
             "version": "3.6.0",
             "date": "Januar 2026",
             "features": [

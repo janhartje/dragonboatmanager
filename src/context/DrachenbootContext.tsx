@@ -67,16 +67,16 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
   const [targetTrim, setTargetTrim] = useState<number>(0);
   const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
     if (typeof window !== 'undefined') {
-        const stored = localStorage.getItem('drachenboot_theme');
-        if (stored === 'dark') return true;
-        if (stored === 'light') return false;
-        if (window.matchMedia('(prefers-color-scheme: dark)').matches) return true;
+      const stored = localStorage.getItem('drachenboot_theme');
+      if (stored === 'dark') return true;
+      if (stored === 'light') return false;
+      if (window.matchMedia('(prefers-color-scheme: dark)').matches) return true;
     }
     return false;
   });
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isDataLoading, setIsDataLoading] = useState<boolean>(true);
-  
+
   // Pagination State
   const PADDLER_PAGE_SIZE = 50;
   const [hasMorePaddlers, setHasMorePaddlers] = useState<boolean>(true);
@@ -94,12 +94,12 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
       if (res.ok) {
         const data = await res.json();
         setTeams(data);
-        
+
         if (data.length > 0) {
           // If we already have a currentTeam, find it in the new data to refresh it (e.g. for PRO status)
           // If not, pick from localStorage or the first team
-          const teamToSelect = currentTeam 
-            ? data.find((t: Team) => t.id === currentTeam.id) 
+          const teamToSelect = currentTeam
+            ? data.find((t: Team) => t.id === currentTeam.id)
             : (data.find((t: Team) => t.id === localStorage.getItem('drachenboot_team_id')) || data[0]);
 
           if (teamToSelect) {
@@ -118,7 +118,7 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
 
   const fetchPaddlers = useCallback(async (reset = true) => {
     if (!currentTeam) return;
-    
+
     // If not resetting and no more data, stop.
     if (!reset && !hasMorePaddlers) return;
 
@@ -131,7 +131,7 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
       const res = await fetch(`/api/paddlers?teamId=${currentTeam.id}&skip=${skip}&take=${take}`);
       if (res.ok) {
         const data = await res.json();
-        
+
         if (data.length < take) {
           setHasMorePaddlers(false);
         } else {
@@ -142,10 +142,10 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
           setPaddlers(data);
         } else {
           setPaddlers(prev => {
-             // De-duplicate just in case
-             const existingIds = new Set(prev.map(p => p.id));
-             const uniqueNew = data.filter((p: Paddler) => !existingIds.has(p.id));
-             return [...prev, ...uniqueNew];
+            // De-duplicate just in case
+            const existingIds = new Set(prev.map(p => p.id));
+            const uniqueNew = data.filter((p: Paddler) => !existingIds.has(p.id));
+            return [...prev, ...uniqueNew];
           });
         }
       }
@@ -154,7 +154,7 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
     } finally {
       if (!reset) setIsMorePaddlersLoading(false);
     }
-  }, [currentTeam, paddlers.length, hasMorePaddlers]); 
+  }, [currentTeam, paddlers.length, hasMorePaddlers]);
   // Warning: paddlers.length dependency might be unstable if paddlers change frequently. 
   // However, for fetchPaddlers, we need the *current* length to know skip.
   // Ideally, use a ref or functional update, but skip needs to be passed to URL.
@@ -162,7 +162,7 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
   // Let's rely on 'paddlers.length' being up to date when 'loadMore' is called.
 
   const loadMorePaddlers = useCallback(() => {
-     return fetchPaddlers(false);
+    return fetchPaddlers(false);
   }, [fetchPaddlers]);
 
   const fetchEvents = useCallback(async () => {
@@ -194,7 +194,7 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
           // Transform assignments array to object
           const assignments: Assignments = {};
           let canisterCounter = 1;
-          
+
           if (apiEvent.assignments) {
             apiEvent.assignments.forEach((a: { isCanister: boolean; seatId: string; paddlerId?: string }) => {
               if (a.isCanister) {
@@ -238,16 +238,16 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
           const prefsResponse = await fetch('/api/user/preferences');
           if (prefsResponse.ok) {
             const prefs = await prefsResponse.json();
-            
+
             // Sync Theme: Server wins
             if (prefs.theme === 'dark' && !isDarkMode) {
-                setIsDarkMode(true);
-                localStorage.setItem('drachenboot_theme', 'dark');
+              setIsDarkMode(true);
+              localStorage.setItem('drachenboot_theme', 'dark');
             } else if (prefs.theme === 'light' && isDarkMode) {
-                setIsDarkMode(false);
-                localStorage.setItem('drachenboot_theme', 'light');
+              setIsDarkMode(false);
+              localStorage.setItem('drachenboot_theme', 'light');
             }
-            
+
             // Fetch teams and apply activeTeamId preference
             await fetchTeamsWithPreference(prefs.activeTeamId);
           } else {
@@ -258,16 +258,16 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
           await fetchTeams();
         }
       } else {
-         // Not authenticated, just fetch teams
-         await fetchTeams();
+        // Not authenticated, just fetch teams
+        await fetchTeams();
       }
-      
+
       // Load local preferences as fallback for trim (non-critical)
       if (typeof window !== 'undefined') {
         const storedTrim = localStorage.getItem('drachenboot_target_trim');
         if (storedTrim) setTargetTrim(parseFloat(storedTrim));
       }
-      
+
       setIsLoading(false);
     };
     init();
@@ -284,7 +284,7 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
       return () => mediaQuery.removeEventListener('change', handleChange);
     }
   }, [status]); // eslint-disable-line react-hooks/exhaustive-deps
-  
+
   const fetchTeamsWithPreference = async (preferredTeamId: string | null) => {
     // Check for teamId in URL search params
     let urlTeamId: string | null = null;
@@ -306,9 +306,9 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
         if (data.length > 0) {
           // Priority: URL param > API preference > localStorage > first team
           let teamToSelect = null;
-          
+
           if (urlTeamId) {
-             teamToSelect = data.find((t: Team) => t.id === urlTeamId);
+            teamToSelect = data.find((t: Team) => t.id === urlTeamId);
           }
 
           if (!teamToSelect && preferredTeamId) {
@@ -323,14 +323,14 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
           }
           setIsDataLoading(true);
           setCurrentTeam(prev => {
-             if (prev && prev.id === teamToSelect.id && JSON.stringify(prev) === JSON.stringify(teamToSelect)) return prev;
-             return teamToSelect;
+            if (prev && prev.id === teamToSelect.id && JSON.stringify(prev) === JSON.stringify(teamToSelect)) return prev;
+            return teamToSelect;
           });
-          
+
           // Clean up URL if we used it
           if (urlTeamId && typeof window !== 'undefined') {
-             const newUrl = window.location.pathname;
-             window.history.replaceState({}, '', newUrl);
+            const newUrl = window.location.pathname;
+            window.history.replaceState({}, '', newUrl);
           }
         }
       }
@@ -344,37 +344,37 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
     let isMounted = true;
 
     if (currentTeam) {
-        setIsDataLoading(true);
-        localStorage.setItem('drachenboot_team_id', currentTeam.id);
-        
-        // Save to API if authenticated
-        if (status === 'authenticated') {
-          fetch('/api/user/preferences', {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ activeTeamId: currentTeam.id }),
-          }).catch(e => console.error('Failed to save active team preference', e));
-        }
-        
-        Promise.all([fetchPaddlers(true), fetchEvents()]).finally(() => {
-          if (isMounted) {
-            setIsDataLoading(false);
-            // Initial load is also done when data is loaded
-            setIsLoading(false); 
-          }
-        });
-    } else {
-        setPaddlers([]);
-        setEvents([]);
+      setIsDataLoading(true);
+      localStorage.setItem('drachenboot_team_id', currentTeam.id);
+
+      // Save to API if authenticated
+      if (status === 'authenticated') {
+        fetch('/api/user/preferences', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ activeTeamId: currentTeam.id }),
+        }).catch(e => console.error('Failed to save active team preference', e));
+      }
+
+      Promise.all([fetchPaddlers(true), fetchEvents()]).finally(() => {
         if (isMounted) {
           setIsDataLoading(false);
+          // Initial load is also done when data is loaded
+          setIsLoading(false);
         }
+      });
+    } else {
+      setPaddlers([]);
+      setEvents([]);
+      if (isMounted) {
+        setIsDataLoading(false);
+      }
     }
 
     return () => {
       isMounted = false;
     };
-  }, [currentTeam, fetchPaddlers, fetchEvents, status]);
+  }, [currentTeam, status]);
 
 
   useEffect(() => {
@@ -383,7 +383,7 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
     } else {
       document.documentElement.classList.remove('dark');
     }
-    
+
     // Save locally always
     localStorage.setItem('drachenboot_theme', isDarkMode ? 'dark' : 'light');
   }, [isDarkMode]);
@@ -397,7 +397,7 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
   const toggleDarkMode = useCallback(async () => {
     const newDarkMode = !isDarkMode;
     setIsDarkMode(newDarkMode);
-    
+
     // Save to API if authenticated
     if (status === 'authenticated') {
       try {
@@ -571,14 +571,14 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
         const createdEvent = await res.json();
         // Ensure date is string for local state if API returns Date object or string
         // API returns Prisma object where date is Date object (serialized to string)
-        const newEvent = { 
-          ...createdEvent, 
+        const newEvent = {
+          ...createdEvent,
           date: createdEvent.date,
-          attendance: {}, 
+          attendance: {},
           guests: [],
           canisterCount: 0
         };
-        
+
         setEvents(prev => [...prev, newEvent]);
         setAssignmentsByEvent(prev => ({ ...prev, [createdEvent.id]: {} }));
         return createdEvent.id;
@@ -623,7 +623,7 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
   const updateAttendance = useCallback(async (eid: string, pid: number | string, status: 'yes' | 'no' | 'maybe') => {
 
     setEvents(prev => prev.map(ev => ev.id !== eid ? ev : { ...ev, attendance: { ...ev.attendance, [pid]: status } }));
-    
+
     try {
       await fetch(`/api/events/${eid}/attendance`, {
         method: 'POST',
@@ -658,26 +658,26 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(guestData),
       });
-      
+
       if (res.ok) {
         const newGuest = await res.json();
-        
+
         // Update Local State
         setPaddlers(prev => [...prev, newGuest]);
         setEvents(prev => prev.map(ev => {
-           if (ev.id === eid) {
-             return { 
-               ...ev, 
-               guests: [...(ev.guests || []), newGuest],
-               attendance: { ...ev.attendance, [newGuest.id]: 'yes' } 
-             };
-           }
-           return ev;
+          if (ev.id === eid) {
+            return {
+              ...ev,
+              guests: [...(ev.guests || []), newGuest],
+              attendance: { ...ev.attendance, [newGuest.id]: 'yes' }
+            };
+          }
+          return ev;
         }));
-        
+
         return newGuest.id;
       }
-    } catch(e) { console.error(e); }
+    } catch (e) { console.error(e); }
     return '';
   }, []);
 
@@ -692,12 +692,12 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
       }
       return ev;
     }));
-    
+
     setPaddlers(prev => prev.filter(p => p.id !== guestId));
 
     try {
       await fetch(`/api/events/${eid}/guests/${guestId}`, { method: 'DELETE' });
-    } catch(e) { console.error(e); }
+    } catch (e) { console.error(e); }
   }, []);
 
   const addCanister = useCallback(async (eid: string) => {
@@ -706,14 +706,14 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
       });
-      
+
       if (res.ok) {
         const data = await res.json();
         const newCount = data.canisterCount;
         setEvents(prev => prev.map(ev => ev.id === eid ? { ...ev, canisterCount: newCount } : ev));
         return data.newCanisterId;
       }
-    } catch(e) { console.error(e); }
+    } catch (e) { console.error(e); }
     return '';
   }, []);
 
@@ -735,7 +735,7 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
         const err = await res.json();
         console.error('Canister removal failed:', err.error || 'Unknown error');
       }
-    } catch(e) { console.error(e); }
+    } catch (e) { console.error(e); }
   }, []);
 
   const value = useMemo(() => {

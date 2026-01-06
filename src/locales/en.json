@@ -149,6 +149,15 @@
     "clBugfixes": "Bug Fixes",
     "changelogData": [
         {
+            "version": "3.6.1",
+            "date": "January 2026",
+            "features": [],
+            "technical": [],
+            "bugfixes": [
+                "Fix: Resolved infinite loop when fetching paddler data (reduces network load and memory usage)."
+            ]
+        },
+        {
             "version": "3.6.0",
             "date": "January 2026",
             "features": [
