@@ -12,6 +12,7 @@ export class PostgresSessionStore implements McpSessionStore {
     private retryDelayMs = 100;
     private sessionCache = new Map<string, CacheEntry>();
     private CACHE_TTL_MS = 10000; // 10 seconds
+    private MAX_CACHE_SIZE = 1000; // Prevent unbounded memory growth
     private cacheCleanupInterval: NodeJS.Timeout | null = null;
 
     private ensureCacheCleanup() {
@@ -32,6 +33,16 @@ export class PostgresSessionStore implements McpSessionStore {
         }, 30000);
     }
 
+    private evictOldestIfNeeded() {
+        if (this.sessionCache.size >= this.MAX_CACHE_SIZE) {
+            // Evict oldest entry (first in Map iteration order)
+            const firstKey = this.sessionCache.keys().next().value;
+            if (firstKey) {
+                this.sessionCache.delete(firstKey);
+            }
+        }
+    }
+
     async createSession(id: string, apiKey: string): Promise<void> {
         const apiKeyHash = createHash('sha256').update(apiKey).digest('hex');
 
@@ -44,12 +55,12 @@ export class PostgresSessionStore implements McpSessionStore {
             });
         });
 
-        // Pre-populate cache
         const sessionData: SessionData = {
             id,
             apiKey: apiKeyHash,
             createdAt: Date.now(),
         };
+        this.evictOldestIfNeeded();
         this.sessionCache.set(id, { data: sessionData, expiresAt: Date.now() + this.CACHE_TTL_MS });
         this.ensureCacheCleanup();
     }
@@ -80,6 +91,7 @@ export class PostgresSessionStore implements McpSessionStore {
         };
 
         // Update cache
+        this.evictOldestIfNeeded();
         this.sessionCache.set(id, { data: sessionData, expiresAt: Date.now() + this.CACHE_TTL_MS });
         this.ensureCacheCleanup();
 

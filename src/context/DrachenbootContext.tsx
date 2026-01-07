@@ -5,6 +5,20 @@ import { useSession } from "next-auth/react";
 import { Paddler, Event, Assignments } from '@/types';
 import { useTeam } from './TeamContext';
 
+/** Event data shape from API response */
+interface EventFromApi {
+  id: string;
+  title: string;
+  date: string;
+  type: 'training' | 'regatta';
+  boatSize?: 'standard' | 'small';
+  canisterCount?: number;
+  comment?: string;
+  attendances?: { paddlerId: string; status: 'yes' | 'no' | 'maybe' }[];
+  assignments?: { isCanister: boolean; seatId: string; paddlerId?: string }[];
+  guests?: Paddler[];
+}
+
 interface DrachenbootContextType {
   // Data State
   paddlers: Paddler[];
@@ -106,20 +120,7 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
     }
   }, [currentTeam]);
 
-  // Stable callback for resetting/refreshing list (used in useEffect)
-  const fetchPaddlers = useCallback(async (reset = true) => {
-    // Legacy support: if reset is true (default), fetch from 0.
-    // Ideally this function should just be resetPaddlers() but keeping signature for now.
-    if (reset) {
-      return _fetchPaddlersCore(0, true);
-    } else {
-      // Fallback for calls that might pass false, though unstable
-      // This path shouldn't be used by useEffect
-      return _fetchPaddlersCore(paddlers.length, false);
-    }
-  }, [_fetchPaddlersCore, paddlers.length]);
-
-  // Truly stable for usage in useEffect where we only care about reset
+  // Stable callback for resetting/refreshing list
   const refreshPaddlers = useCallback(() => {
     return _fetchPaddlersCore(0, true);
   }, [_fetchPaddlersCore]);
@@ -145,8 +146,7 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
         const loadedEvents: Event[] = [];
         const loadedAssignments: Record<string, Assignments> = {};
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        data.forEach((apiEvent: any) => {
+        data.forEach((apiEvent: EventFromApi) => {
           const attendance: Record<string, 'yes' | 'no' | 'maybe'> = {};
           if (apiEvent.attendances) {
             apiEvent.attendances.forEach((att: { paddlerId: string; status: 'yes' | 'no' | 'maybe' }) => {
@@ -468,12 +468,12 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
         body: JSON.stringify({ paddlers: data }),
       });
       if (!res.ok) throw new Error('Import failed');
-      await fetchPaddlers(true);
+      await refreshPaddlers();
     } catch (e) {
       console.error(e);
       throw e;
     }
-  }, [currentTeam, fetchPaddlers]);
+  }, [currentTeam, refreshPaddlers]);
 
   const importEvents = useCallback(async (data: Record<string, unknown>[]) => {
     // Not fully implemented in original context either
@@ -514,7 +514,7 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
     setEvents,
     userRole,
     currentPaddler,
-    refetchPaddlers: fetchPaddlers,
+    refetchPaddlers: refreshPaddlers,
     refetchEvents: fetchEvents,
     importPaddlers,
     importEvents,
@@ -542,7 +542,7 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
     removeGuest,
     addCanister,
     removeCanister,
-    fetchPaddlers,
+    refreshPaddlers,
     fetchEvents,
     importPaddlers,
     importEvents,
