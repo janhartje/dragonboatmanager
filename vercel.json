@@ -1,16 +1,8 @@
 {
     "crons": [
         {
-            "path": "/api/cron/mail-queue",
-            "schedule": "0 4 * * *"
-        },
-        {
-            "path": "/api/cron/ical-sync",
+            "path": "/api/cron",
             "schedule": "0 3 * * *"
-        },
-        {
-            "path": "/api/cron/mcp-cleanup",
-            "schedule": "0 2 * * *"
         }
     ]
 }

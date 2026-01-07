@@ -9,7 +9,7 @@ export function generateApiKey(): { key: string; hash: string, displayKey: strin
   const prefix = 'dbm_live_';
   const randomPart = randomBytes(24).toString('hex'); // Increased entropy
   const key = prefix + randomPart;
-  
+
   const hash = createHash('sha256').update(key).digest('hex');
   const displayKey = `${prefix}...${randomPart.slice(-4)}`;
 
@@ -42,15 +42,15 @@ export async function validateApiKey(key: string) {
       return null;
     }
 
-    // Update last used timestamp (fire and forget)
-    prisma.apiKey
-      .update({
+    // Update last used timestamp
+    try {
+      await prisma.apiKey.update({
         where: { id: apiKey.id },
         data: { lastUsed: new Date() },
-      })
-      .catch((error: unknown) => {
-        console.error('Failed to update API key last used timestamp:', error);
       });
+    } catch (error: unknown) {
+      console.error('Failed to update API key last used timestamp:', error);
+    }
 
     return {
       teamId: apiKey.teamId,

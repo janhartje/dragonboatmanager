@@ -49,6 +49,30 @@ export const TeamProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [currentTeam, setCurrentTeam] = useState<Team | null>(null);
     const [isLoadingTeams, setIsLoadingTeams] = useState<boolean>(true);
 
+    const selectTeamFromData = useCallback((data: Team[], preferredId?: string | null) => {
+        if (data.length === 0) {
+            setCurrentTeam(null);
+            return;
+        }
+
+        let teamToSelect = null;
+        if (preferredId) teamToSelect = data.find((t: Team) => t.id === preferredId);
+
+        if (!teamToSelect) {
+            const storedTeamId = localStorage.getItem('drachenboot_team_id');
+            teamToSelect = data.find((t: Team) => t.id === storedTeamId);
+        }
+
+        if (!teamToSelect) teamToSelect = data[0];
+
+        if (teamToSelect) {
+            setCurrentTeam(prev => {
+                if (prev && prev.id === teamToSelect.id && JSON.stringify(prev) === JSON.stringify(teamToSelect)) return prev;
+                return teamToSelect;
+            });
+        }
+    }, []);
+
     const fetchTeams = useCallback(async () => {
         try {
             const res = await fetch('/api/teams', { cache: 'no-store' });
@@ -60,26 +84,12 @@ export const TeamProvider: React.FC<{ children: React.ReactNode }> = ({ children
             if (res.ok) {
                 const data = await res.json();
                 setTeams(data);
-
-                if (data.length > 0) {
-                    const teamToSelect = currentTeam
-                        ? data.find((t: Team) => t.id === currentTeam.id)
-                        : (data.find((t: Team) => t.id === localStorage.getItem('drachenboot_team_id')) || data[0]);
-
-                    if (teamToSelect) {
-                        setCurrentTeam(prev => {
-                            if (prev && prev.id === teamToSelect.id && JSON.stringify(prev) === JSON.stringify(teamToSelect)) return prev;
-                            return teamToSelect;
-                        });
-                    }
-                } else {
-                    setCurrentTeam(null);
-                }
+                selectTeamFromData(data);
             }
         } catch (e) {
             console.error('Failed to fetch teams', e);
         }
-    }, [currentTeam]);
+    }, [selectTeamFromData]);
 
     const fetchTeamsWithPreference = async (preferredTeamId: string | null) => {
         let urlTeamId: string | null = null;
@@ -98,25 +108,13 @@ export const TeamProvider: React.FC<{ children: React.ReactNode }> = ({ children
             if (res.ok) {
                 const data = await res.json();
                 setTeams(data);
-                if (data.length > 0) {
-                    let teamToSelect = null;
-                    if (urlTeamId) teamToSelect = data.find((t: Team) => t.id === urlTeamId);
-                    if (!teamToSelect && preferredTeamId) teamToSelect = data.find((t: Team) => t.id === preferredTeamId);
-                    if (!teamToSelect) {
-                        const storedTeamId = localStorage.getItem('drachenboot_team_id');
-                        teamToSelect = data.find((t: Team) => t.id === storedTeamId);
-                    }
-                    if (!teamToSelect) teamToSelect = data[0];
 
-                    setCurrentTeam(prev => {
-                        if (prev && prev.id === teamToSelect.id && JSON.stringify(prev) === JSON.stringify(teamToSelect)) return prev;
-                        return teamToSelect;
-                    });
+                // Priority: URL > Preferred (from DB) > LocalStorage > First match
+                selectTeamFromData(data, urlTeamId || preferredTeamId);
 
-                    if (urlTeamId && typeof window !== 'undefined') {
-                        const newUrl = window.location.pathname;
-                        window.history.replaceState({}, '', newUrl);
-                    }
+                if (urlTeamId && typeof window !== 'undefined') {
+                    const newUrl = window.location.pathname;
+                    window.history.replaceState({}, '', newUrl);
                 }
             }
         } catch (e) {

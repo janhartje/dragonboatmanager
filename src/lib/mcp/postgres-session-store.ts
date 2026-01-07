@@ -2,37 +2,35 @@ import { McpSessionStore, SessionData } from './session-store';
 import prisma from '@/lib/prisma';
 import { createHash } from 'crypto';
 
-// In-memory cache for session lookups
 interface CacheEntry {
     data: SessionData;
     expiresAt: number;
 }
 
-const sessionCache = new Map<string, CacheEntry>();
-const CACHE_TTL_MS = 10000; // 10 seconds
-
-// Cleanup interval for cache (prevent memory leaks)
-let cacheCleanupInterval: NodeJS.Timeout | null = null;
-
-function ensureCacheCleanup() {
-    if (cacheCleanupInterval) return;
-    cacheCleanupInterval = setInterval(() => {
-        const now = Date.now();
-        for (const [key, entry] of sessionCache.entries()) {
-            if (now > entry.expiresAt) {
-                sessionCache.delete(key);
-            }
-        }
-        if (sessionCache.size === 0) {
-            clearInterval(cacheCleanupInterval!);
-            cacheCleanupInterval = null;
-        }
-    }, 30000);
-}
-
 export class PostgresSessionStore implements McpSessionStore {
     private maxRetries = 2;
     private retryDelayMs = 100;
+    private sessionCache = new Map<string, CacheEntry>();
+    private CACHE_TTL_MS = 10000; // 10 seconds
+    private cacheCleanupInterval: NodeJS.Timeout | null = null;
+
+    private ensureCacheCleanup() {
+        if (this.cacheCleanupInterval) return;
+        this.cacheCleanupInterval = setInterval(() => {
+            const now = Date.now();
+            for (const [key, entry] of this.sessionCache.entries()) {
+                if (now > entry.expiresAt) {
+                    this.sessionCache.delete(key);
+                }
+            }
+            if (this.sessionCache.size === 0) {
+                if (this.cacheCleanupInterval) {
+                    clearInterval(this.cacheCleanupInterval);
+                    this.cacheCleanupInterval = null;
+                }
+            }
+        }, 30000);
+    }
 
     async createSession(id: string, apiKey: string): Promise<void> {
         const apiKeyHash = createHash('sha256').update(apiKey).digest('hex');
@@ -52,13 +50,13 @@ export class PostgresSessionStore implements McpSessionStore {
             apiKey: apiKeyHash,
             createdAt: Date.now(),
         };
-        sessionCache.set(id, { data: sessionData, expiresAt: Date.now() + CACHE_TTL_MS });
-        ensureCacheCleanup();
+        this.sessionCache.set(id, { data: sessionData, expiresAt: Date.now() + this.CACHE_TTL_MS });
+        this.ensureCacheCleanup();
     }
 
     async getSession(id: string): Promise<SessionData | null> {
         // Check cache first
-        const cached = sessionCache.get(id);
+        const cached = this.sessionCache.get(id);
         if (cached && Date.now() < cached.expiresAt) {
             return cached.data;
         }
@@ -71,7 +69,7 @@ export class PostgresSessionStore implements McpSessionStore {
         });
 
         if (!session) {
-            sessionCache.delete(id); // Ensure cache is clean
+            this.sessionCache.delete(id); // Ensure cache is clean
             return null;
         }
 
@@ -82,14 +80,14 @@ export class PostgresSessionStore implements McpSessionStore {
         };
 
         // Update cache
-        sessionCache.set(id, { data: sessionData, expiresAt: Date.now() + CACHE_TTL_MS });
-        ensureCacheCleanup();
+        this.sessionCache.set(id, { data: sessionData, expiresAt: Date.now() + this.CACHE_TTL_MS });
+        this.ensureCacheCleanup();
 
         return sessionData;
     }
 
     async removeSession(id: string): Promise<void> {
-        sessionCache.delete(id); // Invalidate cache immediately
+        this.sessionCache.delete(id); // Invalidate cache immediately
 
         try {
             await this.withRetry(async () => {

@@ -459,73 +459,77 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
   }, []);
 
 
-  const value = useMemo(() => {
+  const importPaddlers = useCallback(async (data: Record<string, unknown>[]) => {
+    if (!currentTeam) return;
+    try {
+      const res = await fetch(`/api/teams/${currentTeam.id}/import/paddlers`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ paddlers: data }),
+      });
+      if (!res.ok) throw new Error('Import failed');
+      await fetchPaddlers(true);
+    } catch (e) {
+      console.error(e);
+      throw e;
+    }
+  }, [currentTeam, fetchPaddlers]);
+
+  const importEvents = useCallback(async (data: Record<string, unknown>[]) => {
+    // Not fully implemented in original context either
+    console.warn("Import events not implemented in context", data);
+  }, []);
+
+  const { userRole, currentPaddler } = useMemo(() => {
     let role: 'CAPTAIN' | 'PADDLER' | null = 'PADDLER';
     let myPaddler = null;
     if (session?.user?.id && paddlers.length) {
       myPaddler = paddlers.find(p => p.userId === session.user.id) || null;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      role = (myPaddler as any)?.role || 'PADDLER';
+      role = myPaddler?.role || 'PADDLER';
     }
+    return { userRole: role, currentPaddler: myPaddler };
+  }, [session?.user?.id, paddlers]);
 
-    return {
-      paddlers,
-      events,
-      assignmentsByEvent,
-      targetTrim,
-      setTargetTrim,
-      isLoading,
-      isDataLoading,
-      addPaddler,
-      updatePaddler,
-      deletePaddler,
-      createEvent,
-      deleteEvent,
-      updateEvent,
-      updateAttendance,
-      updateAssignments,
-      addGuest,
-      removeGuest,
-      addCanister,
-      removeCanister,
-      setPaddlers,
-      setEvents,
-      userRole: role,
-      currentPaddler: myPaddler,
-      refetchPaddlers: fetchPaddlers,
-      refetchEvents: fetchEvents,
-      importPaddlers: async (data: Record<string, unknown>[]) => {
-        if (!currentTeam) return;
-        try {
-          const res = await fetch(`/api/teams/${currentTeam.id}/import/paddlers`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ paddlers: data }),
-          });
-          if (!res.ok) throw new Error('Import failed');
-          await fetchPaddlers(true);
-        } catch (e) {
-          console.error(e);
-          throw e;
-        }
-      },
-      importEvents: async (data: Record<string, unknown>[]) => {
-        // Not fully implemented in original context either
-        console.warn("Import events not implemented in context", data);
-      },
-      loadMorePaddlers,
-      hasMorePaddlers,
-      isMorePaddlersLoading
-    };
-  }, [
+  const value = useMemo(() => ({
+    paddlers,
+    events,
+    assignmentsByEvent,
+    targetTrim,
+    setTargetTrim,
+    isLoading,
+    isDataLoading,
+    addPaddler,
+    updatePaddler,
+    deletePaddler,
+    createEvent,
+    deleteEvent,
+    updateEvent,
+    updateAttendance,
+    updateAssignments,
+    addGuest,
+    removeGuest,
+    addCanister,
+    removeCanister,
+    setPaddlers,
+    setEvents,
+    userRole,
+    currentPaddler,
+    refetchPaddlers: fetchPaddlers,
+    refetchEvents: fetchEvents,
+    importPaddlers,
+    importEvents,
+    loadMorePaddlers,
+    hasMorePaddlers,
+    isMorePaddlersLoading
+  }), [
     paddlers,
     events,
     assignmentsByEvent,
     targetTrim,
     isLoading,
     isDataLoading,
-    session,
-    currentTeam,
+    userRole,
+    currentPaddler,
     addPaddler,
     updatePaddler,
     deletePaddler,
@@ -540,6 +544,8 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
     removeCanister,
     fetchPaddlers,
     fetchEvents,
+    importPaddlers,
+    importEvents,
     loadMorePaddlers,
     hasMorePaddlers,
     isMorePaddlersLoading

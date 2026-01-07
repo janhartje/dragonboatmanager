@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { sendMessageOrBuffer } from '@/lib/mcp-streams';
 import { tools } from '@/mcp/tools';
+import { validateApiKey } from '@/lib/mcp-auth';
 
 // Return 202 Accepted for SSE-based message handling
 function accepted() {
@@ -15,6 +16,11 @@ export async function POST(request: Request) {
     // We require an API key to identify the stream buffer
     if (!apiKey) {
       return NextResponse.json({ error: 'Missing x-api-key header' }, { status: 401 });
+    }
+
+    const auth = await validateApiKey(apiKey);
+    if (!auth) {
+      return NextResponse.json({ error: 'Invalid API key' }, { status: 401 });
     }
 
     const body = await request.json();
