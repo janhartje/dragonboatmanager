@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useSession } from "next-auth/react";
-import { Team, Paddler } from '@/types';
+import { Team } from '@/types';
 
 // We need to know the role for the *current* team.
 // Since paddlers are fetched in DrachenbootContext (Data Layer), 
@@ -44,7 +44,7 @@ export const useTeam = () => {
 };
 
 export const TeamProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const { data: session, status } = useSession();
+    const { status } = useSession();
     const [teams, setTeams] = useState<Team[]>([]);
     const [currentTeam, setCurrentTeam] = useState<Team | null>(null);
     const [isLoadingTeams, setIsLoadingTeams] = useState<boolean>(true);

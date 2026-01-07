@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
 import { CheckoutForm } from '@/components/stripe/CheckoutForm';
-import { useDrachenboot } from '@/context/DrachenbootContext';
+
 import { useTheme } from '@/context/ThemeContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { Team } from '@/types';

@@ -4,7 +4,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { driver, Driver } from 'driver.js';
 import 'driver.js/dist/driver.css';
 
-import { useDrachenboot } from '@/context/DrachenbootContext';
+
 import { useTeam } from '@/context/TeamContext';
 
 import { useLanguage } from '@/context/LanguageContext';

@@ -3,7 +3,7 @@ import { Calendar, Plus, Save } from 'lucide-react';
 import { FormInput } from '@/components/ui/FormInput';
 import { useLanguage } from '@/context/LanguageContext';
 import { THEME_MAP, ThemeKey } from '@/constants/themes';
-import { useDrachenboot } from '@/context/DrachenbootContext';
+
 import { useTeam } from '@/context/TeamContext';
 import { Modal } from '@/components/ui/core/Modal';
 import { SegmentedControl } from '@/components/ui/core/SegmentedControl';

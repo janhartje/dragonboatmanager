@@ -71,19 +71,18 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
   const [isMorePaddlersLoading, setIsMorePaddlersLoading] = useState<boolean>(false);
 
 
-  const fetchPaddlers = useCallback(async (reset = true) => {
+  const _fetchPaddlersCore = useCallback(async (skip = 0, reset = true) => {
     if (!currentTeam) return;
-    if (!reset && !hasMorePaddlers) return;
 
     try {
       if (!reset) setIsMorePaddlersLoading(true);
 
-      const skip = reset ? 0 : paddlers.length;
       const take = PADDLER_PAGE_SIZE;
-
       const res = await fetch(`/api/paddlers?teamId=${currentTeam.id}&skip=${skip}&take=${take}`);
+
       if (res.ok) {
         const data = await res.json();
+
         if (data.length < take) {
           setHasMorePaddlers(false);
         } else {
@@ -105,11 +104,32 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
     } finally {
       if (!reset) setIsMorePaddlersLoading(false);
     }
-  }, [currentTeam, paddlers.length, hasMorePaddlers]);
+  }, [currentTeam]);
+
+  // Stable callback for resetting/refreshing list (used in useEffect)
+  const fetchPaddlers = useCallback(async (reset = true) => {
+    // Legacy support: if reset is true (default), fetch from 0.
+    // Ideally this function should just be resetPaddlers() but keeping signature for now.
+    if (reset) {
+      return _fetchPaddlersCore(0, true);
+    } else {
+      // Fallback for calls that might pass false, though unstable
+      // This path shouldn't be used by useEffect
+      return _fetchPaddlersCore(paddlers.length, false);
+    }
+  }, [_fetchPaddlersCore, paddlers.length]);
+
+  // Truly stable for usage in useEffect where we only care about reset
+  const refreshPaddlers = useCallback(() => {
+    return _fetchPaddlersCore(0, true);
+  }, [_fetchPaddlersCore]);
 
   const loadMorePaddlers = useCallback(() => {
-    return fetchPaddlers(false);
-  }, [fetchPaddlers]);
+    if (!hasMorePaddlers) return Promise.resolve();
+    return _fetchPaddlersCore(paddlers.length, false);
+  }, [_fetchPaddlersCore, hasMorePaddlers, paddlers.length]);
+
+
 
   const fetchEvents = useCallback(async () => {
     if (!currentTeam) return;
@@ -176,7 +196,7 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
 
     if (currentTeam) {
       setIsDataLoading(true);
-      Promise.all([fetchPaddlers(true), fetchEvents()]).finally(() => {
+      Promise.all([refreshPaddlers(), fetchEvents()]).finally(() => {
         if (isMounted) {
           setIsDataLoading(false);
           setIsLoading(false);
@@ -196,7 +216,7 @@ export const DrachenbootProvider: React.FC<{ children: React.ReactNode }> = ({ c
     return () => {
       isMounted = false;
     };
-  }, [currentTeam, isLoadingTeams]); // React to TeamContext changes
+  }, [currentTeam, isLoadingTeams, refreshPaddlers, fetchEvents]); // React to TeamContext changes
 
   // Load local trim preference
   useEffect(() => {

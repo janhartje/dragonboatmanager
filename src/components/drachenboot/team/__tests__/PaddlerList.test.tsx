@@ -16,6 +16,11 @@ jest.mock('lucide-react', () => {
 });
 
 jest.mock('@/context/DrachenbootContext');
+jest.mock('@/context/TeamContext', () => ({
+  useTeam: jest.fn(() => ({
+    currentTeam: { id: 'team-1', name: 'Team 1', plan: 'PRO', maxMembers: 50 },
+  })),
+}));
 jest.mock('next-auth/react');
 jest.mock('../../../ui/SkillBadges', () => {
   const MockSkillBadges = () => <div data-testid="skill-badges" />;
@@ -43,17 +48,17 @@ describe('PaddlerList', () => {
   });
 
   it('displays pending status for invited users', () => {
-     const pendingPaddler = {
-         id: 'p-pending',
-         name: 'Pending User',
-         weight: 75,
-         inviteEmail: 'test@example.com',
-         skills: [] as string[],
-         userId: undefined // Changed null to undefined
-     };
+    const pendingPaddler = {
+      id: 'p-pending',
+      name: 'Pending User',
+      weight: 75,
+      inviteEmail: 'test@example.com',
+      skills: [] as string[],
+      userId: undefined // Changed null to undefined
+    };
 
-     render(
-      <PaddlerList 
+    render(
+      <PaddlerList
         paddlers={[pendingPaddler]}
         editingId={null}
         onEdit={mockOnEdit}
@@ -61,8 +66,8 @@ describe('PaddlerList', () => {
         t={mockT}
       />
     );
-     
-     expect(screen.getByText('pending')).toBeInTheDocument();
-     expect(screen.queryByTestId('skill-badges')).not.toBeInTheDocument();
+
+    expect(screen.getByText('pending')).toBeInTheDocument();
+    expect(screen.queryByTestId('skill-badges')).not.toBeInTheDocument();
   });
 });

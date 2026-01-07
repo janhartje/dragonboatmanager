@@ -15,6 +15,12 @@ jest.mock('@/context/DrachenbootContext', () => ({
   })),
 }));
 
+jest.mock('@/context/TeamContext', () => ({
+  useTeam: jest.fn(() => ({
+    currentTeam: { id: 'team-1', name: 'Team 1', plan: 'FREE' },
+  })),
+}));
+
 jest.mock('lucide-react', () => {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const React = require('react');

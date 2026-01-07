@@ -2,6 +2,7 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import PaddlerModal from '../PaddlerModal';
+import { useTeam } from '@/context/TeamContext';
 
 // Mocks
 jest.mock('lucide-react', () => {
@@ -23,6 +24,10 @@ jest.mock('@/context/LanguageContext', () => ({
   useLanguage: () => ({ t: (key: string) => key }),
 }));
 
+jest.mock('@/context/TeamContext', () => ({
+  useTeam: jest.fn(),
+}));
+
 // Mock server actions to avoid importing auth.ts which breaks in Jest
 jest.mock('@/app/actions/team', () => ({
   linkPaddlerToAccount: jest.fn(),
@@ -41,6 +46,9 @@ describe('PaddlerModal', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    (useTeam as jest.Mock).mockReturnValue({
+      currentTeam: { id: 'team-1', name: 'Team 1', plan: 'FREE', maxMembers: 5 },
+    });
   });
 
   it('passes disabled prop to form when limit is reached', () => {
@@ -50,7 +58,7 @@ describe('PaddlerModal', () => {
     });
 
     render(<PaddlerModal isOpen={true} onClose={mockClose} paddlerToEdit={null} onSave={jest.fn()} t={(k) => k} />);
-    
+
     const form = screen.getByTestId('paddler-form');
     expect(form).toHaveAttribute('data-disabled', 'true');
   });
@@ -63,11 +71,11 @@ describe('PaddlerModal', () => {
     });
 
     render(<PaddlerModal isOpen={true} onClose={mockClose} paddlerToEdit={null} onSave={jest.fn()} t={(k) => k} />);
-    
+
     // Check form disabled state which propagates to both tabs
     const form = screen.getByTestId('paddler-form');
     expect(form).toHaveAttribute('data-disabled', 'true');
-    
+
     // Note: Since we mock the form, we assume the Disabled prop logic handles the UI locking.
     // The previous test was asserting on the result of this prop.
   });

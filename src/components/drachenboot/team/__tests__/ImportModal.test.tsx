@@ -11,14 +11,21 @@ jest.mock('@/context/LanguageContext', () => ({
 }));
 
 jest.mock('@/utils/importUtils', () => ({
-    normalizeHeader: (header: string) => header.toLowerCase()
+  normalizeHeader: (header: string) => header.toLowerCase()
 }));
 
 // Mock ExcelJS entirely to prevent errors
 jest.mock('exceljs', () => ({
-    __esModule: true,
-    default: { Workbook: jest.fn() },
-    Workbook: jest.fn()
+  __esModule: true,
+  default: { Workbook: jest.fn() },
+  Workbook: jest.fn()
+}));
+
+// Mock useTeam
+jest.mock('@/context/TeamContext', () => ({
+  useTeam: jest.fn(() => ({
+    currentTeam: { id: 'team-1', name: 'Test Team', primaryColor: 'blue', plan: 'FREE' },
+  })),
 }));
 
 const mockUseDrachenboot = useDrachenboot as jest.Mock;
@@ -32,7 +39,7 @@ describe('ImportModal', () => {
     isOpen: true,
     onClose: mockOnClose,
     onImportPaddlers: mockOnImportPaddlers,
-    onImportEvents: mockOnImportEvents   
+    onImportEvents: mockOnImportEvents
   };
 
   beforeEach(() => {

@@ -3,6 +3,7 @@ import React from 'react';
 import TeamSwitcher from '../TeamSwitcher';
 import { DrachenbootProvider } from '@/context/DrachenbootContext';
 import { LanguageProvider } from '@/context/LanguageContext';
+import { useTeam } from '@/context/TeamContext';
 import { SessionProvider } from 'next-auth/react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { Session } from 'next-auth';
@@ -12,6 +13,19 @@ jest.mock('next/navigation', () => ({
   useRouter: jest.fn(),
   usePathname: jest.fn(),
   useSearchParams: jest.fn(),
+}));
+
+// Mock useTeam
+// Mock useTeam
+const mockTeamMethods = {
+  currentTeam: { id: 'team-1', name: 'Team 1', primaryColor: 'blue', plan: 'FREE' },
+  teams: [{ id: 'team-1', name: 'Team 1' }],
+  switchTeam: jest.fn(),
+  createTeam: jest.fn(),
+};
+
+jest.mock('@/context/TeamContext', () => ({
+  useTeam: jest.fn(() => mockTeamMethods),
 }));
 
 // Mock matchMedia
@@ -44,13 +58,13 @@ const mockSession: Session = {
 describe('TeamSwitcher', () => {
   const mockPush = jest.fn();
   const mockPathname = '/app/teams/1';
-  
+
   beforeEach(() => {
     jest.clearAllMocks();
     (useRouter as jest.Mock).mockReturnValue({ push: mockPush });
     (usePathname as jest.Mock).mockReturnValue(mockPathname);
     (useSearchParams as jest.Mock).mockReturnValue(new URLSearchParams());
-    
+
     (global.fetch as jest.Mock).mockImplementation((url: string) => {
       if (url === '/api/teams') {
         return Promise.resolve({
@@ -85,6 +99,9 @@ describe('TeamSwitcher', () => {
       return Promise.resolve({ ok: true, json: () => Promise.resolve({}) });
     });
 
+    const { createTeam } = useTeam();
+    (createTeam as jest.Mock).mockResolvedValue(newTeam);
+
     render(
       <SessionProvider session={mockSession}>
         <LanguageProvider>
@@ -106,7 +123,7 @@ describe('TeamSwitcher', () => {
     // Enter name
     const input = await screen.findByPlaceholderText(/e\.g\. Drachenboot A/i);
     fireEvent.change(input, { target: { value: 'Team 2' } });
-    
+
     // Submit the form directly
     const form = document.getElementById('create-team-form');
     if (!form) throw new Error('Form not found');
