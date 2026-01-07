@@ -7,6 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { LogOut, User, DoorOpen, HelpCircle } from "lucide-react"
 import { useLanguage } from "@/context/LanguageContext"
 import { useDrachenboot } from "@/context/DrachenbootContext"
+import { useTeam } from '@/context/TeamContext';
 import { ConfirmModal } from "@/components/ui/Modals"
 import { ProfileModal } from "./ProfileModal"
 
@@ -14,7 +15,8 @@ export function UserMenu() {
   const { data: session } = useSession()
   const router = useRouter()
   const { t } = useLanguage()
-  const { currentTeam, userRole, deletePaddler, paddlers } = useDrachenboot()
+  const { userRole, deletePaddler, paddlers } = useDrachenboot()
+  const { currentTeam } = useTeam();
   const [isOpen, setIsOpen] = useState(false)
   const [showProfileModal, setShowProfileModal] = useState(false)
   const [showLeaveConfirm, setShowLeaveConfirm] = useState(false)
@@ -32,7 +34,7 @@ export function UserMenu() {
 
   const handleLeaveTeam = async () => {
     if (!currentTeam || !session?.user?.id) return
-    
+
     // Find my paddler ID
     const myPaddler = paddlers.find(p => p.userId === session.user.id)
     if (myPaddler) {
@@ -45,7 +47,7 @@ export function UserMenu() {
 
   if (!session?.user) {
     return (
-      <button 
+      <button
         onClick={() => router.push("/login")}
         className="text-sm font-medium text-slate-700 dark:text-slate-200 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
       >
@@ -57,7 +59,7 @@ export function UserMenu() {
   return (
     <>
       <div className="relative" ref={dropdownRef}>
-        <button 
+        <button
           onClick={() => setIsOpen(!isOpen)}
           className="relative h-9 w-9 rounded-full overflow-hidden border border-slate-200 dark:border-slate-800 hover:opacity-80 transition-opacity focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-slate-900 focus:ring-blue-500"
         >
@@ -71,7 +73,7 @@ export function UserMenu() {
           <>
             {/* Mobile Backdrop & Layout */}
             <div className="fixed inset-0 z-40 bg-black/20 backdrop-blur-sm sm:hidden" onClick={() => setIsOpen(false)} />
-            
+
             <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90vw] max-w-sm z-50 
               sm:absolute sm:top-auto sm:left-auto sm:translate-x-0 sm:translate-y-0 sm:right-0 sm:mt-2 sm:w-64
               bg-white dark:bg-slate-900 rounded-xl shadow-2xl sm:shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
@@ -84,9 +86,9 @@ export function UserMenu() {
                     {session.user.email}
                   </p>
                 </div>
-                
+
                 <div className="h-px bg-slate-200 dark:bg-slate-700 my-1"></div>
-                
+
                 <button
                   onClick={() => {
                     setShowProfileModal(true)
@@ -124,7 +126,7 @@ export function UserMenu() {
                     <span className="text-base sm:text-sm">{t('leaveTeam')}</span>
                   </button>
                 )}
-                
+
                 <div className="h-px bg-slate-200 dark:bg-slate-700 my-1"></div>
 
                 <button
@@ -140,9 +142,9 @@ export function UserMenu() {
         )}
       </div>
 
-      <ProfileModal 
-        isOpen={showProfileModal} 
-        onClose={() => setShowProfileModal(false)} 
+      <ProfileModal
+        isOpen={showProfileModal}
+        onClose={() => setShowProfileModal(false)}
       />
 
       <ConfirmModal

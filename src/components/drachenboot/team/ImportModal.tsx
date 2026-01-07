@@ -3,6 +3,7 @@ import ExcelJS from 'exceljs';
 import { useLanguage } from '@/context/LanguageContext';
 import { THEME_MAP, ThemeKey } from '@/constants/themes';
 import { useDrachenboot } from '@/context/DrachenbootContext';
+import { useTeam } from '@/context/TeamContext';
 import { Upload, FileUp, AlertCircle, CheckCircle, X, Download } from 'lucide-react';
 import { normalizeHeader } from '@/utils/importUtils';
 import { Modal } from '@/components/ui/core/Modal';
@@ -18,14 +19,15 @@ interface ImportModalProps {
 
 type ImportType = 'paddler' | 'event';
 
-export const ImportModal: React.FC<ImportModalProps> = ({ 
-  isOpen, 
-  onClose, 
-  onImportPaddlers, 
-  onImportEvents 
+export const ImportModal: React.FC<ImportModalProps> = ({
+  isOpen,
+  onClose,
+  onImportPaddlers,
+  onImportEvents
 }) => {
   const { t } = useLanguage();
-  const { currentTeam, paddlers } = useDrachenboot();
+  const { paddlers } = useDrachenboot();
+  const { currentTeam } = useTeam();
   const theme = currentTeam?.plan === 'PRO' ? THEME_MAP[currentTeam.primaryColor as ThemeKey] : null;
   const [activeTab, setActiveTab] = useState<ImportType>('paddler');
   const [isDragOver, setIsDragOver] = useState(false);
@@ -68,34 +70,34 @@ export const ImportModal: React.FC<ImportModalProps> = ({
     try {
       const arrayBuffer = await file.arrayBuffer();
       const workbook = new ExcelJS.Workbook();
-      
+
       const isCsv = file.name.toLowerCase().endsWith('.csv');
-      
+
       if (isCsv) {
-          const text = await file.text();
-          const sheet = workbook.addWorksheet('Sheet1');
-          const rows = text.split(/\r?\n/);
-          
-          rows.forEach(r => {
-            if (r.trim()) {
-                const cells = r.split(/[,;|\t](?=(?:(?:[^"]*"){2})*[^"]*$)/); 
-                const cleanedCells = cells.map(c => c.trim().replace(/^"|"$/g, '').replace(/""/g, '"'));
-                sheet.addRow(cleanedCells);
-            }
-          });
+        const text = await file.text();
+        const sheet = workbook.addWorksheet('Sheet1');
+        const rows = text.split(/\r?\n/);
+
+        rows.forEach(r => {
+          if (r.trim()) {
+            const cells = r.split(/[,;|\t](?=(?:(?:[^"]*"){2})*[^"]*$)/);
+            const cleanedCells = cells.map(c => c.trim().replace(/^"|"$/g, '').replace(/""/g, '"'));
+            sheet.addRow(cleanedCells);
+          }
+        });
       } else {
         await workbook.xlsx.load(arrayBuffer);
       }
-      
+
       const worksheet = workbook.worksheets[0];
       if (!worksheet) throw new Error(t('noWorksheet') || 'No worksheet found');
 
       const data: Record<string, unknown>[] = [];
-      
+
       // Get headers
       const firstRow = worksheet.getRow(1);
       const headers: string[] = [];
-      
+
       firstRow.eachCell((cell, colNumber) => {
         if (cell.value) {
           headers[colNumber] = String(cell.value);
@@ -113,7 +115,7 @@ export const ImportModal: React.FC<ImportModalProps> = ({
           if (header) {
             const cleanHeader = normalizeHeader(header);
             rowData[cleanHeader] = cell.value;
-            hasData = true; 
+            hasData = true;
           }
         });
 
@@ -163,12 +165,12 @@ export const ImportModal: React.FC<ImportModalProps> = ({
     const workbook = new ExcelJS.Workbook();
     const sheet = workbook.addWorksheet('Template');
     const helpSheet = workbook.addWorksheet('Help - Hilfe');
-    
+
     let fileName = 'template.xlsx';
 
     if (activeTab === 'paddler') {
       fileName = 'paddler_template.xlsx';
-      
+
       // Template Data
       sheet.columns = [
         { header: 'Name', key: 'Name', width: 20 },
@@ -176,7 +178,7 @@ export const ImportModal: React.FC<ImportModalProps> = ({
         { header: 'Skills', key: 'Skills', width: 20 },
         { header: 'Email', key: 'Email', width: 30 },
       ];
-      
+
       sheet.addRow({ Name: 'Max Mustermann', Weight: 85.5, Skills: 'left', Email: 'max@example.com' });
       sheet.addRow({ Name: 'Erika Musterfrau', Weight: 65.0, Skills: 'right', Email: 'erika@example.com' });
       sheet.addRow({ Name: 'Tom Trommler', Weight: 60.0, Skills: 'drum', Email: 'tom@example.com' });
@@ -188,17 +190,17 @@ export const ImportModal: React.FC<ImportModalProps> = ({
         { header: 'Description (DE)', key: 'DescriptionDE', width: 50 },
         { header: 'Description (EN)', key: 'DescriptionEN', width: 50 },
       ];
-      
+
       helpSheet.addRows([
         { Column: 'Name', DescriptionDE: 'Vor- und Nachname des Paddlers', DescriptionEN: 'Full name of the paddler' },
         { Column: 'Weight', DescriptionDE: 'Gewicht in kg (z.B. 85.5)', DescriptionEN: 'Weight in kg (e.g. 85.5)' },
         { Column: 'Skills', DescriptionDE: 'Skills/Seite: "left", "right", "drum", "steer" (kommagetrennt für mehrere)', DescriptionEN: 'Skills/Side: "left", "right", "drum", "steer" (comma separated for multiple)' },
         { Column: 'Email', DescriptionDE: 'E-Mail Adresse für Einladungen (optional)', DescriptionEN: 'Email address for invitations (optional)' }
       ]);
-      
+
     } else {
       fileName = 'event_template.xlsx';
-      
+
       // Template Data
       sheet.columns = [
         { header: 'Title', key: 'Title', width: 25 },
@@ -218,9 +220,9 @@ export const ImportModal: React.FC<ImportModalProps> = ({
         { header: 'Description (DE)', key: 'DescriptionDE', width: 50 },
         { header: 'Description (EN)', key: 'DescriptionEN', width: 50 },
       ];
-      
+
       helpSheet.addRows([
-         { Column: 'Title', DescriptionDE: 'Name des Termins', DescriptionEN: 'Name of the event' },
+        { Column: 'Title', DescriptionDE: 'Name des Termins', DescriptionEN: 'Name of the event' },
         { Column: 'Date', DescriptionDE: 'Datum (z.B. 2025-05-20 oder 20.05.2025)', DescriptionEN: 'Date (e.g. 2025-05-20 or 20.05.2025)' },
         { Column: 'Time', DescriptionDE: 'Uhrzeit (HH:MM)', DescriptionEN: 'Time (HH:MM)' },
         { Column: 'Type', DescriptionDE: 'Art: "training" oder "regatta"', DescriptionEN: 'Type: "training" or "regatta"' },
@@ -231,7 +233,7 @@ export const ImportModal: React.FC<ImportModalProps> = ({
 
     // Generate buffer
     const buffer = await workbook.xlsx.writeBuffer();
-    
+
     // Create download link
     const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
     const url = window.URL.createObjectURL(blob);
@@ -256,13 +258,13 @@ export const ImportModal: React.FC<ImportModalProps> = ({
       }
       footer={
         <>
-          <button 
+          <button
             onClick={onClose}
             className="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg transition-colors border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900"
           >
             {t('cancel') || 'Cancel'}
           </button>
-          <button 
+          <button
             onClick={handleImport}
             disabled={!!(!file || !previewData.length || isProcessing || (activeTab === 'paddler' && currentTeam?.plan !== 'PRO' && currentTeam?.maxMembers && ((paddlers?.length || 0) + previewData.length > currentTeam.maxMembers)))}
             className={`px-4 py-2 text-sm font-medium text-white ${theme?.button || 'bg-blue-600 hover:bg-blue-700'} disabled:opacity-50 disabled:cursor-not-allowed rounded-lg shadow-sm transition-all flex items-center gap-2`}
@@ -302,7 +304,7 @@ export const ImportModal: React.FC<ImportModalProps> = ({
           (() => {
             const limitCaught = paddlers?.length >= currentTeam.maxMembers;
             const willExceed = (paddlers?.length + previewData.length) > currentTeam.maxMembers;
-            
+
             if (limitCaught || willExceed) {
               return (
                 <div className="p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg text-sm flex items-start gap-3">
@@ -314,11 +316,11 @@ export const ImportModal: React.FC<ImportModalProps> = ({
                       {limitCaught ? (t('teamLimitReached') || 'Team limit reached') : (t('teamLimitExceeded') || 'Import exceeds limit')}
                     </p>
                     <p className="text-amber-700 dark:text-amber-500 mt-1 text-xs leading-relaxed">
-                      {limitCaught 
+                      {limitCaught
                         ? (t('teamLimitReachedDesc') || 'Limit of {max} reached.').replace('{max}', currentTeam.maxMembers.toString())
                         : (t('importLimitWarning') || 'Import total {total} exceeds limit {max}.')
-                            .replace('{total}', (paddlers.length + previewData.length).toString())
-                            .replace('{max}', currentTeam.maxMembers.toString())
+                          .replace('{total}', (paddlers.length + previewData.length).toString())
+                          .replace('{max}', currentTeam.maxMembers.toString())
                       }
                     </p>
                   </div>
@@ -336,7 +338,7 @@ export const ImportModal: React.FC<ImportModalProps> = ({
             {error}
           </div>
         )}
-        
+
         {success && (
           <div className="p-3 bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 rounded-lg text-sm flex items-center gap-2 border border-green-100 dark:border-green-900/30">
             <CheckCircle size={16} />
@@ -346,21 +348,20 @@ export const ImportModal: React.FC<ImportModalProps> = ({
 
         {/* Upload Area */}
         {!file ? (
-          <div 
+          <div
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
-            className={`border-2 border-dashed rounded-xl p-8 flex flex-col items-center justify-center text-center transition-all duration-200 cursor-pointer ${
-              isDragOver 
-                ? `${theme?.ringBorder.replace('group-hover:', '') || 'border-blue-500'} ${theme ? theme.buttonGhost.split(' ')[0].replace('hover:', '') : 'bg-blue-50 dark:bg-blue-900/20'} scale-[1.02]` 
+            className={`border-2 border-dashed rounded-xl p-8 flex flex-col items-center justify-center text-center transition-all duration-200 cursor-pointer ${isDragOver
+                ? `${theme?.ringBorder.replace('group-hover:', '') || 'border-blue-500'} ${theme ? theme.buttonGhost.split(' ')[0].replace('hover:', '') : 'bg-blue-50 dark:bg-blue-900/20'} scale-[1.02]`
                 : `border-slate-300 dark:border-slate-800/40 ${theme?.ringBorder || 'hover:border-blue-400 dark:hover:border-blue-600'} hover:bg-slate-50 dark:hover:bg-slate-900/50`
-            }`}
+              }`}
           >
-            <input 
-              type="file" 
-              accept=".xlsx, .xls, .csv" 
-              onChange={handleFileSelect} 
-              className="hidden" 
+            <input
+              type="file"
+              accept=".xlsx, .xls, .csv"
+              onChange={handleFileSelect}
+              className="hidden"
               id="file-upload"
             />
             <label htmlFor="file-upload" className="cursor-pointer flex flex-col items-center w-full h-full">
@@ -373,12 +374,12 @@ export const ImportModal: React.FC<ImportModalProps> = ({
               <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">
                 {t('supportedFormats') || 'Supports .xlsx, .xls, .csv'}
               </p>
-              
+
               {/* Format Hint */}
               <div className="bg-slate-100 dark:bg-slate-800/50 rounded-lg p-3 text-xs text-left w-full max-w-sm">
                 <div className="flex justify-between items-center mb-1">
                   <p className="font-semibold text-slate-700 dark:text-slate-300">{t('preview') || 'Expected Format'}:</p>
-                  <button 
+                  <button
                     onClick={(e) => { e.preventDefault(); handleDownloadTemplate(); }}
                     className={`${theme?.text || 'text-blue-600 dark:text-blue-400'} hover:underline flex items-center gap-1`}
                   >

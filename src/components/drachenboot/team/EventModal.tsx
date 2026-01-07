@@ -4,6 +4,7 @@ import { FormInput } from '@/components/ui/FormInput';
 import { useLanguage } from '@/context/LanguageContext';
 import { THEME_MAP, ThemeKey } from '@/constants/themes';
 import { useDrachenboot } from '@/context/DrachenbootContext';
+import { useTeam } from '@/context/TeamContext';
 import { Modal } from '@/components/ui/core/Modal';
 import { SegmentedControl } from '@/components/ui/core/SegmentedControl';
 
@@ -19,7 +20,7 @@ interface EventModalProps {
 
 export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onCreate, onUpdate, initialData }) => {
   const { t } = useLanguage();
-  const { currentTeam } = useDrachenboot();
+  const { currentTeam } = useTeam();
   const theme = currentTeam?.plan === 'PRO' ? THEME_MAP[currentTeam.primaryColor as ThemeKey] : null;
   const [title, setTitle] = useState('');
   const [date, setDate] = useState(''); // Stores YYYY-MM-DDTHH:mm
@@ -35,7 +36,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onCreat
       setComment(initialData.comment || '');
       setType((initialData.type as 'training' | 'regatta') || 'training');
       setBoatSize((initialData.boatSize as 'standard' | 'small') || 'standard');
-      
+
       // Convert UTC timestamp to local YYYY-MM-DDTHH:mm for datetime-local input
       if (initialData.date) {
         const d = new Date(initialData.date);
@@ -44,12 +45,12 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onCreat
         setDate(localIso);
       }
     } else if (isOpen && !initialData) {
-       // Reset for new event
-       setTitle('');
-       setDate('');
-       setComment('');
-       setType('training');
-       setBoatSize('standard');
+      // Reset for new event
+      setTitle('');
+      setDate('');
+      setComment('');
+      setType('training');
+      setBoatSize('standard');
     }
   }, [isOpen, initialData]);
 
@@ -63,7 +64,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onCreat
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setTouched(true);
-    
+
     if (!isFormValid) return;
 
     // date is "YYYY-MM-DDTHH:mm" (Local)
@@ -76,7 +77,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onCreat
     } else if (onCreate) {
       onCreate(title, fullDate, type, boatSize, comment);
     }
-    
+
     // Reset and close
     setTouched(false);
     onClose();
@@ -94,19 +95,19 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onCreat
       }
       footer={
         <>
-          <button 
+          <button
             type="button"
             onClick={onClose}
             className="px-4 py-2 text-sm font-medium text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 rounded-lg transition-colors hover:text-slate-700 dark:hover:text-slate-200"
           >
             {t('cancel')}
           </button>
-          <button 
+          <button
             type="button"
             onClick={handleSubmit}
             disabled={!isFormValid}
             className={`px-4 py-2 text-sm font-medium text-white rounded-lg shadow-sm transition-all flex items-center gap-2
-              ${isFormValid 
+              ${isFormValid
                 ? (initialData ? 'bg-orange-500 hover:bg-orange-600' : (theme?.button || 'bg-blue-600 hover:bg-blue-700'))
                 : 'bg-slate-300 dark:bg-slate-700 cursor-not-allowed opacity-70'
               }`}
@@ -121,8 +122,8 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onCreat
         <div>
           <label className="text-xs uppercase font-bold text-slate-500 dark:text-slate-400 mb-1 block">{t('title')}</label>
           <FormInput
-            placeholder={t('eventPlaceholder')} 
-            value={title} 
+            placeholder={t('eventPlaceholder')}
+            value={title}
             onChange={(e) => setTitle(e.target.value)}
             error={touched && !title.trim()}
             autoFocus
@@ -133,9 +134,9 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onCreat
         <div className="col-span-2">
           <label className="text-xs uppercase font-bold text-slate-500 dark:text-slate-400 mb-1 block">{t('dateAndTime') || 'Datum & Uhrzeit'}</label>
           <FormInput
-            type="datetime-local" 
-            className={`dark:[color-scheme:dark] ${date ? 'text-slate-800 dark:text-white' : 'text-slate-400'}`} 
-            value={date} 
+            type="datetime-local"
+            className={`dark:[color-scheme:dark] ${date ? 'text-slate-800 dark:text-white' : 'text-slate-400'}`}
+            value={date}
             onChange={(e) => setDate(e.target.value)}
             error={touched && !date.trim()}
           />

@@ -3,6 +3,8 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { LanguageProvider } from "@/context/LanguageContext";
 import { DrachenbootProvider } from "@/context/DrachenbootContext";
+import { ThemeProvider } from "@/context/ThemeContext";
+import { TeamProvider } from "@/context/TeamContext";
 import { SessionProvider } from "next-auth/react";
 import { getBaseUrl } from "@/utils/url";
 
@@ -116,12 +118,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className={inter.className} suppressHydrationWarning>
         <SessionProvider>
           <LanguageProvider>
-            <DrachenbootProvider>
-              {children}
-              <Analytics />
-              <SpeedInsights />
-              <StructuredData />
-            </DrachenbootProvider>
+            <ThemeProvider>
+              <TeamProvider>
+                <DrachenbootProvider>
+                  {children}
+                  <Analytics />
+                  <SpeedInsights />
+                  <StructuredData />
+                </DrachenbootProvider>
+              </TeamProvider>
+            </ThemeProvider>
           </LanguageProvider>
         </SessionProvider>
       </body>

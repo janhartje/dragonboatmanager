@@ -3,7 +3,9 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useLanguage } from '@/context/LanguageContext';
-import { useDrachenboot } from '@/context/DrachenbootContext';
+
+import { useTheme } from '@/context/ThemeContext';
+import { useTeam } from '@/context/TeamContext';
 import DragonLogo from '../ui/DragonLogo';
 import Footer from '../ui/Footer';
 import Header from '../ui/Header';
@@ -14,7 +16,8 @@ import { Plus, UserPlus } from 'lucide-react';
 
 const WelcomeView: React.FC = () => {
   const { t } = useLanguage();
-  const { isDarkMode, toggleDarkMode, createTeam } = useDrachenboot();
+  const { createTeam } = useTeam();
+  const { isDarkMode, toggleDarkMode } = useTheme();
   const [showCreateModal, setShowCreateModal] = useState(false);
 
   const handleCreateTeam = (name: string) => {
@@ -26,7 +29,7 @@ const WelcomeView: React.FC = () => {
     <PageTransition>
       <div className="min-h-screen font-sans text-slate-800 dark:text-slate-100 transition-colors duration-300 bg-slate-100 dark:bg-slate-950 p-2 md:p-4 pb-20">
         <div className="max-w-4xl mx-auto">
-          <Header 
+          <Header
             title={t('appTitle')}
             logo={
               <Link href="/" className="cursor-pointer hover:opacity-80 transition-opacity">

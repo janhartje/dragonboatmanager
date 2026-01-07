@@ -7,17 +7,10 @@ export interface McpSession {
   isActive: boolean;
 }
 
-interface PendingMessage {
-  event: string;
-  data: unknown;
-  timestamp: number;
-}
+
 
 // Global store for active sessions (in-memory)
 const activeSessions = new Map<string, McpSession>();
-
-// Pending messages waiting for a session to be established (keyed by API key)
-const pendingMessages = new Map<string, PendingMessage[]>();
 
 // Promises waiting for a session to be established (keyed by API key)
 const sessionWaiters = new Map<string, Array<(session: McpSession) => void>>();
@@ -30,19 +23,10 @@ export function createSession(id: string, controller: ReadableStreamDefaultContr
       activeSessions.delete(session.id);
     }
   }
-  
+
   const newSession: McpSession = { id, controller, apiKey, createdAt: Date.now(), isActive: true };
   activeSessions.set(id, newSession);
-  
-  // Replay any pending messages for this API key
-  const pending = pendingMessages.get(apiKey);
-  if (pending && pending.length > 0) {
-    for (const msg of pending) {
-      sendSseEvent(controller, msg.event, msg.data);
-    }
-    pendingMessages.delete(apiKey);
-  }
-  
+
   // Resolve any waiters for this API key
   const waiters = sessionWaiters.get(apiKey);
   if (waiters) {
@@ -61,7 +45,7 @@ export function getSession(id: string) {
 export function getSessionByApiKey(apiKey: string) {
   // Find the most recent ACTIVE session for this API key
   let latestSession: McpSession | undefined;
-  
+
   for (const session of activeSessions.values()) {
     if (session.apiKey === apiKey && session.isActive) {
       if (!latestSession || session.createdAt > latestSession.createdAt) {
@@ -69,7 +53,7 @@ export function getSessionByApiKey(apiKey: string) {
       }
     }
   }
-  
+
   return latestSession;
 }
 
@@ -83,13 +67,13 @@ export function waitForSession(apiKey: string, timeoutMs: number = 5000): Promis
   if (existing) {
     return Promise.resolve(existing);
   }
-  
+
   // Wait for session to be created
   return new Promise((resolve) => {
     const waiters = sessionWaiters.get(apiKey) || [];
     waiters.push(resolve);
     sessionWaiters.set(apiKey, waiters);
-    
+
     // Timeout after specified duration
     setTimeout(() => {
       const currentWaiters = sessionWaiters.get(apiKey);

@@ -7,6 +7,7 @@ import { updateProfile } from "@/app/actions/user"
 import { Save, X, Info } from "lucide-react"
 import { useLanguage } from "@/context/LanguageContext"
 import { useDrachenboot } from "@/context/DrachenbootContext"
+import { useTeam } from '@/context/TeamContext';
 import { FormInput } from "@/components/ui/FormInput"
 import { WeightInput } from "@/components/ui/WeightInput"
 import { SkillSelector, SkillsState } from "@/components/ui/SkillSelector"
@@ -19,7 +20,8 @@ interface ProfileModalProps {
 export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
   const { data: session } = useSession()
   const { t } = useLanguage()
-  const { paddlers, refetchPaddlers, currentTeam } = useDrachenboot()
+  const { currentTeam } = useTeam();
+  const { paddlers, refetchPaddlers } = useDrachenboot()
   const [name, setName] = useState("")
   const [weight, setWeight] = useState("")
   const [skills, setSkills] = useState<SkillsState>({ left: false, right: false, drum: false, steer: false })
@@ -61,10 +63,10 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!name.trim() || !weight.trim()) return
-    
+
     setIsSaving(true)
     setSuccess(false)
-    
+
     try {
       const skillsArray = (Object.keys(skills) as Array<keyof typeof skills>).filter(k => skills[k])
       await updateProfile({ name, weight: parseFloat(weight), skills: skillsArray }, currentTeam?.id)
@@ -122,23 +124,23 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
               />
             </div>
           </div>
-          
+
           <div className="flex items-center gap-2 px-3 py-2 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 text-xs rounded-lg -mt-2 mb-4">
-             <Info size={14} className="shrink-0" /> 
-             <span>{t('profileGlobalHint')}</span>
+            <Info size={14} className="shrink-0" />
+            <span>{t('profileGlobalHint')}</span>
           </div>
 
           <div>
             <label className="text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400 mb-2 block">
               {t('skills')}
             </label>
-            <SkillSelector 
-              skills={skills} 
-              onChange={handleSkillChange} 
+            <SkillSelector
+              skills={skills}
+              onChange={handleSkillChange}
             />
             <div className="flex items-center gap-2 px-3 py-2 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 text-xs rounded-lg mt-3">
-               <Info size={14} className="shrink-0" /> 
-               <span>{t('profileLocalHint')}</span>
+              <Info size={14} className="shrink-0" />
+              <span>{t('profileLocalHint')}</span>
             </div>
           </div>
 

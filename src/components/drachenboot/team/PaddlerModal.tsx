@@ -6,6 +6,7 @@ import { Paddler } from '@/types';
 import { FormInput } from '@/components/ui/FormInput';
 import { inviteMember } from '@/app/actions/team';
 import { useDrachenboot } from '@/context/DrachenbootContext';
+import { useTeam } from '@/context/TeamContext';
 import { Modal } from '@/components/ui/core/Modal';
 import { SegmentedControl } from '@/components/ui/core/SegmentedControl';
 
@@ -25,7 +26,8 @@ const PaddlerModal: React.FC<PaddlerModalProps> = ({ isOpen, onClose, paddlerToE
   const [inviteLoading, setInviteLoading] = useState(false);
   const [inviteError, setInviteError] = useState<string | null>(null);
   const [inviteSuccess, setInviteSuccess] = useState(false);
-  const { currentTeam, refetchPaddlers, paddlers } = useDrachenboot();
+  const { refetchPaddlers, paddlers } = useDrachenboot();
+  const { currentTeam } = useTeam();
   const theme = currentTeam?.plan === 'PRO' ? THEME_MAP[currentTeam.primaryColor as ThemeKey] : null;
 
   if (!isOpen) return null;
@@ -33,10 +35,10 @@ const PaddlerModal: React.FC<PaddlerModalProps> = ({ isOpen, onClose, paddlerToE
   const handleInvite = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!inviteEmail.trim() || !currentTeam) return;
-    
+
     setInviteLoading(true);
     setInviteError(null);
-    
+
     try {
       await inviteMember(currentTeam.id, inviteEmail.trim());
       await refetchPaddlers();
@@ -88,13 +90,12 @@ const PaddlerModal: React.FC<PaddlerModalProps> = ({ isOpen, onClose, paddlerToE
             type="submit"
             form="invite-form"
             disabled={inviteLoading || !inviteEmail.trim() || inviteSuccess || (currentTeam?.plan !== 'PRO' && !!currentTeam?.maxMembers && paddlers?.length >= currentTeam.maxMembers)}
-            className={`px-4 py-2 rounded-lg text-sm font-medium flex items-center justify-center gap-2 transition-all ${
-              inviteSuccess
+            className={`px-4 py-2 rounded-lg text-sm font-medium flex items-center justify-center gap-2 transition-all ${inviteSuccess
                 ? 'bg-green-500 text-white'
                 : inviteEmail.trim() && !inviteLoading
                   ? `${theme?.button || 'bg-blue-600 hover:bg-blue-700'} text-white`
                   : 'bg-slate-200 dark:bg-slate-800 text-slate-400 cursor-not-allowed opacity-70'
-            }`}
+              }`}
           >
             <Mail size={16} />
             {inviteLoading ? (t('sending') || 'Sending...') : inviteSuccess ? (t('sent') || 'Sent!') : (t('invite') || 'Invite')}
@@ -141,7 +142,7 @@ const PaddlerModal: React.FC<PaddlerModalProps> = ({ isOpen, onClose, paddlerToE
                 {errorMessage}
               </div>
             )}
-            <PaddlerForm 
+            <PaddlerForm
               paddlerToEdit={paddlerToEdit}
               onSave={onSave}
               onCancel={handleClose}
@@ -166,17 +167,17 @@ const PaddlerModal: React.FC<PaddlerModalProps> = ({ isOpen, onClose, paddlerToE
                 autoFocus
               />
             </div>
-            
+
             <p className="text-sm text-slate-500 dark:text-slate-400">
               {t('inviteDescription') || 'The person will be added to the team. If they don\'t have an account yet, they can sign up and will automatically be part of the team.'}
             </p>
-            
+
             {inviteError && (
               <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-600 dark:text-red-400 text-sm">
                 {inviteError}
               </div>
             )}
-            
+
             {inviteSuccess && (
               <div className="p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg text-green-600 dark:text-green-400 text-sm">
                 {t('inviteSuccess') || 'Invitation sent successfully!'}

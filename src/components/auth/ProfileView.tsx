@@ -3,7 +3,9 @@
 import React from 'react';
 import Link from 'next/link';
 import { useLanguage } from '@/context/LanguageContext';
-import { useDrachenboot } from '@/context/DrachenbootContext';
+
+
+import { useTheme } from '@/context/ThemeContext';
 import DragonLogo from '@/components/ui/DragonLogo';
 import Header from '@/components/ui/Header';
 import Footer from '@/components/ui/Footer';
@@ -14,13 +16,13 @@ import { UserMenu } from '@/components/auth/UserMenu';
 
 const ProfileView: React.FC = () => {
   const { t } = useLanguage();
-  const { isDarkMode, toggleDarkMode } = useDrachenboot();
+  const { isDarkMode, toggleDarkMode } = useTheme();
   const router = useRouter();
 
   return (
     <div className="min-h-screen font-sans text-slate-800 dark:text-slate-100 transition-colors duration-300 bg-slate-100 dark:bg-slate-950 p-2 md:p-4 pb-20">
       <div className="max-w-6xl mx-auto">
-        <Header 
+        <Header
           title={t('appTitle')}
           subtitle={t('profileSubtitle')}
           logo={

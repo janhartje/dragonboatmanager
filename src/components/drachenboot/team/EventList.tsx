@@ -2,6 +2,7 @@ import React, { memo, useState } from 'react';
 import { Calendar, ChevronRight, Check, HelpCircle, X, Trash2, Pencil, ChevronDown, ChevronUp, ChevronLeft } from 'lucide-react';
 import { Event, Paddler } from '@/types';
 import { useDrachenboot } from '@/context/DrachenbootContext';
+import { useTeam } from '@/context/TeamContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { THEME_MAP, ThemeKey } from '@/constants/themes';
 import { Card } from '@/components/ui/core/Card';
@@ -25,15 +26,15 @@ interface EventCardProps {
   language: string;
 }
 
-const EventCard: React.FC<EventCardProps> = memo(({ 
-  evt, 
-  sortedPaddlers, 
-  onPlan, 
-  onEdit, 
-  onDelete, 
-  onUpdateAttendance, 
-  t, 
-  userRole, 
+const EventCard: React.FC<EventCardProps> = memo(({
+  evt,
+  sortedPaddlers,
+  onPlan,
+  onEdit,
+  onDelete,
+  onUpdateAttendance,
+  t,
+  userRole,
   currentPaddler,
   theme,
   language
@@ -62,32 +63,31 @@ const EventCard: React.FC<EventCardProps> = memo(({
         {/* Buttons (Floated Right) */}
         <div className="float-right ml-4 flex items-center gap-2">
           {userRole === 'CAPTAIN' && (
-             <>
-               <button 
-                  onClick={() => onEdit(evt)} 
-                  className="h-9 w-9 flex items-center justify-center rounded-lg border border-slate-300 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-                  title="Bearbeiten"
-                >
-                  <Pencil size={16} />
-                </button>
-                <button 
-                  onClick={triggerDelete} 
-                  className={`h-9 w-9 flex items-center justify-center rounded-lg border transition-colors ${
-                     isConfirming 
-                       ? 'bg-red-100 dark:bg-red-900/50 border-red-400 dark:border-red-700 text-red-600 dark:text-red-400' 
-                       : 'border-slate-300 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-slate-800'
+            <>
+              <button
+                onClick={() => onEdit(evt)}
+                className="h-9 w-9 flex items-center justify-center rounded-lg border border-slate-300 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                title="Bearbeiten"
+              >
+                <Pencil size={16} />
+              </button>
+              <button
+                onClick={triggerDelete}
+                className={`h-9 w-9 flex items-center justify-center rounded-lg border transition-colors ${isConfirming
+                    ? 'bg-red-100 dark:bg-red-900/50 border-red-400 dark:border-red-700 text-red-600 dark:text-red-400'
+                    : 'border-slate-300 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-slate-800'
                   }`}
-                  title={isConfirming ? "Bestätigen" : "Löschen"}
-                >
-                  <Trash2 size={16} />
-                </button>
-              </>
+                title={isConfirming ? "Bestätigen" : "Löschen"}
+              >
+                <Trash2 size={16} />
+              </button>
+            </>
           )}
-          <button 
-             onClick={() => onPlan(evt.id)} 
-             className={`${theme?.button || 'bg-blue-600 hover:bg-blue-500'} text-white px-3 h-9 rounded-lg font-medium text-sm flex items-center gap-1 transition-colors whitespace-nowrap`}
+          <button
+            onClick={() => onPlan(evt.id)}
+            className={`${theme?.button || 'bg-blue-600 hover:bg-blue-500'} text-white px-3 h-9 rounded-lg font-medium text-sm flex items-center gap-1 transition-colors whitespace-nowrap`}
           >
-            {userRole === 'CAPTAIN' ? t('plan') : t('viewPlan')} 
+            {userRole === 'CAPTAIN' ? t('plan') : t('viewPlan')}
             <ChevronRight size={16} />
           </button>
         </div>
@@ -95,24 +95,24 @@ const EventCard: React.FC<EventCardProps> = memo(({
         {/* Text Content (Flows around buttons) */}
         <div className="flex items-center gap-3 flex-wrap mb-1">
           <h3 className="font-bold text-xl text-slate-900 dark:text-white">{evt.title}</h3>
-          <Badge 
+          <Badge
             className="bg-slate-200 dark:bg-slate-800 text-blue-600 dark:text-blue-400 hover:bg-slate-300 dark:hover:bg-slate-700 border-none uppercase text-xs font-bold tracking-wider px-2 py-0.5"
           >
             {evt.type === 'regatta' ? t('regatta') : t('training')}
           </Badge>
         </div>
-        
+
         <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 text-sm mb-0.5">
-           <Calendar size={14} className="text-slate-400 dark:text-slate-500" />
-           <span>{new Date(evt.date).toLocaleDateString(language === 'de' ? 'de-DE' : 'en-US')}</span>
-           <span className="text-slate-400 dark:text-slate-600">•</span>
-           <span>{new Date(evt.date).toLocaleTimeString(language === 'de' ? 'de-DE' : 'en-US', { hour: '2-digit', minute: '2-digit' })}</span>
+          <Calendar size={14} className="text-slate-400 dark:text-slate-500" />
+          <span>{new Date(evt.date).toLocaleDateString(language === 'de' ? 'de-DE' : 'en-US')}</span>
+          <span className="text-slate-400 dark:text-slate-600">•</span>
+          <span>{new Date(evt.date).toLocaleTimeString(language === 'de' ? 'de-DE' : 'en-US', { hour: '2-digit', minute: '2-digit' })}</span>
         </div>
 
         <div className="flex items-center gap-2">
-           {evt.comment && (
-              <span className="text-slate-400 dark:text-slate-500 italic text-sm">{evt.comment}</span>
-            )}
+          {evt.comment && (
+            <span className="text-slate-400 dark:text-slate-500 italic text-sm">{evt.comment}</span>
+          )}
         </div>
       </div>
 
@@ -120,132 +120,129 @@ const EventCard: React.FC<EventCardProps> = memo(({
       {currentPaddler && (
         <div className="mb-2">
           <div className="flex gap-2 sm:gap-3">
-              <button
-                onClick={(e) => { e.stopPropagation(); onUpdateAttendance(evt.id, currentPaddler.id, 'yes'); }}
-                className={`flex-1 flex items-center justify-center gap-2 h-9 rounded-lg border font-medium text-sm transition-all min-w-0 ${
-                  evt.attendance[currentPaddler.id] === 'yes'
-                    ? 'bg-green-100 dark:bg-green-900/40 border-green-500 dark:border-green-700 text-green-700 dark:text-green-400'
-                    : 'bg-transparent border-slate-300 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:border-green-500 dark:hover:border-green-800 hover:bg-green-50 dark:hover:bg-green-900/10'
+            <button
+              onClick={(e) => { e.stopPropagation(); onUpdateAttendance(evt.id, currentPaddler.id, 'yes'); }}
+              className={`flex-1 flex items-center justify-center gap-2 h-9 rounded-lg border font-medium text-sm transition-all min-w-0 ${evt.attendance[currentPaddler.id] === 'yes'
+                  ? 'bg-green-100 dark:bg-green-900/40 border-green-500 dark:border-green-700 text-green-700 dark:text-green-400'
+                  : 'bg-transparent border-slate-300 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:border-green-500 dark:hover:border-green-800 hover:bg-green-50 dark:hover:bg-green-900/10'
                 }`}
-              >
-                <div className={`flex-shrink-0 p-0.5 rounded-full ${evt.attendance[currentPaddler.id] === 'yes' ? 'bg-green-500 text-white dark:text-black' : 'border border-current'}`}>
-                  <Check size={12} strokeWidth={3} />
-                </div>
-                <span className="truncate">{t('attend')}</span>
-              </button>
+            >
+              <div className={`flex-shrink-0 p-0.5 rounded-full ${evt.attendance[currentPaddler.id] === 'yes' ? 'bg-green-500 text-white dark:text-black' : 'border border-current'}`}>
+                <Check size={12} strokeWidth={3} />
+              </div>
+              <span className="truncate">{t('attend')}</span>
+            </button>
 
-              <button
-                onClick={(e) => { e.stopPropagation(); onUpdateAttendance(evt.id, currentPaddler.id, 'maybe'); }}
-                className={`flex-1 flex items-center justify-center gap-2 h-9 rounded-lg border font-medium text-sm transition-all min-w-0 ${
-                  evt.attendance[currentPaddler.id] === 'maybe'
-                    ? 'bg-yellow-100 dark:bg-yellow-900/40 border-yellow-500 dark:border-yellow-700 text-yellow-700 dark:text-yellow-400'
-                    : 'bg-transparent border-slate-300 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:border-yellow-500 dark:hover:border-yellow-800 hover:bg-yellow-50 dark:hover:bg-yellow-900/10'
+            <button
+              onClick={(e) => { e.stopPropagation(); onUpdateAttendance(evt.id, currentPaddler.id, 'maybe'); }}
+              className={`flex-1 flex items-center justify-center gap-2 h-9 rounded-lg border font-medium text-sm transition-all min-w-0 ${evt.attendance[currentPaddler.id] === 'maybe'
+                  ? 'bg-yellow-100 dark:bg-yellow-900/40 border-yellow-500 dark:border-yellow-700 text-yellow-700 dark:text-yellow-400'
+                  : 'bg-transparent border-slate-300 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:border-yellow-500 dark:hover:border-yellow-800 hover:bg-yellow-50 dark:hover:bg-yellow-900/10'
                 }`}
-              >
-                <div className={`flex-shrink-0 p-0.5 rounded-full ${evt.attendance[currentPaddler.id] === 'maybe' ? 'bg-yellow-500 text-white dark:text-black' : 'border border-current'}`}>
-                  <HelpCircle size={12} strokeWidth={3} />
-                </div>
-                <span className="truncate">{t('unsure')}</span>
-              </button>
+            >
+              <div className={`flex-shrink-0 p-0.5 rounded-full ${evt.attendance[currentPaddler.id] === 'maybe' ? 'bg-yellow-500 text-white dark:text-black' : 'border border-current'}`}>
+                <HelpCircle size={12} strokeWidth={3} />
+              </div>
+              <span className="truncate">{t('unsure')}</span>
+            </button>
 
-              <button
-                onClick={(e) => { e.stopPropagation(); onUpdateAttendance(evt.id, currentPaddler.id, 'no'); }}
-                className={`flex-1 flex items-center justify-center gap-2 h-9 rounded-lg border font-medium text-sm transition-all min-w-0 ${
-                  evt.attendance[currentPaddler.id] === 'no'
-                    ? 'bg-red-100 dark:bg-red-900/40 border-red-500 dark:border-red-700 text-red-700 dark:text-red-400'
-                    : 'bg-transparent border-slate-300 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:border-red-500 dark:hover:border-red-800 hover:bg-red-50 dark:hover:bg-red-900/10'
+            <button
+              onClick={(e) => { e.stopPropagation(); onUpdateAttendance(evt.id, currentPaddler.id, 'no'); }}
+              className={`flex-1 flex items-center justify-center gap-2 h-9 rounded-lg border font-medium text-sm transition-all min-w-0 ${evt.attendance[currentPaddler.id] === 'no'
+                  ? 'bg-red-100 dark:bg-red-900/40 border-red-500 dark:border-red-700 text-red-700 dark:text-red-400'
+                  : 'bg-transparent border-slate-300 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:border-red-500 dark:hover:border-red-800 hover:bg-red-50 dark:hover:bg-red-900/10'
                 }`}
-              >
-                <div className={`flex-shrink-0 p-0.5 rounded-full ${evt.attendance[currentPaddler.id] === 'no' ? 'bg-red-500 text-white dark:text-black' : 'border border-current'}`}>
-                  <X size={12} strokeWidth={3} />
-                </div>
-                <span className="truncate">{t('decline')}</span>
-              </button>
+            >
+              <div className={`flex-shrink-0 p-0.5 rounded-full ${evt.attendance[currentPaddler.id] === 'no' ? 'bg-red-500 text-white dark:text-black' : 'border border-current'}`}>
+                <X size={12} strokeWidth={3} />
+              </div>
+              <span className="truncate">{t('decline')}</span>
+            </button>
           </div>
         </div>
       )}
 
       {/* Participants Accordion */}
       <div className="border border-slate-300 dark:border-white/20 rounded-xl overflow-hidden">
-        <button 
+        <button
           onClick={() => setIsExpanded(!isExpanded)}
           className="w-full flex items-center justify-between px-3 h-9 bg-transparent hover:bg-slate-100 dark:hover:bg-white/5 transition-colors"
         >
           <div className="flex items-center gap-3">
-             <span className="font-medium text-sm text-slate-900 dark:text-white">{t('participants')}</span>
-             <div className="flex items-center gap-2 text-xs">
-                <span className="flex items-center gap-1 text-green-400" title="Zugesagt">
-                   <Check size={12} strokeWidth={3} /> {Object.values(evt.attendance).filter(s => s === 'yes').length}
-                </span>
-                <span className="flex items-center gap-1 text-yellow-400" title="Unsicher">
-                   <HelpCircle size={12} strokeWidth={3} /> {Object.values(evt.attendance).filter(s => s === 'maybe').length}
-                </span>
-                <span className="flex items-center gap-1 text-red-400" title="Abgesagt">
-                   <X size={12} strokeWidth={3} /> {Object.values(evt.attendance).filter(s => s === 'no').length}
-                </span>
-                <span className="flex items-center gap-1 text-slate-500" title="Offen">
-                   <div className="w-2.5 h-2.5 rounded-full border-[1.5px] border-current" /> 
-                   {sortedPaddlers.filter(p => !evt.attendance[p.id]).length}
-                </span>
-             </div>
+            <span className="font-medium text-sm text-slate-900 dark:text-white">{t('participants')}</span>
+            <div className="flex items-center gap-2 text-xs">
+              <span className="flex items-center gap-1 text-green-400" title="Zugesagt">
+                <Check size={12} strokeWidth={3} /> {Object.values(evt.attendance).filter(s => s === 'yes').length}
+              </span>
+              <span className="flex items-center gap-1 text-yellow-400" title="Unsicher">
+                <HelpCircle size={12} strokeWidth={3} /> {Object.values(evt.attendance).filter(s => s === 'maybe').length}
+              </span>
+              <span className="flex items-center gap-1 text-red-400" title="Abgesagt">
+                <X size={12} strokeWidth={3} /> {Object.values(evt.attendance).filter(s => s === 'no').length}
+              </span>
+              <span className="flex items-center gap-1 text-slate-500" title="Offen">
+                <div className="w-2.5 h-2.5 rounded-full border-[1.5px] border-current" />
+                {sortedPaddlers.filter(p => !evt.attendance[p.id]).length}
+              </span>
+            </div>
           </div>
-           {isExpanded ? <ChevronUp size={16} className="text-slate-500 dark:text-slate-400" /> : <ChevronDown size={16} className="text-slate-500 dark:text-slate-400" />}
+          {isExpanded ? <ChevronUp size={16} className="text-slate-500 dark:text-slate-400" /> : <ChevronDown size={16} className="text-slate-500 dark:text-slate-400" />}
         </button>
-        
+
         {isExpanded && (
           <div className="bg-transparent px-3 pb-3 space-y-2 max-h-80 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent">
-             {sortedPaddlers
-               .filter(p => userRole === 'CAPTAIN' || evt.attendance[p.id])
-               .map((p) => {
-               const status = evt.attendance[p.id];
-               const canEdit = userRole === 'CAPTAIN' || (currentPaddler && currentPaddler.id === p.id);
-                              const getStatusColor = (s: string) => {
-                   if (status === s) {
-                     if (s === 'yes') return 'bg-green-100 dark:bg-green-900/50 border-green-500 dark:border-green-600 text-green-700 dark:text-green-400';
-                     if (s === 'maybe') return 'bg-yellow-100 dark:bg-yellow-900/50 border-yellow-500 dark:border-yellow-600 text-yellow-700 dark:text-yellow-400';
-                     if (s === 'no') return 'bg-red-100 dark:bg-red-900/50 border-red-500 dark:border-red-600 text-red-700 dark:text-red-400';
-                   }
-                   return 'border-slate-300 dark:border-slate-700 text-slate-400 dark:text-slate-500 hover:bg-slate-100 dark:hover:bg-white/5';
+            {sortedPaddlers
+              .filter(p => userRole === 'CAPTAIN' || evt.attendance[p.id])
+              .map((p) => {
+                const status = evt.attendance[p.id];
+                const canEdit = userRole === 'CAPTAIN' || (currentPaddler && currentPaddler.id === p.id);
+                const getStatusColor = (s: string) => {
+                  if (status === s) {
+                    if (s === 'yes') return 'bg-green-100 dark:bg-green-900/50 border-green-500 dark:border-green-600 text-green-700 dark:text-green-400';
+                    if (s === 'maybe') return 'bg-yellow-100 dark:bg-yellow-900/50 border-yellow-500 dark:border-yellow-600 text-yellow-700 dark:text-yellow-400';
+                    if (s === 'no') return 'bg-red-100 dark:bg-red-900/50 border-red-500 dark:border-red-600 text-red-700 dark:text-red-400';
+                  }
+                  return 'border-slate-300 dark:border-slate-700 text-slate-400 dark:text-slate-500 hover:bg-slate-100 dark:hover:bg-white/5';
                 };
 
                 return (
                   <div key={p.id} className="flex items-center justify-between py-1">
                     <div className="flex items-center gap-3">
                       {/* Placeholder Avatar - or just name */}
-                        <div className="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 flex items-center justify-center text-xs text-slate-500 dark:text-slate-400">
-                          {p.name.substring(0,2).toUpperCase()}
-                        </div>
+                      <div className="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 flex items-center justify-center text-xs text-slate-500 dark:text-slate-400">
+                        {p.name.substring(0, 2).toUpperCase()}
+                      </div>
                       <span className={`font-medium ${status === 'no' ? 'text-slate-400 dark:text-slate-500' : 'text-slate-700 dark:text-slate-200'}`}>
                         {p.name}
                       </span>
                     </div>
 
-                   <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2">
                       <button
                         disabled={!canEdit}
                         onClick={() => onUpdateAttendance(evt.id, p.id, 'yes')}
                         className={`w-8 h-8 rounded border flex items-center justify-center transition-all ${getStatusColor('yes')}`}
                       >
-                         <Check size={16} />
+                        <Check size={16} />
                       </button>
                       <button
                         disabled={!canEdit}
                         onClick={() => onUpdateAttendance(evt.id, p.id, 'maybe')}
                         className={`w-8 h-8 rounded border flex items-center justify-center transition-all ${getStatusColor('maybe')}`}
                       >
-                         <HelpCircle size={16} />
+                        <HelpCircle size={16} />
                       </button>
                       <button
                         disabled={!canEdit}
                         onClick={() => onUpdateAttendance(evt.id, p.id, 'no')}
                         className={`w-8 h-8 rounded border flex items-center justify-center transition-all ${getStatusColor('no')}`}
                       >
-                         <X size={16} />
+                        <X size={16} />
                       </button>
-                   </div>
-                 </div>
-               );
-             })}
+                    </div>
+                  </div>
+                );
+              })}
           </div>
         )}
       </div>
@@ -268,7 +265,8 @@ interface EventListProps {
 }
 
 const EventList: React.FC<EventListProps> = ({ events, sortedPaddlers, onPlan, onEdit, onDelete, onUpdateAttendance, t }) => {
-  const { userRole, currentPaddler, currentTeam } = useDrachenboot();
+  const { userRole, currentPaddler } = useDrachenboot();
+  const { currentTeam } = useTeam();
   const theme = currentTeam?.plan === 'PRO' ? THEME_MAP[currentTeam.primaryColor as ThemeKey] : null;
   const { language } = useLanguage();
 
@@ -280,7 +278,7 @@ const EventList: React.FC<EventListProps> = ({ events, sortedPaddlers, onPlan, o
   const itemsPerPage = 4;
 
   const totalPages = Math.ceil(sortedEvents.length / itemsPerPage);
-  
+
   if (currentPage > totalPages && totalPages > 0) {
     setCurrentPage(totalPages);
   }
@@ -294,7 +292,7 @@ const EventList: React.FC<EventListProps> = ({ events, sortedPaddlers, onPlan, o
     <>
       <div id="tour-event-list" className="space-y-4">
         {paginatedEvents.map((evt) => (
-          <EventCard 
+          <EventCard
             key={evt.id}
             evt={evt}
             sortedPaddlers={sortedPaddlers}

@@ -5,6 +5,8 @@ import { driver, Driver } from 'driver.js';
 import 'driver.js/dist/driver.css';
 
 import { useDrachenboot } from '@/context/DrachenbootContext';
+import { useTeam } from '@/context/TeamContext';
+
 import { useLanguage } from '@/context/LanguageContext';
 
 interface TourContextType {
@@ -25,90 +27,90 @@ export const useTour = () => {
 export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [driverObj, setDriverObj] = useState<Driver | null>(null);
   const { t } = useLanguage();
-  const { currentTeam } = useDrachenboot();
+  const { currentTeam } = useTeam();
 
   // Define tour configurations
   const tours = React.useMemo(() => ({
     welcome: [
-      { 
-        element: '#tour-welcome', 
-        popover: { 
-          title: t('tourWelcomeTitle'), 
-          description: t('tourWelcomeDesc'), 
-          side: "center", 
-          align: 'center' 
-        } 
+      {
+        element: '#tour-welcome',
+        popover: {
+          title: t('tourWelcomeTitle'),
+          description: t('tourWelcomeDesc'),
+          side: "center",
+          align: 'center'
+        }
       },
-      { 
-        element: '#tour-new-event', 
-        popover: { 
-          title: t('tourNewEventTitle'), 
-          description: t('tourNewEventDesc'), 
-          side: "right", 
-          align: 'start' 
-        } 
+      {
+        element: '#tour-new-event',
+        popover: {
+          title: t('tourNewEventTitle'),
+          description: t('tourNewEventDesc'),
+          side: "right",
+          align: 'start'
+        }
       },
-      { 
-        element: '#tour-paddler-form', 
-        popover: { 
-          title: t('tourMembersTitle'), 
-          description: t('tourMembersDesc'), 
-          side: "left", 
-          align: 'start' 
-        } 
+      {
+        element: '#tour-paddler-form',
+        popover: {
+          title: t('tourMembersTitle'),
+          description: t('tourMembersDesc'),
+          side: "left",
+          align: 'start'
+        }
       },
-      { 
-        element: '#tour-event-list', 
-        popover: { 
-          title: t('tourEventListTitle'), 
-          description: t('tourEventListDesc'), 
-          side: "right", 
-          align: 'start' 
-        } 
+      {
+        element: '#tour-event-list',
+        popover: {
+          title: t('tourEventListTitle'),
+          description: t('tourEventListDesc'),
+          side: "right",
+          align: 'start'
+        }
       },
-      { 
-        element: '#tour-paddler-grid', 
-        popover: { 
-          title: t('tourSquadTitle'), 
-          description: t('tourSquadDesc'), 
-          side: "top", 
-          align: 'start' 
-        } 
+      {
+        element: '#tour-paddler-grid',
+        popover: {
+          title: t('tourSquadTitle'),
+          description: t('tourSquadDesc'),
+          side: "top",
+          align: 'start'
+        }
       }
     ],
     planner: [
       {
         element: '#tour-planner-stats',
         popover: {
-          title: t('tourStatsTitle'), 
-          description: t('tourStatsDesc'), 
-          side: "right", 
+          title: t('tourStatsTitle'),
+          description: t('tourStatsDesc'),
+          side: "right",
           align: 'start'
         }
       },
       {
         element: '#tour-planner-boat-size',
         popover: {
-          title: t('tourBoatSizeTitle'), 
-          description: t('tourBoatSizeDesc'), 
-          side: "right", 
+          title: t('tourBoatSizeTitle'),
+          description: t('tourBoatSizeDesc'),
+          side: "right",
           align: 'start'
         }
       },
       {
         element: '#tour-planner-pool',
         popover: {
-          title: t('tourPoolTitle'), 
-          description: t('tourPoolDesc'), 
-          side: "right", 
+          title: t('tourPoolTitle'),
+          description: t('tourPoolDesc'),
+          side: "right",
           align: 'start'
         }
       },
       {
         element: '#tour-planner-canister',
         popover: {
-          title: t('tourCanisterTitle'), 
-          description: t('tourCanisterDesc'), 
+          title: t('tourCanisterTitle'),
+          description: t('tourCanisterDesc'),
           side: "bottom",
           align: 'end'
         }
@@ -116,8 +118,8 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
       {
         element: '#tour-planner-guest',
         popover: {
-          title: t('tourGuestTitle'), 
-          description: t('tourGuestDesc'), 
+          title: t('tourGuestTitle'),
+          description: t('tourGuestDesc'),
           side: "bottom",
           align: 'end'
         }
@@ -125,27 +127,27 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
       {
         element: '#tour-planner-boat',
         popover: {
-          title: t('tourBoatTitle'), 
-          description: t('tourBoatDesc'), 
-          side: "left", 
+          title: t('tourBoatTitle'),
+          description: t('tourBoatDesc'),
+          side: "left",
           align: 'start'
         }
       },
       {
         element: '#tour-planner-autofill',
         popover: {
-          title: t('tourMagicAITitle'), 
-          description: t('tourMagicAIDesc'), 
-          side: "top", 
+          title: t('tourMagicAITitle'),
+          description: t('tourMagicAIDesc'),
+          side: "top",
           align: 'center'
         }
       },
       {
         element: '#tour-planner-export',
         popover: {
-          title: t('tourExportTitle'), 
-          description: t('tourExportDesc'), 
-          side: "top", 
+          title: t('tourExportTitle'),
+          description: t('tourExportDesc'),
+          side: "top",
           align: 'center'
         }
       }
@@ -164,9 +166,9 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     // We use a small timeout to ensure DOM is ready and avoid synchronous state update in effect
     const timer = setTimeout(() => {
-        setDriverObj(driverInstance);
+      setDriverObj(driverInstance);
     }, 0);
-    
+
     return () => clearTimeout(timer);
   }, [t]);
 
@@ -227,7 +229,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const checkAndStartTour = React.useCallback((tourName: string) => {
     if (!isLoaded) return; // Wait for API
-    
+
     // Check both local storage (legacy/fallback) and API state
     const localSeen = localStorage.getItem(`${tourName}_tour_seen`);
     const apiSeen = seenTours.includes(tourName);
@@ -240,12 +242,12 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Check on mount if we should start welcome tour
   useEffect(() => {
     if (driverObj && currentTeam && isLoaded) {
-        const timer = setTimeout(() => {
-             if (window.location.pathname === '/app') {
-                checkAndStartTour('welcome');
-             }
-        }, 1000); // Increased timeout slightly to ensure UI is settled
-        return () => clearTimeout(timer);
+      const timer = setTimeout(() => {
+        if (window.location.pathname === '/app') {
+          checkAndStartTour('welcome');
+        }
+      }, 1000); // Increased timeout slightly to ensure UI is settled
+      return () => clearTimeout(timer);
     }
   }, [driverObj, checkAndStartTour, currentTeam, isLoaded]);
 

@@ -3,6 +3,8 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useSession } from "next-auth/react";
 import { useDrachenboot } from '@/context/DrachenbootContext';
+import { useTeam } from '@/context/TeamContext';
+import { useTheme } from '@/context/ThemeContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { HelpModal, AlertModal } from '../ui/Modals';
 import { OnboardingModal } from '../auth/OnboardingModal';
@@ -35,21 +37,16 @@ const TeamView: React.FC = () => {
   const router = useRouter();
   const { t } = useLanguage();
   const {
-    teams,
     paddlers,
-    currentTeam,
     // updateTeam,
     addPaddler,
     updatePaddler,
     deletePaddler,
-    isDarkMode,
-    toggleDarkMode,
     userRole,
     isLoading,
     isDataLoading,
     refetchPaddlers,
     refetchEvents,
-    refetchTeams,
     importPaddlers,
     importEvents,
     createEvent,
@@ -58,6 +55,9 @@ const TeamView: React.FC = () => {
     hasMorePaddlers,
     isMorePaddlersLoading,
   } = useDrachenboot();
+
+  const { teams, currentTeam, refetchTeams, isLoadingTeams } = useTeam();
+  const { isDarkMode, toggleDarkMode } = useTheme();
 
   // --- REFRESH DATA ON MOUNT ---
   React.useEffect(() => {
@@ -206,8 +206,8 @@ const TeamView: React.FC = () => {
       <button
         onClick={() => setShowImport(true)}
         className={`px-3 h-8 rounded text-sm font-medium flex items-center gap-2 shadow-sm transition-colors ${currentTeam?.primaryColor && THEME_MAP[currentTeam.primaryColor as keyof typeof THEME_MAP]
-            ? 'bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200'
-            : 'bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200'
+          ? 'bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200'
+          : 'bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200'
           }`}
       >
         <FileUp size={16} />
@@ -218,8 +218,8 @@ const TeamView: React.FC = () => {
         id="tour-new-event"
         onClick={() => setShowEventModal(true)}
         className={`px-3 h-8 rounded text-sm font-medium flex items-center gap-2 shadow-sm transition-colors text-white ${currentTeam?.primaryColor && THEME_MAP[currentTeam.primaryColor as keyof typeof THEME_MAP]
-            ? THEME_MAP[currentTeam.primaryColor as keyof typeof THEME_MAP].button
-            : 'bg-blue-600 hover:bg-blue-700'
+          ? THEME_MAP[currentTeam.primaryColor as keyof typeof THEME_MAP].button
+          : 'bg-blue-600 hover:bg-blue-700'
           }`}
       >
         <Calendar size={16} />
@@ -229,8 +229,8 @@ const TeamView: React.FC = () => {
         id="tour-paddler-form"
         onClick={() => setEditingPaddlerId('new')}
         className={`px-3 h-8 rounded text-sm font-medium flex items-center gap-2 shadow-sm transition-colors text-white ${currentTeam?.primaryColor && THEME_MAP[currentTeam.primaryColor as keyof typeof THEME_MAP]
-            ? THEME_MAP[currentTeam.primaryColor as keyof typeof THEME_MAP].button
-            : 'bg-blue-600 hover:bg-blue-700'
+          ? THEME_MAP[currentTeam.primaryColor as keyof typeof THEME_MAP].button
+          : 'bg-blue-600 hover:bg-blue-700'
           }`}
       >
         <Plus size={16} />
@@ -383,7 +383,7 @@ const TeamView: React.FC = () => {
     }
   };
 
-  if (isLoading || isDataLoading) {
+  if (isLoadingTeams || isLoading || isDataLoading) {
     return <LoadingSkeleton />;
   }
 
@@ -480,8 +480,8 @@ const TeamView: React.FC = () => {
                     <button
                       onClick={() => router.push(`/app/teams/${currentTeam?.id}?tab=subscription`)}
                       className={`w-full py-2 bg-gradient-to-r text-white font-bold rounded-lg shadow-sm transition-all transform hover:scale-[1.02] ${currentTeam?.primaryColor && THEME_MAP[currentTeam.primaryColor as keyof typeof THEME_MAP]
-                          ? THEME_MAP[currentTeam.primaryColor as keyof typeof THEME_MAP].button
-                          : 'from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600'
+                        ? THEME_MAP[currentTeam.primaryColor as keyof typeof THEME_MAP].button
+                        : 'from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600'
                         }`}
                     >
                       {t('pro.upgradeButton')}

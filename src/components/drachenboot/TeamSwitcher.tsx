@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useDrachenboot } from '@/context/DrachenbootContext';
+import { useTeam } from '@/context/TeamContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { ChevronDown, Plus, Users, Check, Settings, CreditCard, Sparkles } from 'lucide-react';
 import { CreateTeamModal } from '../ui/modals/CreateTeamModal';
@@ -13,7 +14,8 @@ const TeamSwitcher: React.FC = () => {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const { data: session } = useSession();
-  const { teams, currentTeam, switchTeam, createTeam, userRole } = useDrachenboot();
+  const { teams, currentTeam, switchTeam, createTeam } = useTeam();
+  const { userRole } = useDrachenboot();
   const { t } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -52,7 +54,7 @@ const TeamSwitcher: React.FC = () => {
           <Plus size={16} />
           <span>{t('createTeam') || 'Create Team'}</span>
         </button>
-        
+
         {showCreateModal && (
           <CreateTeamModal
             onClose={() => setShowCreateModal(false)}
@@ -102,11 +104,10 @@ const TeamSwitcher: React.FC = () => {
                         router.push(`/app/teams/${team.id}?tab=${tab}`);
                       }
                     }}
-                    className={`w-full text-left px-3 py-3 sm:py-2 rounded-lg flex items-center justify-between transition-colors ${
-                      currentTeam?.id === team.id
+                    className={`w-full text-left px-3 py-3 sm:py-2 rounded-lg flex items-center justify-between transition-colors ${currentTeam?.id === team.id
                         ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400'
                         : 'hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200'
-                    }`}
+                      }`}
                   >
                     <div className="flex items-center gap-2 overflow-hidden">
                       <span className="truncate text-base sm:text-sm">{team.name}</span>
@@ -116,7 +117,7 @@ const TeamSwitcher: React.FC = () => {
                   </button>
                 ))}
               </div>
-              
+
               {/* Current Team Actions - ONLY FOR CAPTAIN */}
               {currentTeam && userRole === 'CAPTAIN' && (
                 <>
@@ -169,9 +170,9 @@ const TeamSwitcher: React.FC = () => {
                   )}
                 </>
               )}
-              
+
               <div className="h-px bg-slate-200 dark:bg-slate-700 my-2"></div>
-              
+
               {session && (
                 <button
                   onClick={() => setShowCreateModal(true)}

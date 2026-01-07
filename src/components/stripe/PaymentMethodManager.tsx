@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
 import { useDrachenboot } from '@/context/DrachenbootContext';
+import { useTheme } from '@/context/ThemeContext';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { Button } from '@/components/ui/button';
@@ -17,12 +18,12 @@ interface PaymentMethod {
     expYear: number;
 }
 
-const PaymentMethodUpdateForm = ({ 
-    onSuccess, 
-    onCancel 
-}: { 
-    onSuccess: () => void, 
-    onCancel: () => void 
+const PaymentMethodUpdateForm = ({
+    onSuccess,
+    onCancel
+}: {
+    onSuccess: () => void,
+    onCancel: () => void
 }) => {
     const stripe = useStripe();
     const elements = useElements();
@@ -44,7 +45,7 @@ const PaymentMethodUpdateForm = ({
             confirmParams: {
                 return_url: window.location.href,
             },
-            redirect: 'if_required' 
+            redirect: 'if_required'
         });
 
         if (error) {
@@ -65,17 +66,17 @@ const PaymentMethodUpdateForm = ({
                 </div>
             )}
             <div className="mt-6 flex gap-3">
-                <Button 
-                    type="submit" 
+                <Button
+                    type="submit"
                     disabled={!stripe || isLoading}
                     className="bg-slate-900 text-white hover:bg-slate-800 dark:bg-white dark:text-slate-900"
                 >
                     {isLoading ? <Loader2 className="animate-spin w-4 h-4 mr-2" /> : null}
                     {t('save')}
                 </Button>
-                <Button 
-                    type="button" 
-                    variant="outline" 
+                <Button
+                    type="button"
+                    variant="outline"
                     onClick={onCancel}
                     disabled={isLoading}
                 >
@@ -88,7 +89,7 @@ const PaymentMethodUpdateForm = ({
 
 export const PaymentMethodManager = ({ teamId, currentPaymentMethod }: { teamId: string, currentPaymentMethod: PaymentMethod | undefined | null }) => {
     const { t } = useLanguage();
-    const { isDarkMode } = useDrachenboot();
+    const { isDarkMode } = useTheme();
     const [isEditing, setIsEditing] = useState(false);
     const [clientSecret, setClientSecret] = useState<string | null>(null);
     const [loadingSecret, setLoadingSecret] = useState(false);
@@ -123,7 +124,7 @@ export const PaymentMethodManager = ({ teamId, currentPaymentMethod }: { teamId:
     const handleSuccess = () => {
         setIsEditing(false);
         // Ideally reload page or refetch subscription details to show new method
-        window.location.reload(); 
+        window.location.reload();
     };
 
     return (
@@ -155,11 +156,11 @@ export const PaymentMethodManager = ({ teamId, currentPaymentMethod }: { teamId:
                 </div>
             ) : (
                 clientSecret && (
-                    <Elements 
-                        stripe={stripePromise} 
-                        options={{ 
-                            clientSecret, 
-                            appearance: { 
+                    <Elements
+                        stripe={stripePromise}
+                        options={{
+                            clientSecret,
+                            appearance: {
                                 theme: isDarkMode ? 'night' : 'stripe',
                                 variables: {
                                     colorPrimary: '#2563eb',
@@ -188,7 +189,7 @@ export const PaymentMethodManager = ({ teamId, currentPaymentMethod }: { teamId:
                             locale: (t('common.locale') as 'auto') || 'de'
                         }}
                     >
-                        <PaymentMethodUpdateForm 
+                        <PaymentMethodUpdateForm
                             onSuccess={handleSuccess}
                             onCancel={() => setIsEditing(false)}
                         />
