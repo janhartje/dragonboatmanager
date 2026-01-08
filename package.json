@@ -98,7 +98,7 @@
     "typescript-eslint": "^8.50.1"
   },
   "engines": {
-    "node": ">=24.x"
+    "node": "24.x"
   },
   "prisma": {
     "seed": "node prisma/seed.js"
