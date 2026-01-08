@@ -5,7 +5,7 @@ import { NextRequest } from 'next/server';
 
 const intlMiddleware = createMiddleware(routing);
 
-export default function middleware(req: NextRequest) {
+export default function proxy(req: NextRequest) {
   // 1. Security Headers / Auth Check could be added here in the future
   
   // 2. Internationalization
