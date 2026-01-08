@@ -1,13 +1,13 @@
 import React from 'react';
 import { X } from 'lucide-react';
-import { useLanguage } from '@/context/LanguageContext';
+import { useTranslations } from 'next-intl';
 
 interface TermsModalProps {
   onClose: () => void;
 }
 
 const TermsModal: React.FC<TermsModalProps> = ({ onClose }) => {
-  const { t } = useLanguage();
+  const t = useTranslations();
   return (
   <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
     <div className="bg-white dark:bg-slate-900 w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">

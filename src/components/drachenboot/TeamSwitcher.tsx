@@ -1,13 +1,14 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useDrachenboot } from '@/context/DrachenbootContext';
 import { useTeam } from '@/context/TeamContext';
-import { useLanguage } from '@/context/LanguageContext';
+import { useTranslations } from 'next-intl';
 import { ChevronDown, Plus, Users, Check, Settings, CreditCard, Sparkles } from 'lucide-react';
 import { CreateTeamModal } from '../ui/modals/CreateTeamModal';
 import { useSession } from 'next-auth/react';
 import { ProBadge } from './pro/ProBadge';
 
-import { useRouter, usePathname, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
+import { useRouter, usePathname } from '@/i18n/routing';
 
 const TeamSwitcher: React.FC = () => {
   const router = useRouter();
@@ -16,7 +17,7 @@ const TeamSwitcher: React.FC = () => {
   const { data: session } = useSession();
   const { teams, currentTeam, switchTeam, createTeam } = useTeam();
   const { userRole } = useDrachenboot();
-  const { t } = useLanguage();
+  const t = useTranslations();
   const [isOpen, setIsOpen] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);

@@ -1,11 +1,12 @@
 import React, { useState, useMemo } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import Link from 'next/link';
+import { useRouter } from '@/i18n/routing';
+import { useSearchParams } from 'next/navigation';
+import { Link } from '@/i18n/routing';
 import { useSession } from "next-auth/react";
 import { useDrachenboot } from '@/context/DrachenbootContext';
 import { useTeam } from '@/context/TeamContext';
 import { useTheme } from '@/context/ThemeContext';
-import { useLanguage } from '@/context/LanguageContext';
+import { useTranslations } from 'next-intl';
 import { HelpModal, AlertModal } from '../ui/Modals';
 import { OnboardingModal } from '../auth/OnboardingModal';
 import DragonLogo from '../ui/DragonLogo';
@@ -35,7 +36,7 @@ import { THEME_MAP } from '@/constants/themes';
 
 const TeamView: React.FC = () => {
   const router = useRouter();
-  const { t } = useLanguage();
+  const t = useTranslations();
   const {
     paddlers,
     // updateTeam,
@@ -84,7 +85,7 @@ const TeamView: React.FC = () => {
       setShowUpgradeSuccess(true);
       refetchTeams(); // Force refresh teams to see PRO status
       // Clean URL without reload
-      window.history.replaceState({}, '', '/app');
+      window.history.replaceState({}, '', window.location.pathname);
     }
   }, [searchParams, refetchTeams]);
 

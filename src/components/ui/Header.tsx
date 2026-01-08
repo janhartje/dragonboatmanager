@@ -1,5 +1,7 @@
 import { Sun, Moon, Info } from 'lucide-react';
-import { useLanguage } from '@/context/LanguageContext';
+import { useLocale } from 'next-intl';
+import { useSession } from 'next-auth/react';
+import { useRouter, usePathname } from '@/i18n/routing';
 import { IconButton } from './core/IconButton';
 import { Divider } from './core/Divider';
 import { Card } from './core/Card';
@@ -35,7 +37,28 @@ const Header: React.FC<HeaderProps> = ({
   showLanguageToggle = true,
   // showInstallButton = false
 }) => {
-  const { language, changeLanguage } = useLanguage();
+  const { data: session } = useSession();
+  const locale = useLocale();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const changeLanguage = async (lang: string) => {
+    // 1. Optimistic UI / Navigation first
+    router.replace({ pathname }, { locale: lang as 'de' | 'en' });
+
+    // 2. Sync with backend if logged in (fire and forget)
+    if (session?.user) {
+      try {
+        await fetch('/api/user/preferences', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ language: lang }),
+        });
+      } catch (error) {
+        console.error('Failed to sync language preference:', error);
+      }
+    }
+  };
 
   return (
     <Card 
@@ -80,10 +103,10 @@ const Header: React.FC<HeaderProps> = ({
         
         {showLanguageToggle && (
           <button 
-            onClick={() => changeLanguage(language === 'de' ? 'en' : 'de')} 
+            onClick={() => changeLanguage(locale === 'de' ? 'en' : 'de')} 
             className="p-2 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-blue-50 dark:hover:bg-slate-700 transition-all font-bold text-sm w-10 h-10 flex items-center justify-center shrink-0 active:scale-95"
           >
-            {language.toUpperCase()}
+            {locale.toUpperCase()}
           </button>
         )}
       </div>

@@ -1,7 +1,7 @@
 import React from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/i18n/routing';
 import { useDrachenboot } from '@/context/DrachenbootContext';
-import { useLanguage } from '@/context/LanguageContext';
+import { useTranslations } from 'next-intl';
 import { Event, Paddler } from '@/types';
 import EventList from './EventList';
 
@@ -14,7 +14,7 @@ interface EventsSectionProps {
 
 export const EventsSection: React.FC<EventsSectionProps> = ({ sortedPaddlers, onEdit }) => {
   const router = useRouter();
-  const { t } = useLanguage();
+  const t = useTranslations();
   const { 
     events, 
     deleteEvent,

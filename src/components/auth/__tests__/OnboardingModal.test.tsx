@@ -1,7 +1,13 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import React from 'react';
 import { OnboardingModal } from '../OnboardingModal';
-import { LanguageProvider } from '@/context/LanguageContext';
+jest.mock('next-intl', () => ({
+  useTranslations: () => (key: string) => {
+    if (key === 'completeProfile') return 'Complete Profile';
+    return key;
+  },
+  useLocale: () => 'de',
+}));
 import { Paddler } from '@/types';
 
 const mockPaddler: Partial<Paddler> = {
@@ -22,13 +28,11 @@ describe('OnboardingModal', () => {
 
   it('should disable submit button if no skills are selected', () => {
     render(
-      <LanguageProvider>
-        <OnboardingModal 
-          paddler={mockPaddler as Paddler} 
-          onSave={mockOnSave} 
-          onClose={mockOnClose} 
-        />
-      </LanguageProvider>
+      <OnboardingModal 
+        paddler={mockPaddler as Paddler} 
+        onSave={mockOnSave} 
+        onClose={mockOnClose} 
+      />
     );
 
     // Fill name
@@ -47,13 +51,11 @@ describe('OnboardingModal', () => {
 
   it('should enable submit button and allow saving when all fields are filled', async () => {
     render(
-      <LanguageProvider>
-        <OnboardingModal 
-          paddler={mockPaddler as Paddler} 
-          onSave={mockOnSave} 
-          onClose={mockOnClose} 
-        />
-      </LanguageProvider>
+      <OnboardingModal 
+        paddler={mockPaddler as Paddler} 
+        onSave={mockOnSave} 
+        onClose={mockOnClose} 
+      />
     );
 
     fireEvent.change(screen.getByPlaceholderText(/Name/i), { target: { value: 'Test User' } });

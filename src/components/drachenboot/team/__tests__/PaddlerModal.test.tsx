@@ -20,8 +20,8 @@ jest.mock('@/context/DrachenbootContext', () => ({
   useDrachenboot: () => mockUseDrachenboot(),
 }));
 
-jest.mock('@/context/LanguageContext', () => ({
-  useLanguage: () => ({ t: (key: string) => key }),
+jest.mock('next-intl', () => ({
+  useTranslations: () => (key: string) => key,
 }));
 
 jest.mock('@/context/TeamContext', () => ({

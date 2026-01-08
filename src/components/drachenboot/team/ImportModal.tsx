@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import ExcelJS from 'exceljs';
-import { useLanguage } from '@/context/LanguageContext';
+import { useTranslations } from 'next-intl';
 import { THEME_MAP, ThemeKey } from '@/constants/themes';
 import { useDrachenboot } from '@/context/DrachenbootContext';
 import { useTeam } from '@/context/TeamContext';
@@ -25,7 +25,7 @@ export const ImportModal: React.FC<ImportModalProps> = ({
   onImportPaddlers,
   onImportEvents
 }) => {
-  const { t } = useLanguage();
+  const t = useTranslations();
   const { paddlers } = useDrachenboot();
   const { currentTeam } = useTeam();
   const theme = currentTeam?.plan === 'PRO' ? THEME_MAP[currentTeam.primaryColor as ThemeKey] : null;

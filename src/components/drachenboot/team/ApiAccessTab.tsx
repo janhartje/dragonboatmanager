@@ -3,8 +3,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Key, Trash2, Plus, ExternalLink, AlertCircle } from 'lucide-react';
 import { ApiKeyModal } from './ApiKeyModal';
-import { useLanguage } from '@/context/LanguageContext';
+import { useTranslations } from 'next-intl';
 import { ConfirmModal } from '@/components/ui/Modals';
+import { Link } from '@/i18n/routing';
 
 interface ApiKey {
   id: string;
@@ -19,7 +20,7 @@ interface ApiAccessTabProps {
 }
 
 export function ApiAccessTab({ teamId, isPro }: ApiAccessTabProps) {
-  const { t } = useLanguage();
+  const t = useTranslations();
   const [apiKeys, setApiKeys] = useState<ApiKey[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -101,13 +102,13 @@ export function ApiAccessTab({ teamId, isPro }: ApiAccessTabProps) {
         <p className="mb-4 text-gray-600 dark:text-gray-400">
           {t('api.proRequiredDesc') || 'Upgrade to PRO to access the Model Context Protocol API and integrate with AI assistants like Claude Desktop.'}
         </p>
-        <a
+        <Link
           href={`/app/teams/${teamId}/upgrade`}
           className="inline-flex items-center gap-2 rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
         >
           {t('api.upgradeBtn') || 'Upgrade to PRO'}
           <ExternalLink className="h-4 w-4" />
-        </a>
+        </Link>
       </div>
     );
   }

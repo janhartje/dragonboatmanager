@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { X, ChevronDown, ChevronRight, Sparkles, Wrench, Bug } from 'lucide-react';
-import { useLanguage } from '@/context/LanguageContext';
+import { useTranslations } from 'next-intl';
 
 interface ChangelogModalProps {
   onClose: () => void;
@@ -15,8 +15,8 @@ interface VersionData {
 }
 
 const ChangelogModal: React.FC<ChangelogModalProps> = ({ onClose }) => {
-  const { t } = useLanguage();
-  const versions: VersionData[] = t('changelogData') || [];
+  const t = useTranslations();
+  const versions: VersionData[] = t.raw('changelogData') || [];
   const [expandedVersions, setExpandedVersions] = useState<Set<string>>(new Set(versions.length > 0 ? [versions[0].version] : []));
 
   const toggleVersion = (version: string) => {

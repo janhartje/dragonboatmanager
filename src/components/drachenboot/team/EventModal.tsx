@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Calendar, Plus, Save } from 'lucide-react';
 import { FormInput } from '@/components/ui/FormInput';
-import { useLanguage } from '@/context/LanguageContext';
+import { useTranslations } from 'next-intl';
 import { THEME_MAP, ThemeKey } from '@/constants/themes';
 
 import { useTeam } from '@/context/TeamContext';
@@ -19,7 +19,7 @@ interface EventModalProps {
 }
 
 export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onCreate, onUpdate, initialData }) => {
-  const { t } = useLanguage();
+  const t = useTranslations();
   const { currentTeam } = useTeam();
   const theme = currentTeam?.plan === 'PRO' ? THEME_MAP[currentTeam.primaryColor as ThemeKey] : null;
   const [title, setTitle] = useState('');

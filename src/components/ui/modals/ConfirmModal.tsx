@@ -1,6 +1,6 @@
 import React from 'react';
 import { Loader2 } from 'lucide-react';
-import { useLanguage } from '@/context/LanguageContext';
+import { useTranslations } from 'next-intl';
 import { THEME_MAP, ThemeKey } from '@/constants/themes';
 import { Modal } from '../core/Modal';
 
@@ -29,7 +29,7 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
   primaryColor,
   isLoading = false
 }) => {
-  const { t } = useLanguage();
+  const t = useTranslations();
   const theme = primaryColor ? THEME_MAP[primaryColor as ThemeKey] : null;
 
   return (

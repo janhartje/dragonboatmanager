@@ -6,8 +6,8 @@ import { useDrachenboot } from '@/context/DrachenbootContext';
 
 // Mocks
 jest.mock('@/context/DrachenbootContext');
-jest.mock('@/context/LanguageContext', () => ({
-  useLanguage: () => ({ t: (key: string) => key }),
+jest.mock('next-intl', () => ({
+  useTranslations: () => (key: string) => key,
 }));
 
 jest.mock('@/utils/importUtils', () => ({

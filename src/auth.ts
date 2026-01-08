@@ -1,4 +1,5 @@
 import NextAuth from "next-auth"
+import React from 'react';
 import { PrismaAdapter } from "@auth/prisma-adapter"
 import prisma from "@/lib/prisma"
 import Google from "next-auth/providers/google"
@@ -58,6 +59,36 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         // Try to detect user's language preference
         let lang: Language = 'de'; // Default to German
 
+        // Detect from callbackUrl (reflects current UI state)
+        try {
+          const magicLinkUrl = new URL(url);
+          const callbackUrl = magicLinkUrl.searchParams.get('callbackUrl');
+          if (callbackUrl) {
+            let urlToScan = callbackUrl;
+            // Decode potential double-encoding (common in OAuth/Redirect flows)
+            if (urlToScan.includes('%')) {
+               try {
+                 urlToScan = decodeURIComponent(urlToScan);
+               } catch {
+                 // ignore decoding errors
+               }
+            }
+
+            // Check path segments
+            const isEnPath = /\/en(\/|\?|$)/.test(urlToScan);
+            const isDePath = /\/de(\/|\?|$)/.test(urlToScan);
+            
+            // Check query params
+            const isEnQuery = /[?&](lang|locale)=en(&|$)/.test(urlToScan);
+            const isDeQuery = /[?&](lang|locale)=de(&|$)/.test(urlToScan);
+
+            if (isEnPath || isEnQuery) lang = 'en';
+            else if (isDePath || isDeQuery) lang = 'de';
+          }
+        } catch (e) {
+          console.error("Error detecting language from URL:", e);
+        }
+
         // Check if there is a pending invite for this email (Paddler with inviteEmail)
         // OR if the user is a member of a team (to send welcome back email)
         // OR if the user is a member of a team (to send welcome back email)
@@ -96,7 +127,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 const targetUrl = new URL(url);
                 const baseUrl = getBaseUrl();
                 // Redirect to main app with teamId param
-                const teamRedirect = `${baseUrl}/app?teamId=${invitedPaddler.teamId}`;
+                const teamRedirect = `${baseUrl}/${lang}/app?teamId=${invitedPaddler.teamId}`;
 
                 targetUrl.searchParams.set('callbackUrl', teamRedirect);
                 url = targetUrl.toString();
@@ -132,8 +163,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         }
 
         const ReactEmailComponent = shouldUseTeamInvite
-          ? TeamInviteEmail({ url, teamName, lang }) // inviterName unavailable here efficiently
-          : MagicLinkEmail({ url, lang });
+          ? React.createElement(TeamInviteEmail, { url, teamName, lang })
+          : React.createElement(MagicLinkEmail, { url, lang });
 
 
 

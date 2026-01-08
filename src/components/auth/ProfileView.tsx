@@ -1,21 +1,18 @@
 'use client';
 
 import React from 'react';
-import Link from 'next/link';
-import { useLanguage } from '@/context/LanguageContext';
-
-
+import { Link, useRouter } from '@/i18n/routing';
+import { useTranslations } from 'next-intl';
 import { useTheme } from '@/context/ThemeContext';
 import DragonLogo from '@/components/ui/DragonLogo';
 import Header from '@/components/ui/Header';
 import Footer from '@/components/ui/Footer';
 import { UserProfile } from '@/components/auth/UserProfile';
 import { ArrowLeft } from 'lucide-react';
-import { useRouter } from 'next/navigation';
 import { UserMenu } from '@/components/auth/UserMenu';
 
 const ProfileView: React.FC = () => {
-  const { t } = useLanguage();
+  const t = useTranslations();
   const { isDarkMode, toggleDarkMode } = useTheme();
   const router = useRouter();
 

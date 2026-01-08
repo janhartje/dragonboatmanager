@@ -1,16 +1,17 @@
+'use client';
+
 import React from 'react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { Link, usePathname } from '@/i18n/routing';
 import { Info, X, PlayCircle, ExternalLink, Sparkles } from 'lucide-react';
 import { useTour } from '@/context/TourContext';
-import { useLanguage } from '@/context/LanguageContext';
+import { useTranslations } from 'next-intl';
 
 interface HelpModalProps {
   onClose: () => void;
 }
 
 const HelpModal: React.FC<HelpModalProps> = ({ onClose }) => {
-  const { t } = useLanguage();
+  const t = useTranslations();
   const { startTour } = useTour();
   const pathname = usePathname();
   

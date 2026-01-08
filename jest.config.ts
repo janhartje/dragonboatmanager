@@ -16,7 +16,7 @@ const config: Config = {
     '^@/(.*)$': '<rootDir>/src/$1',
   },
   transformIgnorePatterns: [
-    '/node_modules/(?!(next-auth|@auth/core|@auth/.*|lucide-react)/)'
+    'node_modules/(?!(next-auth|@auth/core|@auth/.*|lucide-react|next-intl|use-intl)/)'
   ]
 }
  

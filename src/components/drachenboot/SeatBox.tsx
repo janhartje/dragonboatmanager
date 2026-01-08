@@ -4,7 +4,7 @@ import { useDraggable, useDroppable } from '@dnd-kit/core';
 
 import SkillBadges from '../ui/SkillBadges';
 import { BoatConfigItem, Paddler } from '@/types';
-import { useLanguage } from '@/context/LanguageContext';
+import { useTranslations } from 'next-intl';
 
 interface SeatBoxProps {
   seat: BoatConfigItem;
@@ -31,7 +31,7 @@ const SeatBox: React.FC<SeatBoxProps> = ({
   isMaybe,
   isReadOnly,
 }) => {
-  const { t } = useLanguage();
+  const t = useTranslations();
   const side = seat.id.includes('left') ? 'left' : seat.id.includes('right') ? 'right' : null;
   
   // Droppable: The Seat itself

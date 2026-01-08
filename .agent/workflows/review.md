@@ -62,12 +62,17 @@ Analysiere den Output von "gh pr diff". Wende dabei folgende **kritische Heurist
 3. **Performance:** Gibt es N+1 Queries? Unnötige Re-Renders? O(n^2) Loops?
 4. **Wartbarkeit:** Ist der Code selbsterklärend? Wenn Kommentare nötig sind, ist der Code oft zu komplex.
 5. **Seiteneffekte:** Werden globale Zustände mutiert? Ist die Funktion pur?
+6. **Dokumentation:** 
+    * Ist die PR-Beschreibung aussagekräftig? 
+    * Wurde die `CHANGELOG.md` aktualisiert (falls relevant)?
+    * Wurden READMEs oder andere Dokumentationen (auch Inline-Docs) angepasst?
 
 **Erstelle den Review-Text (Markdown) nach dieser Struktur:**
 
 * **🚨 Risikoeinschätzung:** Beginne mit einer Einschätzung: *Kritisch / Warnung / Info*. (Sei hier pessimistisch).
 * **🛡️ Sicherheits- & Stabilitäts-Check:** Liste potenzielle Lücken auf.
 * **🔍 Code-Qualitäts-Audit:** Nenne Verstöße gegen Clean Code, DRY und SOLID Prinzipien.
+* **📚 Dokumentations-Check:** Prüfe auf Vollständigkeit von PR-Beschreibung, Changelog und Code-Doku.
 * **💡 Refactoring-Forderungen:** Gib korrigierte Code-Snippets an, die *defensiver* geschrieben sind (z.B. Early Returns, strikte Typisierung).
 * **Fragen:** Stelle Fragen an Stellen, die auch nur den geringsten Zweifel an der Logik zulassen (z.B. "Was passiert, wenn die API hier in ein Timeout läuft?").
 

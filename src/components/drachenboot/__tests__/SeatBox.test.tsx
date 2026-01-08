@@ -11,14 +11,12 @@ jest.mock('../../ui/SkillBadges', () => {
   return MockSkillBadges;
 });
 
-// Mock LanguageContext
-jest.mock('@/context/LanguageContext', () => ({
-  useLanguage: () => ({
-    t: (key: string) => {
-      if (key === 'available') return 'Frei';
-      return key;
-    },
-  }),
+// Mock next-intl
+jest.mock('next-intl', () => ({
+  useTranslations: () => (key: string) => {
+    if (key === 'available') return 'Frei';
+    return key;
+  },
 }));
 
 describe('SeatBox', () => {

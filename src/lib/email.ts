@@ -29,6 +29,8 @@ export const sendEmail = async ({
     // Pre-render the React component to HTML
     const html = await render(react);
     
+    console.log(`[INFO] Email rendered successfully. Template: ${template}, HTML Length: ${html?.length || 0}`);
+    
     // Add to queue
     await prisma.emailQueue.create({
       data: {

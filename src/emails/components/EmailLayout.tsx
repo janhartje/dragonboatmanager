@@ -15,7 +15,7 @@ export const EmailLayout = ({ children, previewText, headerTitle = "Drachenboot 
   const logoUrl = `${baseUrl}/icons/logo-192.png`;
 
   return (
-    <Html>
+    <Html lang={lang}>
       <Preview>{previewText || headerTitle}</Preview>
       <Tailwind
         config={{
@@ -62,9 +62,9 @@ export const EmailLayout = ({ children, previewText, headerTitle = "Drachenboot 
                 {t(lang, 'emailFooterMadeWith')}
               </Text>
               <Text className="m-0 mb-4">
-                <Link href={`${baseUrl}/imprint`} className="text-slate-500 dark:text-slate-400 underline mx-2">{t(lang, 'imprint')}</Link>
+                <Link href={`${baseUrl}/${lang}/legal/impressum`} className="text-slate-500 dark:text-slate-400 underline mx-2">{t(lang, 'legal.common.imprint')}</Link>
                 •
-                <Link href={`${baseUrl}/privacy`} className="text-slate-500 dark:text-slate-400 underline mx-2">{t(lang, 'privacy')}</Link>
+                <Link href={`${baseUrl}/${lang}/legal/datenschutz`} className="text-slate-500 dark:text-slate-400 underline mx-2">{t(lang, 'legal.common.privacy')}</Link>
               </Text>
               <Text className="m-0 text-[10px] text-slate-400 dark:text-slate-500">
                 {t(lang, 'emailFooterAuto')}

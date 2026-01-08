@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { dismissInfoCard, getDismissedCards } from '@/app/actions/infocards';
-import { useLanguage } from '@/context/LanguageContext';
+import { useTranslations } from 'next-intl';
 import { useDrachenboot } from '@/context/DrachenbootContext';
 import { useSession } from 'next-auth/react';
 
@@ -18,7 +18,7 @@ interface InfoCardProps {
 export function InfoCard({ id, children, className = '', allowedRoles, allowedSkills }: InfoCardProps) {
   const [isVisible, setIsVisible] = useState(false); // Default hidden to prevent flash of dismissed content
   const [hasChecked, setHasChecked] = useState(false);
-  const { t } = useLanguage();
+  const t = useTranslations();
   const { userRole, currentPaddler } = useDrachenboot();
   const { status } = useSession();
 

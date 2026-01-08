@@ -1,17 +1,18 @@
 'use client';
 
 import React, { useState } from 'react';
-import Link from 'next/link';
+import { Link } from '@/i18n/routing';
 import { useSearchParams } from 'next/navigation';
 import { signIn } from 'next-auth/react';
-import { useLanguage } from '@/context/LanguageContext';
+import { useTranslations, useLocale } from 'next-intl';
 import DragonLogo from '@/components/ui/DragonLogo';
 import Footer from '@/components/ui/Footer';
 import { LoginButton } from '@/components/auth/LoginButton';
 import { Github, ArrowLeft, Mail, Loader2, CheckCircle } from 'lucide-react';
 
 const LoginView: React.FC = () => {
-  const { t, language } = useLanguage();
+  const t = useTranslations('Login');
+  const locale = useLocale();
   const searchParams = useSearchParams();
   const isVerifyRequest = searchParams.get('verify') === '1';
   const prefilledEmail = searchParams.get('email') || '';
@@ -30,7 +31,7 @@ const LoginView: React.FC = () => {
       await signIn('resend', { 
         email, 
         redirect: false,
-        callbackUrl: `/app?lang=${language}`,
+        callbackUrl: `/${locale}/app`,
       });
       setEmailSent(true);
     } catch (error) {
@@ -88,6 +89,7 @@ const LoginView: React.FC = () => {
               </div>
               <h1 className="text-2xl font-bold text-slate-800 dark:text-white mb-2">
                 {t('welcomeBack') || 'Willkommen zurück'}
+                <span className="text-slate-400 font-normal"> — {t('noPasswordNeeded')}</span>
               </h1>
               <p className="text-slate-600 dark:text-slate-400">
                 {t('loginSubtitle') || 'Bitte melden Sie sich an, um fortzufahren.'}
@@ -119,7 +121,7 @@ const LoginView: React.FC = () => {
                 </button>
               </div>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-2 text-left">
-                {t('signInEmail') || 'Mit E-Mail anmelden'} — kein Passwort nötig!
+                {t('signInEmail') || 'Mit E-Mail anmelden'} — {t('noPasswordNeeded')}
               </p>
             </form>
 

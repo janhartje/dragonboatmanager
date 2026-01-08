@@ -1,6 +1,6 @@
 import React from 'react';
 import { X, AlertTriangle, Info, CheckCircle, XCircle } from 'lucide-react';
-import { useLanguage } from '@/context/LanguageContext';
+import { useTranslations } from 'next-intl';
 
 interface AlertModalProps {
   isOpen: boolean;
@@ -17,7 +17,7 @@ const AlertModal: React.FC<AlertModalProps> = ({
   onClose,
   type = 'info'
 }) => {
-  const { t } = useLanguage();
+  const t = useTranslations();
 
   if (!isOpen) return null;
 

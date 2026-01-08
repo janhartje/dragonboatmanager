@@ -21,7 +21,7 @@ async function sendTeamInviteEmail(
     await signIn('resend', { 
       email, 
       redirect: false,
-      redirectTo: `/app/teams/${teamId}?lang=${lang}`,
+      redirectTo: `/${lang}/app/teams/${teamId}`,
     })
   } catch {
     // signIn throws a redirect error but the email is sent

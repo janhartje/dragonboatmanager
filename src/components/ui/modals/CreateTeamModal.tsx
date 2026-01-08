@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useLanguage } from '@/context/LanguageContext';
+import { useTranslations } from 'next-intl';
 import { Modal } from '@/components/ui/core/Modal';
 import { FormInput } from '@/components/ui/FormInput';
 
@@ -9,7 +9,7 @@ interface CreateTeamModalProps {
 }
 
 export const CreateTeamModal: React.FC<CreateTeamModalProps> = ({ onClose, onCreate }) => {
-  const { t } = useLanguage();
+  const t = useTranslations();
   const [name, setName] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {

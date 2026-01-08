@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { useLanguage } from '@/context/LanguageContext';
+import { useTranslations } from 'next-intl';
 import { Calendar, CheckCircle2, XCircle, Clock } from 'lucide-react';
 
 interface SubscriptionHistoryItem {
@@ -16,7 +16,7 @@ interface SubscriptionHistoryItem {
 }
 
 export const SubscriptionHistory = ({ history }: { history: SubscriptionHistoryItem[] }) => {
-  const { t } = useLanguage();
+  const t = useTranslations();
 
   if (!history || history.length === 0) return null;
 

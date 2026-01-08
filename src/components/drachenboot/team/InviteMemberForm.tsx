@@ -5,7 +5,7 @@ import { useState } from "react"
 import { FormInput } from "@/components/ui/FormInput"
 import { Label } from "@/components/ui/label"
 import { inviteMember } from "@/app/actions/team"
-import { useLanguage } from "@/context/LanguageContext"
+import { useTranslations } from 'next-intl';
 import { Loader2, Check, Mail } from "lucide-react"
 
 interface InviteMemberFormProps {
@@ -14,7 +14,7 @@ interface InviteMemberFormProps {
 }
 
 export function InviteMemberForm({ teamId, onSuccess }: InviteMemberFormProps) {
-  const { t } = useLanguage()
+  const t = useTranslations();
   const [email, setEmail] = useState("")
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle")
   const [errorMessage, setErrorMessage] = useState("")

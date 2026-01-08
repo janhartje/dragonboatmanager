@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { useLanguage } from '@/context/LanguageContext';
+import { useTranslations, useLocale } from 'next-intl';
 import { Download, AlertCircle, Loader2 } from 'lucide-react';
 
 interface Invoice {
@@ -15,7 +15,8 @@ interface Invoice {
 }
 
 export const InvoicesList = ({ teamId }: { teamId: string }) => {
-  const { t, language } = useLanguage();
+  const t = useTranslations();
+  const locale = useLocale();
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -99,14 +100,14 @@ export const InvoicesList = ({ teamId }: { teamId: string }) => {
           {invoices.map((invoice) => (
             <tr key={invoice.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
               <td className="px-4 py-3 font-medium text-slate-900 dark:text-slate-100">
-                {new Date(invoice.date * 1000).toLocaleDateString(language === 'de' ? 'de-DE' : 'en-US', {
+                {new Date(invoice.date * 1000).toLocaleDateString(locale === 'de' ? 'de-DE' : 'en-US', {
                     year: 'numeric',
                     month: 'long', 
                     day: 'numeric'
                 })}
               </td>
               <td className="px-4 py-3">
-                {new Intl.NumberFormat(language === 'de' ? 'de-DE' : 'en-US', {
+                {new Intl.NumberFormat(locale === 'de' ? 'de-DE' : 'en-US', {
                   style: 'currency',
                   currency: invoice.currency,
                 }).format(invoice.amount / 100)}

@@ -4,14 +4,14 @@ import { useState, useEffect } from "react"
 import { useSession } from "next-auth/react"
 import { updateProfile } from "@/app/actions/user"
 import { Save, Check } from "lucide-react"
-import { useLanguage } from "@/context/LanguageContext"
+import { useTranslations } from 'next-intl';
 import { useDrachenboot } from "@/context/DrachenbootContext"
 
 import { FormInput } from "@/components/ui/FormInput"
 
 export function UserProfile() {
   const { data: session, update } = useSession()
-  const { t } = useLanguage()
+  const t = useTranslations();
   const { paddlers, refetchPaddlers } = useDrachenboot()
   const [name, setName] = useState(session?.user?.name || "")
   const [weight, setWeight] = useState<string | number>("")

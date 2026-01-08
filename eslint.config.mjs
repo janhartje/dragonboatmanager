@@ -4,6 +4,12 @@ import nextPlugin from "@next/eslint-plugin-next";
 import reactPlugin from "eslint-plugin-react";
 import hooksPlugin from "eslint-plugin-react-hooks";
 import tseslint from "typescript-eslint";
+import i18nJson from "eslint-plugin-i18n-json";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 export default [
     js.configs.recommended,
@@ -34,6 +40,35 @@ export default [
                 },
             },
         }
+    },
+    {
+        files: ["src/locales/*.json"],
+        plugins: {
+            "i18n-json": i18nJson,
+        },
+        processor: i18nJson.processors[".json"],
+        rules: {
+            "i18n-json/identical-keys": [
+                "error",
+                {
+                    filePath: path.resolve(__dirname, "src/locales/de.json"),
+                },
+            ],
+            "i18n-json/valid-json": "error",
+            "i18n-json/sorted-keys": [
+                "error",
+                {
+                    order: "asc",
+                    indentSpaces: 4,
+                },
+            ],
+        },
+    },
+    {
+        files: ["**/*.d.ts"],
+        rules: {
+            "@typescript-eslint/no-empty-object-type": "off",
+        },
     },
     {
         ignores: [".next/*", "node_modules/*", "public/*", "prisma/seed.js"],
