@@ -1,5 +1,6 @@
 import { Sun, Moon, Info } from 'lucide-react';
 import { useLocale } from 'next-intl';
+import { useSession } from 'next-auth/react';
 import { useRouter, usePathname } from '@/i18n/routing';
 import { IconButton } from './core/IconButton';
 import { Divider } from './core/Divider';
@@ -36,12 +37,27 @@ const Header: React.FC<HeaderProps> = ({
   showLanguageToggle = true,
   // showInstallButton = false
 }) => {
+  const { data: session } = useSession();
   const locale = useLocale();
   const router = useRouter();
   const pathname = usePathname();
 
-  const changeLanguage = (lang: string) => {
+  const changeLanguage = async (lang: string) => {
+    // 1. Optimistic UI / Navigation first
     router.replace({ pathname }, { locale: lang as 'de' | 'en' });
+
+    // 2. Sync with backend if logged in (fire and forget)
+    if (session?.user) {
+      try {
+        await fetch('/api/user/preferences', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ language: lang }),
+        });
+      } catch (error) {
+        console.error('Failed to sync language preference:', error);
+      }
+    }
   };
 
   return (
