@@ -89,4 +89,4 @@ const PaddlerPool: React.FC<PaddlerPoolProps> = ({
   );
 };
 
-export default PaddlerPool;
+export default React.memo(PaddlerPool);

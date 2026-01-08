@@ -70,6 +70,18 @@
     "changelog": "Versionshistorie",
     "changelogData": [
         {
+            "version": "3.7.1",
+            "date": "Januar 2026",
+            "features": [],
+            "technical": [
+                "Drag & Drop Performance: Optimierung der Rendering-Zykluszeiten durch Implementierung von React.memo und useCallback.",
+                "Reduzierte Re-Renders im Planer-Modus für flüssigere Bedienung auf Mobilgeräten."
+            ],
+            "bugfixes": [
+                "Fix: Scroll-Lock-Problem behoben, bei dem das Scrollen nach dem Schließen von Modals (z.B. Gast hinzufügen) blockiert blieb."
+            ]
+        },
+        {
             "version": "3.7.0",
             "date": "Januar 2026",
             "features": [],

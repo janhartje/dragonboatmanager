@@ -151,4 +151,4 @@ const BoatVisualizer = React.forwardRef<HTMLDivElement, BoatVisualizerProps>(({
 
 BoatVisualizer.displayName = 'BoatVisualizer';
 
-export default BoatVisualizer;
+export default React.memo(BoatVisualizer);

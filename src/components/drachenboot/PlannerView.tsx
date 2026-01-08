@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo, useRef, useEffect } from 'react';
+import React, { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import { useRouter, Link } from '@/i18n/routing';
 import { ArrowLeft, Box } from 'lucide-react';
 import { toPng } from 'html-to-image';
@@ -188,30 +188,30 @@ const PlannerView: React.FC<PlannerViewProps> = ({ eventId }) => {
 
   const goHome = () => router.push('/app');
 
-  const handleAddCanister = async () => {
+  const handleAddCanister = useCallback(async () => {
     if (isReadOnly) return;
     const canisterId = await addCanister(activeEventId);
     if (canisterId) setSelectedPaddlerId(canisterId);
-  };
+  }, [isReadOnly, addCanister, activeEventId]);
 
-  const handleRemoveCanister = async (canisterId: string) => {
+  const handleRemoveCanister = useCallback(async (canisterId: string) => {
     if (isReadOnly) return;
     await removeCanister(activeEventId, canisterId);
-  };
+  }, [isReadOnly, removeCanister, activeEventId]);
 
-  const handleAddGuest = async (guestData: Pick<Paddler, 'name' | 'weight' | 'skills'>) => {
+  const handleAddGuest = useCallback(async (guestData: Pick<Paddler, 'name' | 'weight' | 'skills'>) => {
     if (isReadOnly) return;
     const guestId = await addGuest(activeEventId, guestData);
     if (guestId) setSelectedPaddlerId(guestId);
     setShowGuestModal(false);
-  };
+  }, [isReadOnly, addGuest, activeEventId]);
 
-  const handleRemoveGuest = async (guestId: string) => {
+  const handleRemoveGuest = useCallback(async (guestId: string) => {
     if (isReadOnly) return;
     await removeGuest(activeEventId, guestId);
-  };
+  }, [isReadOnly, removeGuest, activeEventId]);
 
-  const handleUpdateBoatSize = (size: 'standard' | 'small') => {
+  const handleUpdateBoatSize = useCallback((size: 'standard' | 'small') => {
     if (isReadOnly) return;
     if (size === boatSize) return;
 
@@ -222,7 +222,7 @@ const PlannerView: React.FC<PlannerViewProps> = ({ eventId }) => {
     } else {
       updateEvent(activeEventId, { boatSize: size });
     }
-  };
+  }, [isReadOnly, boatSize, assignments, updateEvent, activeEventId]);
 
   const confirmBoatSizeChange = () => {
     if (pendingBoatSize) {
@@ -234,7 +234,7 @@ const PlannerView: React.FC<PlannerViewProps> = ({ eventId }) => {
     }
   };
 
-  const handleSeatClick = (sid: string) => {
+  const handleSeatClick = useCallback((sid: string) => {
     if (isReadOnly) return;
     if (lockedSeats.includes(sid)) return;
 
@@ -275,9 +275,9 @@ const PlannerView: React.FC<PlannerViewProps> = ({ eventId }) => {
     } else if (assignments[sid]) {
       setSelectedPaddlerId(assignments[sid]);
     }
-  };
+  }, [isReadOnly, lockedSeats, selectedPaddlerId, assignments, updateAssignments, assignmentKey]);
 
-  const handleUnassign = (sid: string, e: React.MouseEvent) => {
+  const handleUnassign = useCallback((sid: string, e: React.MouseEvent) => {
     e.stopPropagation();
     if (isReadOnly) return;
     if (lockedSeats.includes(sid)) return;
@@ -291,14 +291,14 @@ const PlannerView: React.FC<PlannerViewProps> = ({ eventId }) => {
     if (paddler && paddler.isCanister) {
       setPaddlers((prev) => prev.filter((p) => p.id !== paddlerId));
     }
-  };
+  }, [isReadOnly, lockedSeats, assignments, activePaddlerPool, updateAssignments, assignmentKey, setPaddlers]);
 
-  const toggleLock = (sid: string, e: React.MouseEvent) => {
+  const toggleLock = useCallback((sid: string, e: React.MouseEvent) => {
     e.stopPropagation();
     if (isReadOnly) return;
     if (!assignments[sid]) return;
     setLockedSeats((prev) => prev.includes(sid) ? prev.filter((i) => i !== sid) : [...prev, sid]);
-  };
+  }, [isReadOnly, assignments]);
 
   const clearBoat = () => {
     if (isReadOnly) return;

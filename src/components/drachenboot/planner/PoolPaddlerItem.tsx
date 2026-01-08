@@ -113,4 +113,4 @@ const PoolPaddlerItem: React.FC<PoolPaddlerItemProps> = ({
   );
 };
 
-export default PoolPaddlerItem;
+export default React.memo(PoolPaddlerItem);

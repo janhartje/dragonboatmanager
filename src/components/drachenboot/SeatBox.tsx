@@ -159,4 +159,4 @@ const SeatBox: React.FC<SeatBoxProps> = ({
   );
 };
 
-export default SeatBox;
+export default React.memo(SeatBox);
