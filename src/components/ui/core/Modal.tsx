@@ -1,4 +1,5 @@
-import React, { useEffect, useId } from 'react';
+import React, { useId } from 'react';
+import { useScrollLock } from '@/hooks/useScrollLock';
 import { cn } from '@/lib/utils';
 import { X } from 'lucide-react';
 
@@ -28,21 +29,7 @@ export const Modal: React.FC<ModalProps> = ({
   padding = 'p-5'
 }) => {
   const dialogId = useId();
-
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-    }
-
-    return () => {
-      // Only unlock if no other modals are open
-      // We check for any modal that is NOT this one
-      const otherModals = document.querySelectorAll(`[data-is-modal="true"]:not([id="${dialogId}"])`);
-      if (otherModals.length === 0) {
-        document.body.style.overflow = 'unset';
-      }
-    };
-  }, [isOpen, dialogId]);
+  useScrollLock(isOpen);
 
   if (!isOpen) return null;
 
