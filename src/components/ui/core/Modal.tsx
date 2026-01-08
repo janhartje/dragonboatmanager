@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useId } from 'react';
 import { cn } from '@/lib/utils';
 import { X } from 'lucide-react';
 
@@ -27,17 +27,22 @@ export const Modal: React.FC<ModalProps> = ({
   showCloseButton = true,
   padding = 'p-5'
 }) => {
+  const dialogId = useId();
+
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
     }
 
     return () => {
-      document.body.style.overflow = 'unset';
+      // Only unlock if no other modals are open
+      // We check for any modal that is NOT this one
+      const otherModals = document.querySelectorAll(`[data-is-modal="true"]:not([id="${dialogId}"])`);
+      if (otherModals.length === 0) {
+        document.body.style.overflow = 'unset';
+      }
     };
-  }, [isOpen]);
+  }, [isOpen, dialogId]);
 
   if (!isOpen) return null;
 
@@ -51,7 +56,12 @@ export const Modal: React.FC<ModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className={cn(
+      <div 
+        id={dialogId}
+        data-is-modal="true"
+        role="dialog"
+        aria-modal="true"
+        className={cn(
         "bg-white dark:bg-slate-900 rounded-2xl shadow-xl w-full overflow-hidden border border-slate-200 dark:border-slate-800 animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]",
         sizeClasses[size],
         className

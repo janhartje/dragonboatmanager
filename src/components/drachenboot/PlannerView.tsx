@@ -190,37 +190,57 @@ const PlannerView: React.FC<PlannerViewProps> = ({ eventId }) => {
 
   const handleAddCanister = useCallback(async () => {
     if (isReadOnly) return;
-    const canisterId = await addCanister(activeEventId);
-    if (canisterId) setSelectedPaddlerId(canisterId);
+    try {
+      const canisterId = await addCanister(activeEventId);
+      if (canisterId) setSelectedPaddlerId(canisterId);
+    } catch (error) {
+      console.error('Failed to add canister', error);
+    }
   }, [isReadOnly, addCanister, activeEventId]);
 
   const handleRemoveCanister = useCallback(async (canisterId: string) => {
     if (isReadOnly) return;
-    await removeCanister(activeEventId, canisterId);
+    try {
+      await removeCanister(activeEventId, canisterId);
+    } catch (error) {
+      console.error('Failed to remove canister', error);
+    }
   }, [isReadOnly, removeCanister, activeEventId]);
 
   const handleAddGuest = useCallback(async (guestData: Pick<Paddler, 'name' | 'weight' | 'skills'>) => {
     if (isReadOnly) return;
-    const guestId = await addGuest(activeEventId, guestData);
-    if (guestId) setSelectedPaddlerId(guestId);
-    setShowGuestModal(false);
+    try {
+      const guestId = await addGuest(activeEventId, guestData);
+      if (guestId) setSelectedPaddlerId(guestId);
+      setShowGuestModal(false);
+    } catch (error) {
+      console.error('Failed to add guest', error);
+    }
   }, [isReadOnly, addGuest, activeEventId]);
 
   const handleRemoveGuest = useCallback(async (guestId: string) => {
     if (isReadOnly) return;
-    await removeGuest(activeEventId, guestId);
+    try {
+      await removeGuest(activeEventId, guestId);
+    } catch (error) {
+      console.error('Failed to remove guest', error);
+    }
   }, [isReadOnly, removeGuest, activeEventId]);
 
-  const handleUpdateBoatSize = useCallback((size: 'standard' | 'small') => {
+  const handleUpdateBoatSize = useCallback(async (size: 'standard' | 'small') => {
     if (isReadOnly) return;
     if (size === boatSize) return;
 
-    // Check if boat has assignments
-    if (Object.keys(assignments).length > 0) {
-      setPendingBoatSize(size);
-      setShowBoatSizeConfirm(true);
-    } else {
-      updateEvent(activeEventId, { boatSize: size });
+    try {
+      // Check if boat has assignments
+      if (Object.keys(assignments).length > 0) {
+        setPendingBoatSize(size);
+        setShowBoatSizeConfirm(true);
+      } else {
+        await updateEvent(activeEventId, { boatSize: size });
+      }
+    } catch (error) {
+      console.error('Failed to update boat size', error);
     }
   }, [isReadOnly, boatSize, assignments, updateEvent, activeEventId]);
 
