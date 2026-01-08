@@ -1,21 +1,26 @@
+'use client';
 
 import Script from 'next/script';
+import { useTranslations, useLocale } from 'next-intl';
 
 export default function StructuredData() {
+  const t = useTranslations('metadata');
+  const locale = useLocale();
+
   const jsonLd = {
     '@context': 'https://schema.org',
     '@graph': [
       {
         '@type': 'WebSite',
         '@id': 'https://www.drachenbootmanager.de/#website',
-        'url': 'https://www.drachenbootmanager.de/',
-        'name': 'Drachenboot Manager',
-        'description': 'Plan your dragon boat team efficiently: member management, event planning, and optimal boat lineup with AI support.',
+        'url': `https://www.drachenbootmanager.de/${locale}`,
+        'name': t('title.default'),
+        'description': t('description'),
         'publisher': {
           '@type': 'Person',
           'name': 'Jan Hartje'
         },
-        'inLanguage': ['de', 'en']
+        'inLanguage': locale
       }
     ]
   };

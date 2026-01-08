@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
+import { Link } from '@/i18n/routing';
 
 import { ImprintModal, ChangelogModal, PrivacyModal, TermsModal, AVVModal } from './Modals';
 import { usePWAInstall } from '@/hooks/usePWAInstall';
@@ -51,15 +52,19 @@ const Footer: React.FC<FooterProps> = ({ variant = 'full' }) => {
                 {t('changelog')}
               </button>
               <span className="text-slate-300 dark:text-slate-600">•</span>
-              <a href="/docs" className="text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-colors">
+              <button onClick={() => setShowChangelog(true)} className="text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-colors">
+                {t('changelog')}
+              </button>
+              <span className="text-slate-300 dark:text-slate-600">•</span>
+              <Link href="/docs" className="text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-colors">
                 API Docs
-              </a>
+              </Link>
               {session?.user?.isAdmin && (
                 <>
                   <span className="text-slate-300 dark:text-slate-600">•</span>
-                  <a href="/admin/dashboard" className="text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300 transition-colors">
+                  <Link href="/admin/dashboard" className="text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300 transition-colors">
                     Admin
-                  </a>
+                  </Link>
                 </>
               )}
             </div>
@@ -97,13 +102,13 @@ const Footer: React.FC<FooterProps> = ({ variant = 'full' }) => {
           <span>•</span>
           <button onClick={() => setShowChangelog(true)} className="hover:text-slate-800 dark:hover:text-slate-200 transition-colors">{t('changelog')}</button>
           <span>•</span>
-          <a href="/docs" className="hover:text-slate-800 dark:hover:text-slate-200 transition-colors">API Docs</a>
+          <Link href="/docs" className="hover:text-slate-800 dark:hover:text-slate-200 transition-colors">API Docs</Link>
           {session?.user?.isAdmin && (
             <>
               <span>•</span>
-              <a href="/admin/dashboard" className="hover:text-slate-800 dark:hover:text-slate-200 transition-colors text-purple-600 dark:text-purple-400">
+              <Link href="/admin/dashboard" className="hover:text-slate-800 dark:hover:text-slate-200 transition-colors text-purple-600 dark:text-purple-400">
                 Admin
-              </a>
+              </Link>
             </>
           )}
           {canInstall && (

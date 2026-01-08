@@ -1,116 +1,77 @@
 'use client';
-// Force translation refresh
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
-import de from '../locales/de.json';
-import en from '../locales/en.json';
-
-interface Translations {
-  [key: string]: unknown;
-}
+import { useLocale, useMessages } from 'next-intl';
+import { useRouter, usePathname } from '@/i18n/routing';
 
 interface LanguageContextType {
   language: string;
   changeLanguage: (lang: string) => void;
-  t: <T = string>(key: string) => T;
+  t: <T = string>(key: string) => T; // Keeping the generic signature for compatibility
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
-const translations: { [key: string]: Translations } = {
-  de,
-  en
-};
-
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { data: session, status } = useSession();
-  const [language, setLanguage] = useState<string>(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('language');
-      // Validate saved language
-      if (saved && translations[saved]) {
-        return saved;
-      }
-      // Fallback to browser language
-      if (navigator.language) {
-         const browserLang = navigator.language.split('-')[0];
-         if (translations[browserLang]) return browserLang;
-      }
-    }
-    return 'de'; // Default
-  });
+  const locale = useLocale();
+  const messages = useMessages();
+  const router = useRouter();
+  const pathname = usePathname();
 
-  // Load language preference from API
   useEffect(() => {
-    // Sync initial document lang
-    document.documentElement.lang = language;
-
-    const syncWithServer = async () => {
-      // Only sync if authenticated
-      if (status === 'authenticated' && session?.user) {
-        try {
-          const response = await fetch('/api/user/preferences');
-          if (response.ok) {
-            const data = await response.json();
-            if (data.language && translations[data.language]) {
-              // Server wins -> update local state and storage
-              if (data.language !== language) {
-                 setLanguage(data.language);
-                 localStorage.setItem('language', data.language);
-                 document.documentElement.lang = data.language;
-              }
-            }
-          }
-        } catch (error) {
-          console.error('Failed to load language preference:', error);
-        }
-      }
-    };
-
     if (status !== 'loading') {
-      syncWithServer();
+      // Sync logic disabled to avoid navigation loops. 
+      // Middleware handles initial redirect.
     }
-    // We only want to run this on mount/auth-change, not when language changes locally
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [status, session]);
+  }, [status, session, locale]);
 
   const changeLanguage = async (lang: string) => {
-    if (translations[lang]) {
-      setLanguage(lang);
-      localStorage.setItem('language', lang);
-      document.documentElement.lang = lang;
+    if (lang === locale) return;
+    
+    // Use next-intl router to switch locale
+    router.replace({pathname}, {locale: lang as "de" | "en"});
 
-      // Persist to API if logged in
-      if (status === 'authenticated') {
-        try {
-          await fetch('/api/user/preferences', {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ language: lang }),
-          });
-        } catch (error) {
-          console.error('Failed to save language preference:', error);
-        }
+    // Persist to API if logged in
+    if (status === 'authenticated') {
+      try {
+        await fetch('/api/user/preferences', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ language: lang }),
+        });
+      } catch (error) {
+        console.error('Failed to save language preference:', error);
       }
     }
+    
+    // Also save to localStorage for client-side persistence (middleware might use cookie instead)
+    if (typeof window !== 'undefined') {
+        localStorage.setItem('language', lang);
+    }
+  };
+
+  // Helper helper to safely access nested properties
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const getNestedValue = (obj: any, path: string): any => {
+    return path.split('.').reduce((acc, part) => (acc && acc[part] !== undefined) ? acc[part] : undefined, obj);
   };
 
   const t = <T = string>(key: string): T => {
-    const keys = key.split('.');
-    let value: unknown = translations[language];
-    for (const k of keys) {
-      if (typeof value === 'object' && value !== null) {
-          value = (value as Record<string, unknown>)[k];
-      } else {
-          return key as unknown as T;
-      }
+    try {
+        // Fallback to manual lookup in messages object to support arrays/objects (legacy behavior)
+        // next-intl's t() is strict about returning strings.
+        const msg = getNestedValue(messages, key);
+        if (msg !== undefined) return msg as T;
+        return key as unknown as T;
+    } catch {
+        return key as unknown as T;
     }
-    return (value as T) || (key as unknown as T);
   };
 
   return (
-    <LanguageContext.Provider value={{ language, changeLanguage, t }}>
+    <LanguageContext.Provider value={{ language: locale, changeLanguage, t }}>
       {children}
     </LanguageContext.Provider>
   );
@@ -123,4 +84,3 @@ export const useLanguage = (): LanguageContextType => {
   }
   return context;
 };
-

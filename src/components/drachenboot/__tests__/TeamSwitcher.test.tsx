@@ -5,14 +5,21 @@ import { DrachenbootProvider } from '@/context/DrachenbootContext';
 import { LanguageProvider } from '@/context/LanguageContext';
 import { useTeam } from '@/context/TeamContext';
 import { SessionProvider } from 'next-auth/react';
-import { useRouter, usePathname, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
+import { useRouter, usePathname } from '@/i18n/routing';
 import { Session } from 'next-auth';
 
 // Mock Next.js navigation
 jest.mock('next/navigation', () => ({
+  useSearchParams: jest.fn(),
+}));
+
+// Mock i18n routing
+jest.mock('@/i18n/routing', () => ({
   useRouter: jest.fn(),
   usePathname: jest.fn(),
-  useSearchParams: jest.fn(),
+  Link: ({ children, href }: { children: React.ReactNode, href: string }) => <a href={href}>{children}</a>,
+  redirect: jest.fn(),
 }));
 
 // Mock useTeam

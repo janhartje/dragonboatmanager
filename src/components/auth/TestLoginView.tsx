@@ -1,8 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { Link, useRouter } from '@/i18n/routing';
 import { signIn } from 'next-auth/react';
 import DragonLogo from '@/components/ui/DragonLogo';
 import { ArrowLeft, Loader2, Key } from 'lucide-react';

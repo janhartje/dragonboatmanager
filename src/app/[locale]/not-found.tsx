@@ -1,6 +1,6 @@
 'use client';
 
-import Link from "next/link";
+import { Link } from '@/i18n/routing';
 import { Home } from "lucide-react";
 import DragonLogo from "@/components/ui/DragonLogo";
 

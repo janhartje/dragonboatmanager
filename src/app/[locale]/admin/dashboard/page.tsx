@@ -1,14 +1,13 @@
 'use client';
 
 import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
+import { useRouter, Link } from '@/i18n/routing';
 import { useEffect, useState } from 'react';
 import { Users, Tent, Calendar, Ship, Home, Mail, TrendingUp } from 'lucide-react';
 import Header from '@/components/ui/Header';
 import Footer from '@/components/ui/Footer';
 import PageTransition from '@/components/ui/PageTransition';
 import DragonLogo from '@/components/ui/DragonLogo';
-import Link from 'next/link';
 
 import dynamic from 'next/dynamic';
 

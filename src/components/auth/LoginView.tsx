@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import Link from 'next/link';
+import { Link } from '@/i18n/routing';
 import { useSearchParams } from 'next/navigation';
 import { signIn } from 'next-auth/react';
 import { useLanguage } from '@/context/LanguageContext';
@@ -30,7 +30,7 @@ const LoginView: React.FC = () => {
       await signIn('resend', { 
         email, 
         redirect: false,
-        callbackUrl: `/app?lang=${language}`,
+        callbackUrl: `/${language}/app`,
       });
       setEmailSent(true);
     } catch (error) {

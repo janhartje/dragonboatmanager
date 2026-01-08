@@ -723,6 +723,7 @@
     "welcomeBack": "Welcome back",
     "loginSubtitle": "Please sign in to continue.",
     "inviteMembers": "Invite Members",
+    "inviteMember": "Invite",
     "teamMembers": "Team Members",
     "captain": "Captain",
     "paddler": "Paddler",
@@ -1327,5 +1328,24 @@
     "common": {
         "apply": "Apply",
         "retry": "Retry"
+    },
+    "metadata": {
+        "title": {
+            "default": "Dragon Boat Manager - Team & Boat Lineup Planning",
+            "template": "%s | Dragon Boat Manager"
+        },
+        "description": "Plan your dragon boat team efficiently: member management, event planning, and optimal boat lineup with AI support."
+    },
+    "featureLineup": {
+        "title": "Dragon Boat Lineup",
+        "subtitle": "The ultimate AI seating planner for your team",
+        "description": "Create the perfect boat lineup in seconds. Our AI considers weight, side, and skills.",
+        "benefit1Title": "Automatic Balance",
+        "benefit1Desc": "Even weight distribution in the boat.",
+        "benefit2Title": "Trim Optimization",
+        "benefit2Desc": "Adjust bow or stern heaviness precisely.",
+        "benefit3Title": "Drag & Drop",
+        "benefit3Desc": "Manual adjustments have never been easier.",
+        "cta": "Plan Lineup Now"
     }
 }

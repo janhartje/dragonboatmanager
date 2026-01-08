@@ -1,8 +1,9 @@
 import { auth } from "@/auth"
-import { redirect } from "next/navigation"
+import { redirect } from "@/i18n/routing"
 import TestLoginView from "@/components/auth/TestLoginView"
 
-export default async function TestLoginPage() {
+export default async function TestLoginPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
   const session = await auth()
   
   const isDev = process.env.NODE_ENV === 'development';
@@ -11,11 +12,11 @@ export default async function TestLoginPage() {
 
   // Only allow access if in dev/test or explicitly enabled
   if (!isDev && !isTest && !isLocalProduction) {
-    redirect("/")
+    redirect({ href: "/", locale })
   }
   
   if (session?.user) {
-    redirect("/app")
+    redirect({ href: "/app", locale })
   }
 
   return <TestLoginView />

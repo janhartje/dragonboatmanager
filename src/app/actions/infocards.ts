@@ -28,8 +28,9 @@ export async function dismissInfoCard(cardId: string) {
     // For now, let's revalidate the dashboard path if used there, or let the caller handle UI state.
     // Given the component will likely optimistically update, strict revalidation might not be needed for UX,
     // but ensures consistency on reload.
-    revalidatePath('/app');
-    revalidatePath('/app/teams/[id]', 'page');
+    // Revalidate relevant paths - we target the route segments to cover all locales
+    revalidatePath('/[locale]/app', 'page');
+    revalidatePath('/[locale]/app/teams/[id]', 'page');
 
   } catch (error) {
     // If unique constraint violation (already dismissed), just ignore

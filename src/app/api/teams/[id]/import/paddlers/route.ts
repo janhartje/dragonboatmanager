@@ -127,7 +127,7 @@ export async function POST(
           await signIn("resend", {
             email: p.inviteEmail,
             redirect: false,
-            redirectTo: `/app/teams/${teamId}?lang=${inviterLang}`,
+            redirectTo: `/${inviterLang}/app/teams/${teamId}`,
           });
         } catch {
           // signIn throws redirect error on success in some versions, or we just catch it.

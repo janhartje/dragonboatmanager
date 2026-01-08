@@ -28,7 +28,7 @@ export const CheckoutForm = ({
 }: CheckoutFormProps) => {
   const stripe = useStripe();
   const elements = useElements();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   const [message, setMessage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -75,7 +75,7 @@ export const CheckoutForm = ({
                         elements,
                         clientSecret: secret,
                         confirmParams: {
-                            return_url: returnUrl || `${window.location.origin}/app?upgrade_success=true&teamId=${teamId}`,
+                            return_url: returnUrl || `${window.location.origin}/${language}/app?upgrade_success=true&teamId=${teamId}`,
                         },
                     });
                 } else if (secret.startsWith('seti_')) {
@@ -83,7 +83,7 @@ export const CheckoutForm = ({
                         elements,
                         clientSecret: secret,
                         confirmParams: {
-                            return_url: returnUrl || `${window.location.origin}/app?upgrade_success=true&teamId=${teamId}`,
+                            return_url: returnUrl || `${window.location.origin}/${language}/app?upgrade_success=true&teamId=${teamId}`,
                         },
                     });
                 } else {
@@ -92,7 +92,7 @@ export const CheckoutForm = ({
                         elements,
                         clientSecret: secret,
                         confirmParams: {
-                            return_url: returnUrl || `${window.location.origin}/app?upgrade_success=true&teamId=${teamId}`,
+                            return_url: returnUrl || `${window.location.origin}/${language}/app?upgrade_success=true&teamId=${teamId}`,
                         },
                     });
                 }
@@ -111,7 +111,7 @@ export const CheckoutForm = ({
                 }
             } else {
                 // No secret returned? If status is active, just redirect
-                window.location.href = returnUrl || `${window.location.origin}/app?upgrade_success=true&teamId=${teamId}`;
+                window.location.href = returnUrl || `${window.location.origin}/${language}/app?upgrade_success=true&teamId=${teamId}`;
             }
             
         } catch (err) {
@@ -198,10 +198,11 @@ export const CheckoutForm = ({
             className="mt-1 rounded border-slate-300 dark:border-slate-700 text-amber-500 focus:ring-amber-500 bg-transparent"
           />
           <span dangerouslySetInnerHTML={{ 
-            __html: (t('legal.agbConsent') || 'I agree to the <a href="/legal/agb" target="_blank" class="underline">AGB</a> and <a href="/legal/datenschutz" target="_blank" class="underline">Privacy Policy</a>.')
-            .replace('[AGB]', '<a href="/legal/agb" target="_blank" class="underline">AGB</a>')
-            .replace('[Datenschutzerklärung]', '<a href="/legal/datenschutz" target="_blank" class="underline">Datenschutzerklärung</a>')
-            .replace('[Privacy Policy]', '<a href="/legal/datenschutz" target="_blank" class="underline">Privacy Policy</a>')
+            __html: (t('legal.agbConsent') || 'I agree to the <a href="/{lang}/legal/agb" target="_blank" class="underline">AGB</a> and <a href="/{lang}/legal/datenschutz" target="_blank" class="underline">Privacy Policy</a>.')
+            .replace('[AGB]', `<a href="/${language}/legal/agb" target="_blank" class="underline">AGB</a>`)
+            .replace('[Datenschutzerklärung]', `<a href="/${language}/legal/datenschutz" target="_blank" class="underline">Datenschutzerklärung</a>`)
+            .replace('[Privacy Policy]', `<a href="/${language}/legal/datenschutz" target="_blank" class="underline">Privacy Policy</a>`)
+            .replace('/{lang}/', `/${language}/`) // Fallback for the default english string if t() fails
           }} />
         </label>
 

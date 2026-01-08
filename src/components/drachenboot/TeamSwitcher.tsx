@@ -7,7 +7,8 @@ import { CreateTeamModal } from '../ui/modals/CreateTeamModal';
 import { useSession } from 'next-auth/react';
 import { ProBadge } from './pro/ProBadge';
 
-import { useRouter, usePathname, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
+import { useRouter, usePathname } from '@/i18n/routing';
 
 const TeamSwitcher: React.FC = () => {
   const router = useRouter();

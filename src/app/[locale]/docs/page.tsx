@@ -7,7 +7,7 @@ import './swagger.css';
 import Header from '@/components/ui/Header';
 import Footer from '@/components/ui/Footer';
 import { Home } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/i18n/routing';
 
 import PageTransition from '@/components/ui/PageTransition';
 

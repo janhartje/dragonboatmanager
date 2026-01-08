@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
-import Link from 'next/link';
+import { Link } from '@/i18n/routing';
 import DragonLogo from "@/components/ui/DragonLogo";
 import { useLanguage } from "@/context/LanguageContext";
 

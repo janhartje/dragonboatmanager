@@ -287,7 +287,7 @@ export const UpgradeView: React.FC<UpgradeViewProps> = ({ team }) => {
                                 <Elements options={options} stripe={stripePromise}>
                                     <CheckoutForm
                                         teamId={team.id}
-                                        returnUrl={`${window.location.origin}/app/teams/${team.id}?tab=subscription&upgrade_success=true`}
+                                        returnUrl={`${window.location.origin}/${language}/app/teams/${team.id}?tab=subscription&upgrade_success=true`}
                                         promoCode={promoCode}
                                         setPromoCode={setPromoCode}
                                         onApplyPromo={handleApplyPromo}

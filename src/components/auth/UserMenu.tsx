@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react"
 import { signOut, useSession } from "next-auth/react"
-import { useRouter } from "next/navigation"
+import { useRouter } from "@/i18n/routing"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { LogOut, User, DoorOpen, HelpCircle } from "lucide-react"
 import { useLanguage } from "@/context/LanguageContext"

@@ -1254,5 +1254,24 @@
     "common": {
         "apply": "Einlösen",
         "retry": "Erneut versuchen"
+    },
+    "metadata": {
+        "title": {
+            "default": "Drachenboot Manager - Team & Sitzplan Planung",
+            "template": "%s | Drachenboot Manager"
+        },
+        "description": "Plane dein Drachenboot-Team effizient: Mitgliederverwaltung, Terminplanung und optimale Bootsbesetzung mit KI-Unterstützung."
+    },
+    "featureLineup": {
+        "title": "Drachenboot Sitzordnung",
+        "subtitle": "Der ultimative KI-Sitzplaner für dein Team",
+        "description": "Erstelle die perfekte Bootsbesetzung in Sekunden. Unsere KI berücksichtigt Gewicht, Seite und Fähigkeiten.",
+        "benefit1Title": "Automatische Balance",
+        "benefit1Desc": "Gleichmäßige Gewichtsverteilung im Boot.",
+        "benefit2Title": "Trim-Optimierung",
+        "benefit2Desc": "Passe Bug- oder Heck-Lastigkeit gezielt an.",
+        "benefit3Title": "Drag & Drop",
+        "benefit3Desc": "Manuelle Anpassungen waren noch nie so einfach.",
+        "cta": "Jetzt Sitzordnung planen"
     }
 }

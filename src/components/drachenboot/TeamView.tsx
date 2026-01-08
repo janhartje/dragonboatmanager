@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import Link from 'next/link';
+import { useRouter } from '@/i18n/routing';
+import { useSearchParams } from 'next/navigation';
+import { Link } from '@/i18n/routing';
 import { useSession } from "next-auth/react";
 import { useDrachenboot } from '@/context/DrachenbootContext';
 import { useTeam } from '@/context/TeamContext';
@@ -84,7 +85,7 @@ const TeamView: React.FC = () => {
       setShowUpgradeSuccess(true);
       refetchTeams(); // Force refresh teams to see PRO status
       // Clean URL without reload
-      window.history.replaceState({}, '', '/app');
+      window.history.replaceState({}, '', window.location.pathname);
     }
   }, [searchParams, refetchTeams]);
 

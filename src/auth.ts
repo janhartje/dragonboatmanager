@@ -96,7 +96,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 const targetUrl = new URL(url);
                 const baseUrl = getBaseUrl();
                 // Redirect to main app with teamId param
-                const teamRedirect = `${baseUrl}/app?teamId=${invitedPaddler.teamId}`;
+                const teamRedirect = `${baseUrl}/${lang}/app?teamId=${invitedPaddler.teamId}`;
 
                 targetUrl.searchParams.set('callbackUrl', teamRedirect);
                 url = targetUrl.toString();

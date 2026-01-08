@@ -1,6 +1,6 @@
 "use client";
 
-import { usePathname } from 'next/navigation';
+import { usePathname } from '@/i18n/routing';
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { driver, Driver } from 'driver.js';

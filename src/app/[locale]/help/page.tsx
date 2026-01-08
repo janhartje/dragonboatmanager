@@ -4,7 +4,7 @@ import React from 'react'
 import { useLanguage } from '@/context/LanguageContext'
 
 import { ChevronLeft, HelpCircle, Send } from 'lucide-react'
-import Link from 'next/link'
+import { Link } from '@/i18n/routing'
 
 export default function HelpPage() {
   const { t } = useLanguage()

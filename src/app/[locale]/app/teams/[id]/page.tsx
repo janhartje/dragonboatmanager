@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState, useEffect, use } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
+import { useRouter, Link } from '@/i18n/routing';
 import { useDrachenboot } from '@/context/DrachenbootContext';
 import { useTeam } from '@/context/TeamContext';
 import { useTheme } from '@/context/ThemeContext';

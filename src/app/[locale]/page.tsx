@@ -1,6 +1,6 @@
 'use client';
 
-import Link from "next/link";
+import { Link } from '@/i18n/routing';
 import { ArrowRight, Smartphone, Zap, Users, Sun, Moon, ShieldCheck, Heart, Ship } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import DragonBoatAnimation from "@/components/ui/DragonBoatAnimation";
