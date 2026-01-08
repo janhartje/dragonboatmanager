@@ -5,7 +5,7 @@ import { getBaseUrl } from '@/utils/url';
 
 
 import { X, Copy, Check, AlertCircle } from 'lucide-react';
-import { useLanguage } from '@/context/LanguageContext';
+import { useTranslations } from 'next-intl';
 
 interface ApiKeyModalProps {
   isOpen: boolean;
@@ -14,7 +14,7 @@ interface ApiKeyModalProps {
 }
 
 export function ApiKeyModal({ isOpen, onClose, onSubmit }: ApiKeyModalProps) {
-  const { t } = useLanguage();
+  const t = useTranslations();
   const [name, setName] = useState('');
   const [loading, setLoading] = useState(false);
   const [generatedKey, setGeneratedKey] = useState<string | null>(null);

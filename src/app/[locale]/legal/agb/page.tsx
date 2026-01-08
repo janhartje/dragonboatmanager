@@ -1,10 +1,10 @@
 'use client';
 
 import React from 'react';
-import { useLanguage } from '@/context/LanguageContext';
+import { useTranslations } from 'next-intl';
 
 export default function AGBPage() {
-  const { t } = useLanguage();
+  const t = useTranslations();
 
   return (
     <div className="space-y-8">

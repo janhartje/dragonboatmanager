@@ -3,7 +3,7 @@ import { Calendar, ChevronRight, Check, HelpCircle, X, Trash2, Pencil, ChevronDo
 import { Event, Paddler } from '@/types';
 import { useDrachenboot } from '@/context/DrachenbootContext';
 import { useTeam } from '@/context/TeamContext';
-import { useLanguage } from '@/context/LanguageContext';
+import { useLocale } from 'next-intl';
 import { THEME_MAP, ThemeKey } from '@/constants/themes';
 import { Card } from '@/components/ui/core/Card';
 import { IconButton } from '@/components/ui/core/IconButton';
@@ -23,7 +23,7 @@ interface EventCardProps {
   userRole: string | null;
   currentPaddler: Paddler | null;
   theme: (typeof THEME_MAP)[keyof typeof THEME_MAP] | null;
-  language: string;
+  locale: string;
 }
 
 const EventCard: React.FC<EventCardProps> = memo(({
@@ -37,7 +37,7 @@ const EventCard: React.FC<EventCardProps> = memo(({
   userRole,
   currentPaddler,
   theme,
-  language
+  locale
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
@@ -104,9 +104,9 @@ const EventCard: React.FC<EventCardProps> = memo(({
 
         <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 text-sm mb-0.5">
           <Calendar size={14} className="text-slate-400 dark:text-slate-500" />
-          <span>{new Date(evt.date).toLocaleDateString(language === 'de' ? 'de-DE' : 'en-US')}</span>
+          <span>{new Date(evt.date).toLocaleDateString(locale === 'de' ? 'de-DE' : 'en-US')}</span>
           <span className="text-slate-400 dark:text-slate-600">•</span>
-          <span>{new Date(evt.date).toLocaleTimeString(language === 'de' ? 'de-DE' : 'en-US', { hour: '2-digit', minute: '2-digit' })}</span>
+          <span>{new Date(evt.date).toLocaleTimeString(locale === 'de' ? 'de-DE' : 'en-US', { hour: '2-digit', minute: '2-digit' })}</span>
         </div>
 
         <div className="flex items-center gap-2">
@@ -268,7 +268,7 @@ const EventList: React.FC<EventListProps> = ({ events, sortedPaddlers, onPlan, o
   const { userRole, currentPaddler } = useDrachenboot();
   const { currentTeam } = useTeam();
   const theme = currentTeam?.plan === 'PRO' ? THEME_MAP[currentTeam.primaryColor as ThemeKey] : null;
-  const { language } = useLanguage();
+  const locale = useLocale();
 
   const sortedEvents = React.useMemo(() => {
     return [...events].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
@@ -304,7 +304,7 @@ const EventList: React.FC<EventListProps> = ({ events, sortedPaddlers, onPlan, o
             userRole={userRole}
             currentPaddler={currentPaddler}
             theme={theme}
-            language={language}
+            locale={locale}
           />
         ))}
       </div>

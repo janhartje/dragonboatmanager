@@ -1,10 +1,10 @@
 'use client';
 
 import React from 'react';
-import { useLanguage } from '@/context/LanguageContext';
+import { useTranslations } from 'next-intl';
 
 export default function WiderrufsrechtPage() {
-  const { t } = useLanguage();
+  const t = useTranslations();
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-12">

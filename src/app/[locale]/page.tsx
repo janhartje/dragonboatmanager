@@ -1,15 +1,17 @@
 'use client';
 
-import { Link } from '@/i18n/routing';
+import { useRouter, Link } from '@/i18n/routing';
 import { ArrowRight, Smartphone, Zap, Users, Sun, Moon, ShieldCheck, Heart, Ship } from "lucide-react";
-import { useLanguage } from "@/context/LanguageContext";
+import { useTranslations, useLocale } from "next-intl";
 import DragonBoatAnimation from "@/components/ui/DragonBoatAnimation";
 import DragonLogo from "@/components/ui/DragonLogo";
 import Footer from "@/components/ui/Footer";
 import { useEffect, useState } from "react";
 
 export default function LandingPage() {
-  const { language, changeLanguage, t } = useLanguage();
+  const t = useTranslations();
+  const locale = useLocale();
+  const router = useRouter();
   const [isDarkMode, setIsDarkMode] = useState(false);
 
   useEffect(() => {
@@ -42,11 +44,11 @@ export default function LandingPage() {
     "@graph": [
       {
         "@type": "Organization",
-        "name": language === 'de' ? "Drachenboot Manager" : "Dragon Boat Manager",
-        "alternateName": language === 'de' ? "Dragon Boat Manager" : "Drachenboot Manager",
+        "name": locale === 'de' ? "Drachenboot Manager" : "Dragon Boat Manager",
+        "alternateName": locale === 'de' ? "Dragon Boat Manager" : "Drachenboot Manager",
         "url": siteUrl,
         "logo": `${siteUrl}/icons/logo-512.png`,
-        "description": language === 'de' 
+        "description": locale === 'de' 
           ? "Team Management Software für Drachenboot Teams" 
           : "Team Management Software for Dragon Boat Teams",
         "founder": {
@@ -57,7 +59,7 @@ export default function LandingPage() {
       },
       {
         "@type": "WebApplication",
-        "name": language === 'de' ? "Drachenboot Manager" : "Dragon Boat Manager",
+        "name": locale === 'de' ? "Drachenboot Manager" : "Dragon Boat Manager",
         "url": siteUrl,
         "applicationCategory": "SportsApplication",
         "operatingSystem": "Web Browser, iOS, Android",
@@ -66,10 +68,10 @@ export default function LandingPage() {
           "price": "0",
           "priceCurrency": "EUR"
         },
-        "description": language === 'de'
+        "description": locale === 'de'
           ? "Progressive Web App zur Verwaltung von Drachenboot-Teams, Terminplanung und optimaler Bootsbesetzung"
           : "Progressive Web App for managing dragon boat teams, event planning, and optimal boat lineup",
-        "featureList": language === 'de' 
+        "featureList": locale === 'de' 
           ? [
               "Team Management",
               "Terminplanung",
@@ -137,11 +139,11 @@ export default function LandingPage() {
                   {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
                 </button>
                 <button 
-                  onClick={() => changeLanguage(language === 'de' ? 'en' : 'de')} 
+                  onClick={() => router.replace('/', { locale: locale === 'de' ? 'en' : 'de' })} 
                   className="p-2.5 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400 transition-all hover:scale-105 font-bold text-sm"
                   aria-label="Toggle language"
                 >
-                  {language.toUpperCase()}
+                  {locale.toUpperCase()}
                 </button>
                 <Link 
                   href="/app" 

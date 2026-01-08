@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useLanguage } from '@/context/LanguageContext';
+import { useTranslations } from 'next-intl';
 import { Paddler } from '@/types';
 import { Save, Info } from 'lucide-react';
 import { FormInput } from '@/components/ui/FormInput';
@@ -14,7 +14,7 @@ interface OnboardingModalProps {
 }
 
 export const OnboardingModal: React.FC<OnboardingModalProps> = ({ onClose, paddler, onSave }) => {
-  const { t } = useLanguage();
+  const t = useTranslations();
   const [name, setName] = useState('');
   const [weight, setWeight] = useState('');
   const [skills, setSkills] = useState<SkillsState>({ left: false, right: false, drum: false, steer: false });

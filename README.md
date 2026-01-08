@@ -40,6 +40,7 @@ Der **Drachenboot Manager** ist eine Progressive Web App (PWA) zur Verwaltung vo
 *   **Styling**: [Tailwind CSS 4](https://tailwindcss.com/) & [Framer Motion](https://www.framer.com/motion/)
 *   **Components**: [Radix UI](https://www.radix-ui.com/) & [Lucide Icons](https://lucide.dev/)
 *   **PWA**: [@ducanh2912/next-pwa](https://github.com/ducanh2912/next-pwa)
+*   **i18n**: [next-intl](https://next-intl-docs.vercel.app/)
 *   **AI Integration**: [MCP SDK](https://github.com/modelcontextprotocol/sdk) (Model Context Protocol)
 *   **Payments**: [Stripe](https://stripe.com/)
 *   **Email**: [Resend](https://resend.com/) & [React Email](https://react.email/)
@@ -148,16 +149,15 @@ flowchart TD
 ```
 src/
 ├── app/                 # Next.js App Router Pages (TSX)
-│   ├── layout.tsx       # Root Layout & Providers
-│   ├── page.tsx         # Landing Page
-│   ├── app/             # Main Application
-│   │   ├── page.tsx     # Team View
-│   │   ├── admin/       # Admin Dashboard
-│   │   ├── planner/     # Planner View Route
-│   │   └── teams/       # Team Management Pages
+│   ├── [locale]/       # Internationalized Routes
+│   │   ├── layout.tsx   # Root Layout & Providers
+│   │   ├── page.tsx     # Landing Page
+│   │   ├── app/         # Main Application
+│   │   └── ...
 │   └── api/             # API Routes (Prisma)
 ├── components/
-├── context/             # Global State (Daten, Sprache, Tour)
+├── context/             # Global State (Daten, Tour, Preferences)
+├── i18n/                # next-intl Konfiguration & Routing
 ├── locales/             # Übersetzungsdateien (de.json, en.json)
 ├── types/               # TypeScript Definitionen (index.ts)
 └── utils/               # Hilfsfunktionen (Algorithmus)
@@ -311,9 +311,12 @@ Die vollständige Dokumentation findest du im **[docs/ Ordner](docs/README.md)**
 ## 👨‍💻 Development Guidelines
 
 ### Localization
-Neue Features müssen vollständig lokalisiert werden. Bitte aktualisiere immer beide Sprachdateien:
-*   `src/locales/de.json`
-*   `src/locales/en.json`
+Wir nutzen **next-intl** für die Internationalisierung. 
+*   **Best Practice**: Nutze den `useTranslations()` Hook in Client-Komponenten oder die standardmäßige `t()` Funktion.
+*   **Dateien**: Bitte aktualisiere immer beide Sprachdateien:
+    *   `src/locales/de.json`
+    *   `src/locales/en.json`
+*   **Routing**: Verwende den `Link` aus `@/i18n/routing` anstelle von `next/link`.
 
 ### Testing
 Jedes neue Feature und jeder Bugfix sollte von Tests begleitet werden.

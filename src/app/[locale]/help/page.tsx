@@ -1,13 +1,13 @@
 "use client"
 
 import React from 'react'
-import { useLanguage } from '@/context/LanguageContext'
+import { useTranslations } from 'next-intl';
 
 import { ChevronLeft, HelpCircle, Send } from 'lucide-react'
 import { Link } from '@/i18n/routing'
 
 export default function HelpPage() {
-  const { t } = useLanguage()
+  const t = useTranslations();
 
 
   return (

@@ -2,7 +2,14 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import React from 'react';
 import TeamSwitcher from '../TeamSwitcher';
 import { DrachenbootProvider } from '@/context/DrachenbootContext';
-import { LanguageProvider } from '@/context/LanguageContext';
+jest.mock('next-intl', () => ({
+  useTranslations: () => (key: string) => {
+    if (key === 'createTeam') return 'Create Team';
+    if (key === 'selectTeam') return 'Select Team';
+    return key;
+  },
+  useLocale: () => 'de',
+}));
 import { useTeam } from '@/context/TeamContext';
 import { SessionProvider } from 'next-auth/react';
 import { useSearchParams } from 'next/navigation';
@@ -111,11 +118,9 @@ describe('TeamSwitcher', () => {
 
     render(
       <SessionProvider session={mockSession}>
-        <LanguageProvider>
-          <DrachenbootProvider>
-            <TeamSwitcher />
-          </DrachenbootProvider>
-        </LanguageProvider>
+        <DrachenbootProvider>
+          <TeamSwitcher />
+        </DrachenbootProvider>
       </SessionProvider>
     );
 

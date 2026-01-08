@@ -5,7 +5,7 @@ import { signOut, useSession } from "next-auth/react"
 import { useRouter } from "@/i18n/routing"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { LogOut, User, DoorOpen, HelpCircle } from "lucide-react"
-import { useLanguage } from "@/context/LanguageContext"
+import { useTranslations } from 'next-intl';
 import { useDrachenboot } from "@/context/DrachenbootContext"
 import { useTeam } from '@/context/TeamContext';
 import { ConfirmModal } from "@/components/ui/Modals"
@@ -14,7 +14,7 @@ import { ProfileModal } from "./ProfileModal"
 export function UserMenu() {
   const { data: session } = useSession()
   const router = useRouter()
-  const { t } = useLanguage()
+  const t = useTranslations();
   const { userRole, deletePaddler, paddlers } = useDrachenboot()
   const { currentTeam } = useTeam();
   const [isOpen, setIsOpen] = useState(false)

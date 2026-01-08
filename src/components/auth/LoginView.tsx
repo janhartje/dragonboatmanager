@@ -4,14 +4,15 @@ import React, { useState } from 'react';
 import { Link } from '@/i18n/routing';
 import { useSearchParams } from 'next/navigation';
 import { signIn } from 'next-auth/react';
-import { useLanguage } from '@/context/LanguageContext';
+import { useTranslations, useLocale } from 'next-intl';
 import DragonLogo from '@/components/ui/DragonLogo';
 import Footer from '@/components/ui/Footer';
 import { LoginButton } from '@/components/auth/LoginButton';
 import { Github, ArrowLeft, Mail, Loader2, CheckCircle } from 'lucide-react';
 
 const LoginView: React.FC = () => {
-  const { t, language } = useLanguage();
+  const t = useTranslations('Login');
+  const locale = useLocale();
   const searchParams = useSearchParams();
   const isVerifyRequest = searchParams.get('verify') === '1';
   const prefilledEmail = searchParams.get('email') || '';
@@ -30,7 +31,7 @@ const LoginView: React.FC = () => {
       await signIn('resend', { 
         email, 
         redirect: false,
-        callbackUrl: `/${language}/app`,
+        callbackUrl: `/${locale}/app`,
       });
       setEmailSent(true);
     } catch (error) {

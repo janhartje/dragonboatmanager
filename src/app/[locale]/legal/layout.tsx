@@ -6,10 +6,10 @@ import { ArrowLeft } from 'lucide-react';
 import { Card } from '@/components/ui/core/Card';
 import DragonLogo from '@/components/ui/DragonLogo';
 import Footer from '@/components/ui/Footer';
-import { useLanguage } from '@/context/LanguageContext';
+import { useTranslations } from 'next-intl';
 
 export default function LegalLayout({ children }: { children: React.ReactNode }) {
-  const { t } = useLanguage();
+  const t = useTranslations();
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950">

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useLanguage } from '@/context/LanguageContext';
+import { useTranslations } from 'next-intl';
 import { InvoicesList } from './InvoicesList';
 import { PaymentMethodManager } from './PaymentMethodManager';
 import { SubscriptionHistory } from './SubscriptionHistory';
@@ -36,7 +36,7 @@ interface BillingContentProps {
 }
 
 export const BillingContent = ({ team, subscription }: BillingContentProps) => {
-    const { t } = useLanguage();
+    const t = useTranslations();
     const [actionLoading, setActionLoading] = useState(false);
     const [showCancelConfirm, setShowCancelConfirm] = useState(false);
 

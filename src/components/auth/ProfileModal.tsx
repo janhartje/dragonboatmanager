@@ -5,7 +5,7 @@ import { useState, useEffect } from "react"
 import { useSession } from "next-auth/react"
 import { updateProfile } from "@/app/actions/user"
 import { Save, X, Info } from "lucide-react"
-import { useLanguage } from "@/context/LanguageContext"
+import { useTranslations } from 'next-intl';
 import { useDrachenboot } from "@/context/DrachenbootContext"
 import { useTeam } from '@/context/TeamContext';
 import { FormInput } from "@/components/ui/FormInput"
@@ -19,7 +19,7 @@ interface ProfileModalProps {
 
 export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
   const { data: session } = useSession()
-  const { t } = useLanguage()
+  const t = useTranslations()
   const { currentTeam } = useTeam();
   const { paddlers, refetchPaddlers } = useDrachenboot()
   const [name, setName] = useState("")

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Modal } from '@/components/ui/core/Modal';
-import { useLanguage } from '@/context/LanguageContext';
+import { useTranslations } from 'next-intl';
 import { Paddler } from '@/types';
 import PaddlerForm from '../../drachenboot/team/PaddlerForm';
 
@@ -10,7 +10,7 @@ interface AddGuestModalProps {
 }
 
 const AddGuestModal: React.FC<AddGuestModalProps> = ({ onClose, onAdd }) => {
-  const { t } = useLanguage();
+  const t = useTranslations();
 
   const handleSave = (data: { name: string; weight: number; skills: string[] }) => {
     onAdd({

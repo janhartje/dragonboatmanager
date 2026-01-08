@@ -1,6 +1,6 @@
 import React from 'react';
 import { Drum, ShipWheel, Check } from 'lucide-react';
-import { useLanguage } from '@/context/LanguageContext';
+import { useTranslations } from 'next-intl';
 
 export interface SkillsState {
   left: boolean;
@@ -18,7 +18,7 @@ interface SkillSelectorProps {
 }
 
 export const SkillSelector: React.FC<SkillSelectorProps> = ({ skills, onChange, className = "" }) => {
-  const { t } = useLanguage();
+  const t = useTranslations();
 
   const toggleSkill = (skill: keyof SkillsState) => {
     onChange(skill);

@@ -6,7 +6,7 @@ import { useSession } from "next-auth/react";
 import { useDrachenboot } from '@/context/DrachenbootContext';
 import { useTeam } from '@/context/TeamContext';
 import { useTheme } from '@/context/ThemeContext';
-import { useLanguage } from '@/context/LanguageContext';
+import { useTranslations } from 'next-intl';
 import { HelpModal, AlertModal } from '../ui/Modals';
 import { OnboardingModal } from '../auth/OnboardingModal';
 import DragonLogo from '../ui/DragonLogo';
@@ -36,7 +36,7 @@ import { THEME_MAP } from '@/constants/themes';
 
 const TeamView: React.FC = () => {
   const router = useRouter();
-  const { t } = useLanguage();
+  const t = useTranslations();
   const {
     paddlers,
     // updateTeam,

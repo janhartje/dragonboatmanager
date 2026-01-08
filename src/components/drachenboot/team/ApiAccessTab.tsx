@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Key, Trash2, Plus, ExternalLink, AlertCircle } from 'lucide-react';
 import { ApiKeyModal } from './ApiKeyModal';
-import { useLanguage } from '@/context/LanguageContext';
+import { useTranslations } from 'next-intl';
 import { ConfirmModal } from '@/components/ui/Modals';
 import { Link } from '@/i18n/routing';
 
@@ -20,7 +20,7 @@ interface ApiAccessTabProps {
 }
 
 export function ApiAccessTab({ teamId, isPro }: ApiAccessTabProps) {
-  const { t } = useLanguage();
+  const t = useTranslations();
   const [apiKeys, setApiKeys] = useState<ApiKey[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);

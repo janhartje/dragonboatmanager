@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Link, useRouter } from '@/i18n/routing';
-import { useLanguage } from '@/context/LanguageContext';
+import { useTranslations } from 'next-intl';
 import { useTheme } from '@/context/ThemeContext';
 import DragonLogo from '@/components/ui/DragonLogo';
 import Header from '@/components/ui/Header';
@@ -12,7 +12,7 @@ import { ArrowLeft } from 'lucide-react';
 import { UserMenu } from '@/components/auth/UserMenu';
 
 const ProfileView: React.FC = () => {
-  const { t } = useLanguage();
+  const t = useTranslations();
   const { isDarkMode, toggleDarkMode } = useTheme();
   const router = useRouter();
 

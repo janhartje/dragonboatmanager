@@ -1,16 +1,21 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import Header from '../Header';
-import { useLanguage } from '@/context/LanguageContext';
-
 // Mock the hook
-jest.mock('@/context/LanguageContext', () => ({
-  useLanguage: jest.fn(),
+jest.mock('next-intl', () => ({
+  useTranslations: () => (key: string) => key,
+  useLocale: () => 'de',
+}));
+
+const mockReplace = jest.fn();
+jest.mock('@/i18n/routing', () => ({
+  useRouter: () => ({
+    replace: mockReplace,
+  }),
+  usePathname: () => '/',
 }));
 
 describe('Header', () => {
-  const mockChangeLanguage = jest.fn();
-  const mockT = (key: string) => key;
 
   beforeAll(() => {
     // Global mock for window.matchMedia (needed for PWA functionality)
@@ -30,11 +35,6 @@ describe('Header', () => {
   });
 
   beforeEach(() => {
-    (useLanguage as jest.Mock).mockReturnValue({
-      language: 'de',
-      changeLanguage: mockChangeLanguage,
-      t: mockT,
-    });
   });
 
   const renderHeader = (props = {}) => {
@@ -71,11 +71,11 @@ describe('Header', () => {
     expect(onHelp).toHaveBeenCalled();
   });
 
-  it('toggles language when language button is clicked', () => {
+  it('toggles language when language button is clicked', async () => {
     renderHeader();
     const langButton = screen.getByText('DE');
     fireEvent.click(langButton);
-    expect(mockChangeLanguage).toHaveBeenCalledWith('en');
+    expect(mockReplace).toHaveBeenCalled();
   });
 
 

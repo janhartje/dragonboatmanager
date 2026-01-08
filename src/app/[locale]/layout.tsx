@@ -1,7 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "../globals.css";
-import { LanguageProvider } from "@/context/LanguageContext";
 import { DrachenbootProvider } from "@/context/DrachenbootContext";
 import { ThemeProvider } from "@/context/ThemeContext";
 import { TeamProvider } from "@/context/TeamContext";
@@ -104,18 +103,16 @@ export default async function RootLayout({
       <body className={inter.className} suppressHydrationWarning>
         <NextIntlClientProvider messages={messages}>
           <SessionProvider>
-            <LanguageProvider>
-              <ThemeProvider>
-                <TeamProvider>
-                  <DrachenbootProvider>
-                    {children}
-                    <Analytics />
-                    <SpeedInsights />
-                    <StructuredData />
-                  </DrachenbootProvider>
-                </TeamProvider>
-              </ThemeProvider>
-            </LanguageProvider>
+            <ThemeProvider>
+              <TeamProvider>
+                <DrachenbootProvider>
+                  {children}
+                  <Analytics />
+                  <SpeedInsights />
+                  <StructuredData />
+                </DrachenbootProvider>
+              </TeamProvider>
+            </ThemeProvider>
           </SessionProvider>
         </NextIntlClientProvider>
       </body>

@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { Link } from '@/i18n/routing';
-import { useLanguage } from '@/context/LanguageContext';
+import { useTranslations } from 'next-intl';
 
 import { useTheme } from '@/context/ThemeContext';
 import { useTeam } from '@/context/TeamContext';
@@ -15,7 +15,7 @@ import { UserMenu } from '@/components/auth/UserMenu';
 import { Plus, UserPlus } from 'lucide-react';
 
 const WelcomeView: React.FC = () => {
-  const { t } = useLanguage();
+  const t = useTranslations();
   const { createTeam } = useTeam();
   const { isDarkMode, toggleDarkMode } = useTheme();
   const [showCreateModal, setShowCreateModal] = useState(false);

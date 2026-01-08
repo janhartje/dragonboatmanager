@@ -9,7 +9,7 @@ import 'driver.js/dist/driver.css';
 
 import { useTeam } from '@/context/TeamContext';
 
-import { useLanguage } from '@/context/LanguageContext';
+import { useTranslations } from 'next-intl';
 
 interface TourContextType {
   startTour: (tourName?: string) => void;
@@ -28,7 +28,7 @@ export const useTour = () => {
 
 export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [driverObj, setDriverObj] = useState<Driver | null>(null);
-  const { t } = useLanguage();
+  const t = useTranslations();
   const { currentTeam } = useTeam();
 
   // Define tour configurations

@@ -6,7 +6,7 @@ import { Elements } from '@stripe/react-stripe-js';
 import { CheckoutForm } from '@/components/stripe/CheckoutForm';
 
 import { useTheme } from '@/context/ThemeContext';
-import { useLanguage } from '@/context/LanguageContext';
+import { useTranslations, useLocale } from 'next-intl';
 import { Team } from '@/types';
 import { Card } from '@/components/ui/core/Card';
 import { SegmentedControl } from '@/components/ui/core/SegmentedControl';
@@ -24,7 +24,8 @@ interface UpgradeViewProps {
 }
 
 export const UpgradeView: React.FC<UpgradeViewProps> = ({ team }) => {
-    const { t, language } = useLanguage();
+    const t = useTranslations();
+    const locale = useLocale();
     const { isDarkMode } = useTheme();
     const [billingInterval, setBillingInterval] = useState<'month' | 'year'>('year');
     const [isInitializing, setIsInitializing] = useState(true);
@@ -154,15 +155,15 @@ export const UpgradeView: React.FC<UpgradeViewProps> = ({ team }) => {
             ...appearance,
             labels: 'floating' as const,
         },
-        locale: language as 'de' | 'en' | 'auto',
+        locale: locale as 'de' | 'en' | 'auto',
     };
 
-    const benefitsList = t<string[]>('pro.benefits.items');
+    const benefitsList = t.raw('pro.benefits.items');
     const benefits = Array.isArray(benefitsList) ? benefitsList : [];
 
 
     const formatCurrency = (amount: number, currency: string) => {
-        return new Intl.NumberFormat(language, {
+        return new Intl.NumberFormat(locale, {
             style: 'currency',
             currency: currency,
         }).format(amount / 100);
@@ -287,7 +288,7 @@ export const UpgradeView: React.FC<UpgradeViewProps> = ({ team }) => {
                                 <Elements options={options} stripe={stripePromise}>
                                     <CheckoutForm
                                         teamId={team.id}
-                                        returnUrl={`${window.location.origin}/${language}/app/teams/${team.id}?tab=subscription&upgrade_success=true`}
+                                        returnUrl={`${window.location.origin}/${locale}/app/teams/${team.id}?tab=subscription&upgrade_success=true`}
                                         promoCode={promoCode}
                                         setPromoCode={setPromoCode}
                                         onApplyPromo={handleApplyPromo}

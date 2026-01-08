@@ -1,12 +1,10 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import Footer from '../Footer';
-import { useLanguage } from '@/context/LanguageContext';
 import { usePWAInstall } from '@/hooks/usePWAInstall';
-
 // Mock the hooks
-jest.mock('@/context/LanguageContext', () => ({
-  useLanguage: jest.fn(),
+jest.mock('next-intl', () => ({
+  useTranslations: () => (key: string) => key,
 }));
 
 jest.mock('@/context/DrachenbootContext', () => ({
@@ -32,13 +30,9 @@ jest.mock('../Modals', () => ({
 }));
 
 describe('Footer', () => {
-  const mockT = (key: string) => key;
   const mockPromptInstall = jest.fn();
 
   beforeEach(() => {
-    (useLanguage as jest.Mock).mockReturnValue({
-      t: mockT,
-    });
 
     (usePWAInstall as jest.Mock).mockReturnValue({
       canInstall: false,

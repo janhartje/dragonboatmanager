@@ -11,7 +11,7 @@ import { useDrachenboot } from '@/context/DrachenbootContext';
 import { useTeam } from '@/context/TeamContext';
 import { useTheme } from '@/context/ThemeContext';
 
-import { useLanguage } from '@/context/LanguageContext';
+import { useTranslations, useLocale } from 'next-intl';
 import { AddGuestModal, HelpModal, ConfirmModal } from '../ui/Modals';
 import Header from '../ui/Header';
 import { UserMenu } from '@/components/auth/UserMenu';
@@ -35,7 +35,8 @@ interface PlannerViewProps {
 
 const PlannerView: React.FC<PlannerViewProps> = ({ eventId }) => {
   const router = useRouter();
-  const { t, language } = useLanguage();
+  const t = useTranslations();
+  const locale = useLocale();
   const { checkAndStartTour } = useTour();
 
   const {
@@ -104,8 +105,8 @@ const PlannerView: React.FC<PlannerViewProps> = ({ eventId }) => {
 
   const activeEvent = useMemo(() => events.find((e) => e.id === activeEventId) || null, [activeEventId, events]);
   const activeEventTitle = activeEvent ? activeEvent.title : t('unknownEvent');
-  const eventDate = activeEvent?.date ? new Date(activeEvent.date).toLocaleDateString(language === 'de' ? 'de-DE' : 'en-US', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '';
-  const eventTime = activeEvent?.date ? new Date(activeEvent.date).toLocaleTimeString(language === 'de' ? 'de-DE' : 'en-US', { hour: '2-digit', minute: '2-digit' }) : '';
+  const eventDate = activeEvent?.date ? new Date(activeEvent.date).toLocaleDateString(locale === 'de' ? 'de-DE' : 'en-US', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '';
+  const eventTime = activeEvent?.date ? new Date(activeEvent.date).toLocaleTimeString(locale === 'de' ? 'de-DE' : 'en-US', { hour: '2-digit', minute: '2-digit' }) : '';
   const boatSize = activeEvent?.boatSize || 'standard';
 
   // Assignments are always keyed by the event ID

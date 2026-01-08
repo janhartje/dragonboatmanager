@@ -6,7 +6,7 @@ import { useRouter, Link } from '@/i18n/routing';
 import { useDrachenboot } from '@/context/DrachenbootContext';
 import { useTeam } from '@/context/TeamContext';
 import { useTheme } from '@/context/ThemeContext';
-import { useLanguage } from '@/context/LanguageContext';
+import { useTranslations } from 'next-intl';
 import { ArrowLeft, Trash2, AlertTriangle, Shield, ShieldAlert, UserMinus } from 'lucide-react';
 import Header from '@/components/ui/Header';
 import Footer from '@/components/ui/Footer';
@@ -100,7 +100,7 @@ export default function TeamDetailPage({ params }: { params: Promise<{ id: strin
   const { teams, updateTeam, deleteTeam, refetchTeams, isLoadingTeams } = useTeam();
   const { isDarkMode, toggleDarkMode } = useTheme();
   const { paddlers, updatePaddler, deletePaddler, refetchPaddlers, userRole, isDataLoading } = useDrachenboot();
-  const { t } = useLanguage();
+  const t = useTranslations();
 
 
   const [deleteConfirm, setDeleteConfirm] = useState(false);

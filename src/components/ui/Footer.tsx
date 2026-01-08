@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useLanguage } from '@/context/LanguageContext';
+import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
 
 import { ImprintModal, ChangelogModal, PrivacyModal, TermsModal, AVVModal } from './Modals';
@@ -14,7 +14,7 @@ interface FooterProps {
 
 const Footer: React.FC<FooterProps> = ({ variant = 'full' }) => {
   const { data: session } = useSession();
-  const { t } = useLanguage();
+  const t = useTranslations();
   const [showImprint, setShowImprint] = useState<boolean>(false);
   const [showPrivacy, setShowPrivacy] = useState<boolean>(false);
   const [showTerms, setShowTerms] = useState<boolean>(false);

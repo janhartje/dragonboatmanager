@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useLanguage } from '@/context/LanguageContext';
+import { useTranslations } from 'next-intl';
 
 import { useTheme } from '@/context/ThemeContext';
 import { loadStripe } from '@stripe/stripe-js';
@@ -27,7 +27,7 @@ const PaymentMethodUpdateForm = ({
 }) => {
     const stripe = useStripe();
     const elements = useElements();
-    const { t } = useLanguage();
+    const t = useTranslations();
     const [isLoading, setIsLoading] = useState(false);
     const [message, setMessage] = useState<string | null>(null);
 
@@ -88,7 +88,7 @@ const PaymentMethodUpdateForm = ({
 }
 
 export const PaymentMethodManager = ({ teamId, currentPaymentMethod }: { teamId: string, currentPaymentMethod: PaymentMethod | undefined | null }) => {
-    const { t } = useLanguage();
+    const t = useTranslations();
     const { isDarkMode } = useTheme();
     const [isEditing, setIsEditing] = useState(false);
     const [clientSecret, setClientSecret] = useState<string | null>(null);

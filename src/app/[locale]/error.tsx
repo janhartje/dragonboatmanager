@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
 import { Link } from '@/i18n/routing';
 import DragonLogo from "@/components/ui/DragonLogo";
-import { useLanguage } from "@/context/LanguageContext";
+import { useTranslations } from "next-intl";
 
 export default function Error({
   error,
@@ -13,7 +13,7 @@ export default function Error({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-  const { t } = useLanguage();
+  const t = useTranslations();
 
   useEffect(() => {
     console.error(error);
