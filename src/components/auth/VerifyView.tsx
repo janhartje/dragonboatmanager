@@ -50,26 +50,33 @@ export default function VerifyView() {
         setIsLoading(true);
         setIsRedirectError(false);
 
-        try {
-            // Check if it's a relative URL (starts with /)
-            if (url.startsWith('/')) {
-                window.location.href = url;
-                return;
-            }
+        // Safe relative URL check
+        // Must start with / and NOT start with // (protocol relative) to avoid open redirects
+        if (url.startsWith('/') && !url.startsWith('//')) {
+            window.location.href = url;
+            return;
+        }
 
+        try {
             const baseUrl = new URL(window.location.origin);
+            // new URL(url, base) resolves relative paths against base, 
+            // and simply parses absolute paths (ignoring base)
             const targetUrl = new URL(url, window.location.origin);
 
-            // Only allow redirects to the same origin
             if (targetUrl.origin === baseUrl.origin) {
-                window.location.href = url;
+                window.location.href = targetUrl.toString();
                 return;
+            } else {
+                console.error('Blocked suspicious redirect. Origin mismatch:', {
+                    target: targetUrl.origin,
+                    current: baseUrl.origin,
+                    url: url
+                });
             }
         } catch (e) {
             console.error('Invalid URL during verification:', e);
         }
 
-        console.error('Blocked suspicious redirect to:', url);
         setIsRedirectError(true);
         setIsLoading(false);
     };
@@ -106,8 +113,8 @@ export default function VerifyView() {
                             onClick={handleVerify}
                             disabled={isLoading}
                             className={`w-full py-4 rounded-xl font-bold text-lg shadow-lg transition-all flex items-center justify-center gap-2 ${isLoading
-                                    ? 'bg-slate-400 cursor-not-allowed text-white'
-                                    : 'bg-blue-600 hover:bg-blue-700 text-white shadow-blue-500/20 hover:scale-[1.02] active:scale-[0.98]'
+                                ? 'bg-slate-400 cursor-not-allowed text-white'
+                                : 'bg-blue-600 hover:bg-blue-700 text-white shadow-blue-500/20 hover:scale-[1.02] active:scale-[0.98]'
                                 }`}
                         >
                             {isLoading ? (
