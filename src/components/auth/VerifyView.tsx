@@ -7,6 +7,7 @@ import DragonLogo from '@/components/ui/DragonLogo';
 import Footer from '@/components/ui/Footer';
 import { Link } from '@/i18n/routing';
 import { CheckCircle2, AlertCircle } from 'lucide-react';
+import { validateRedirectUrl } from '@/utils/security';
 
 export default function VerifyView() {
     const t = useTranslations('Login.verify');
@@ -52,28 +53,10 @@ export default function VerifyView() {
 
         try {
             const currentOrigin = window.location.origin;
-            // 🛡️ Safe Parsing: Resolve EVERYTHING against current origin.
-            // If url is absolute, it ignores currentOrigin.
-            // If url is relative, it appends correctly.
-            const targetUrl = new URL(url, currentOrigin);
-
-            // 1. Strict Origin Check (Defensive)
-            if (targetUrl.origin !== currentOrigin) {
-                console.error('Security Alert: Cross-origin redirect attempt blocked.', {
-                    target: targetUrl.origin,
-                    current: currentOrigin
-                });
-                throw new Error('Origin mismatch');
-            }
-
-            // 2. Protocol Whitelist (No javascript/data URIs)
-            if (!['http:', 'https:'].includes(targetUrl.protocol)) {
-                console.error('Security Alert: Unsafe protocol blocked.', targetUrl.protocol);
-                throw new Error('Unsafe protocol');
-            }
+            const safeUrl = validateRedirectUrl(url, currentOrigin);
 
             // ✅ Safe to redirect
-            window.location.href = targetUrl.toString();
+            window.location.href = safeUrl;
 
         } catch (e) {
             console.error('Redirect validation failed:', e);

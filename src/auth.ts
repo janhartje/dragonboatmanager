@@ -149,8 +149,28 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             if (user?.language === 'en') {
               lang = 'en';
             }
+
+            // Default to app dashboard if not a team invite
+            // This ensures users land in the app after login, not on the landing page
+            const targetUrl = new URL(url);
+            const callbackUrl = targetUrl.searchParams.get('callbackUrl');
+            const baseUrl = getBaseUrl();
+
+            // If callback is home page or empty/default, redirect to app
+            // We check for various forms of "home"
+            const isHomeRedirect = !callbackUrl ||
+              callbackUrl === baseUrl ||
+              callbackUrl === `${baseUrl}/` ||
+              callbackUrl === `${baseUrl}/${lang}` ||
+              callbackUrl === `${baseUrl}/${lang}/`;
+
+            if (isHomeRedirect) {
+              const appRedirect = `${baseUrl}/${lang}/app`;
+              targetUrl.searchParams.set('callbackUrl', appRedirect);
+              url = targetUrl.toString();
+            }
           } catch (e) {
-            console.error("Error finding user language:", e);
+            console.error("Error setting default app redirect:", e);
           }
         }
 
