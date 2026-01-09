@@ -1231,6 +1231,7 @@
     "uploading": "Uploading...",
     "confirmDeleteImage": "Delete Profile Picture",
     "confirmDeleteImageMessage": "Are you sure you want to delete your profile picture? This action cannot be undone.",
+    "error": "Error",
     "imageUploadFailed": "Failed to upload image",
     "imageDeleteFailed": "Failed to delete image",
     "invalidFileType": "Please select an image file",

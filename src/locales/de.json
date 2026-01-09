@@ -1232,6 +1232,7 @@
     "uploading": "Lädt hoch...",
     "confirmDeleteImage": "Profilbild löschen",
     "confirmDeleteImageMessage": "Möchtest du dein Profilbild wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
+    "error": "Fehler",
     "imageUploadFailed": "Bild konnte nicht hochgeladen werden",
     "imageDeleteFailed": "Bild konnte nicht gelöscht werden",
     "invalidFileType": "Bitte wähle eine Bilddatei",
