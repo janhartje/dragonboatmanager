@@ -29,6 +29,7 @@ erDiagram
         boolean showProRing
         boolean showProBadge
         boolean showWatermark
+        boolean showOnWebsite
     }
     
     Paddler {
@@ -133,6 +134,7 @@ Repräsentiert ein Drachenboot-Team. Jedes Team hat seine eigenen Paddler und Ev
 | `showProRing` | boolean | Logo-Ring anzeigen (PRO) |
 | `showProBadge` | boolean | PRO-Badge anzeigen (PRO) |
 | `showWatermark` | boolean | Branding auf Exports (PRO) |
+| `showOnWebsite` | boolean | Team auf öffentlicher Startseite anzeigen |
 
 **Beziehungen:**
 - Hat viele `Paddler`

@@ -13,12 +13,21 @@ export default function LandingPage() {
   const locale = useLocale();
   const router = useRouter();
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [publicTeams, setPublicTeams] = useState<Array<{ name: string; icon?: string; website?: string }>>([]);
 
   useEffect(() => {
     // Check system preference on mount
     const isDark = document.documentElement.classList.contains('dark');
     setIsDarkMode(isDark); // eslint-disable-line react-hooks/set-state-in-effect
 
+  }, []);
+
+  useEffect(() => {
+    // Fetch public teams
+    fetch('/api/public/teams')
+      .then(res => res.json())
+      .then(data => setPublicTeams(data))
+      .catch(err => console.error('Failed to fetch public teams:', err));
   }, []);
 
   const toggleDarkMode = () => {
@@ -276,6 +285,59 @@ export default function LandingPage() {
             </div>
           </div>
         </section>
+
+        {/* Public Teams Section */}
+        {publicTeams.length > 0 && (
+          <section className="py-24 sm:py-32 relative" aria-label="Teams using Drachenboot Manager">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="text-center max-w-3xl mx-auto mb-16 sm:mb-24">
+                <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6 tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-400">
+                  {t('landingTeamsUsing')}
+                </h2>
+                <p className="text-slate-600 dark:text-slate-400 text-lg sm:text-xl leading-relaxed">
+                  {t('landingTeamsUsingSubtitle')}
+                </p>
+              </div>
+              
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6 sm:gap-8">
+                {publicTeams.map((team, index) => (
+                  <div
+                    key={index}
+                    className="group p-6 rounded-2xl bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 hover:border-blue-500/30 dark:hover:border-blue-400/30 transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/5 hover:-translate-y-1 flex flex-col items-center justify-center text-center"
+                  >
+                    {team.icon ? (
+                      <div className="w-16 h-16 rounded-full overflow-hidden mb-4 border-2 border-slate-200 dark:border-slate-700 group-hover:border-blue-500/50 transition-colors">
+                        <img 
+                          src={team.icon} 
+                          alt={team.name}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    ) : (
+                      <div className="w-16 h-16 rounded-full mb-4 bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-xl">
+                        {team.name.charAt(0).toUpperCase()}
+                      </div>
+                    )}
+                    {team.website ? (
+                      <a
+                        href={team.website}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-semibold text-slate-900 dark:text-slate-100 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                      >
+                        {team.name}
+                      </a>
+                    ) : (
+                      <span className="font-semibold text-slate-900 dark:text-slate-100">
+                        {team.name}
+                      </span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
 
         {/* New CTA Section */}
         <section className="py-24 px-4">

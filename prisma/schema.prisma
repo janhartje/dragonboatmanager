@@ -172,6 +172,9 @@ model Team {
   showProBadge       Boolean  @default(true)
   showWatermark      Boolean  @default(true)
 
+  // Public Visibility
+  showOnWebsite      Boolean  @default(false)
+
   // MCP Server API Keys
   apiKeys            ApiKey[]
 

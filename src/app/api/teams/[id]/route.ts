@@ -93,7 +93,7 @@ export async function PUT(
     }
 
     const body = await request.json();
-    const { name, website, icon, instagram, facebook, twitter, email, primaryColor, showProRing, showProBadge, showWatermark, icalUrl } = body;
+    const { name, website, icon, instagram, facebook, twitter, email, primaryColor, showProRing, showProBadge, showWatermark, showOnWebsite, icalUrl } = body;
 
     // Check payload size (approximate)
     const payloadSize = JSON.stringify(body).length;
@@ -103,7 +103,7 @@ export async function PUT(
 
     const team = await prisma.team.update({
       where: { id },
-      data: { name, website, icon, instagram, facebook, twitter, email, primaryColor, showProRing, showProBadge, showWatermark, icalUrl },
+      data: { name, website, icon, instagram, facebook, twitter, email, primaryColor, showProRing, showProBadge, showWatermark, showOnWebsite, icalUrl },
     });
     return NextResponse.json(team);
   } catch (error) {

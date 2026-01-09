@@ -80,6 +80,18 @@
     "changelog": "Versionshistorie",
     "changelogData": [
         {
+            "version": "3.7.3",
+            "date": "Januar 2026",
+            "features": [
+                "Team-Sichtbarkeit: Neue Einstellung 'Auf Webseite anzeigen' ermöglicht Teams, auf der öffentlichen Startseite als Referenz angezeigt zu werden."
+            ],
+            "technical": [
+                "Datenbank: 'showOnWebsite' Feld zum Team-Modell hinzugefügt.",
+                "API: Neue öffentliche Funktion zum Abrufen von sichtbaren Teams."
+            ],
+            "bugfixes": []
+        },
+        {
             "version": "3.7.2",
             "date": "Januar 2026",
             "features": [
@@ -915,6 +927,8 @@
     "landingLearnMore": "Mehr erfahren",
     "landingStartApp": "App Starten",
     "landingTrustedBy": "Vertraut von Drachenboot-Teams",
+    "landingTeamsUsing": "Teams nutzen Drachenboot Manager",
+    "landingTeamsUsingSubtitle": "Erfolgreiche Teams aus der ganzen Welt vertrauen auf unsere Software",
     "leaveTeam": "Team verlassen",
     "left": "Links",
     "legal": {
@@ -1152,6 +1166,9 @@
         "showProBadgeDesc": "Zeigt das PRO-Badge in der Kopfzeile und im Team-Switcher an.",
         "showWatermark": "Branding auf Exports anzeigen",
         "showWatermarkDesc": "Zeigt \"Erstellt mit Drachenboot Manager\" auf Bild-Exports an. Kann für PRO-Teams deaktiviert werden.",
+        "showOnWebsite": "Auf Webseite anzeigen",
+        "showOnWebsiteDesc": "Zeigt dein Team-Logo und Namen auf der öffentlichen Startseite als Referenz für andere Teams.",
+        "publicVisibility": "Öffentliche Sichtbarkeit",
         "socialMedia": "Social Media",
         "startsAt": "Startet am",
         "status": "Status",

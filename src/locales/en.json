@@ -80,6 +80,18 @@
     "changelog": "Changelog",
     "changelogData": [
         {
+            "version": "3.7.3",
+            "date": "January 2026",
+            "features": [
+                "Team Visibility: New 'Show on Website' setting allows teams to be displayed on the public landing page as a reference."
+            ],
+            "technical": [
+                "Database: Added 'showOnWebsite' field to Team model.",
+                "API: New public function to retrieve visible teams."
+            ],
+            "bugfixes": []
+        },
+        {
             "version": "3.7.2",
             "date": "January 2026",
             "features": [
@@ -914,6 +926,8 @@
     "landingLearnMore": "Learn More",
     "landingStartApp": "Start App",
     "landingTrustedBy": "Trusted by dragon boat teams",
+    "landingTeamsUsing": "Teams using Drachenboot Manager",
+    "landingTeamsUsingSubtitle": "Successful teams from around the world trust our software",
     "leaveTeam": "Leave Team",
     "left": "Left",
     "legal": {
@@ -1151,6 +1165,9 @@
         "showProBadgeDesc": "Displays the PRO badge in the header and team switcher.",
         "showWatermark": "Show branding on exports",
         "showWatermarkDesc": "Shows \"Created with Drachenboot Manager\" on image exports. Can be disabled for PRO teams.",
+        "showOnWebsite": "Show on Website",
+        "showOnWebsiteDesc": "Display your team logo and name on the public landing page as a reference for other teams.",
+        "publicVisibility": "Public Visibility",
         "socialMedia": "Social Media",
         "startsAt": "Starts at",
         "status": "Status",

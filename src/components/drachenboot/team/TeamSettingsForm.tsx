@@ -312,6 +312,25 @@ const TeamSettingsForm: React.FC<TeamSettingsFormProps> = ({ initialData, onSave
         </div>
       )}
 
+      {/* Public Visibility */}
+      <div className="pt-2 border-t border-slate-200 dark:border-slate-800">
+        <h3 className="text-sm font-semibold text-slate-500 dark:text-slate-400 mb-3 uppercase tracking-wider">
+          {t('pro.publicVisibility') || 'Public Visibility'}
+        </h3>
+        
+        <SettingsItem
+          label={t('pro.showOnWebsite') || 'Show on Website'}
+          description={t('pro.showOnWebsiteDesc') || 'Display your team logo and name on the public landing page as a reference for other teams.'}
+        >
+          <Toggle 
+            enabled={formData.showOnWebsite === true} 
+            onChange={(enabled) => handleChange('showOnWebsite', enabled)}
+            activeColor="bg-blue-500"
+            focusColor="focus:ring-blue-500"
+          />
+        </SettingsItem>
+      </div>
+
       {/* iCal Integration */}
       <div className="pt-2 border-t border-slate-200 dark:border-slate-800">
         <h3 className="text-sm font-semibold text-slate-500 dark:text-slate-400 mb-3 uppercase tracking-wider flex items-center gap-2">
