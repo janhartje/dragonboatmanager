@@ -325,7 +325,7 @@ export default function LandingPageClient({ publicTeams }: LandingPageClientProp
                           {team.name.charAt(0).toUpperCase()}
                         </div>
                       )}
-                      {isSafeUrl ? (
+                      {isSafeUrl && team.website ? (
                         <a
                           href={team.website}
                           target="_blank"
