@@ -31,6 +31,8 @@ import WelcomeView from './WelcomeView';
 import { ImportModal } from './team/ImportModal';
 import { ProBadge } from './pro/ProBadge';
 import PaddlerList from './team/PaddlerList';
+import TeamToolbar from './team/TeamToolbar';
+import { filterAndSortPaddlers } from '@/utils/paddlerFilters';
 
 import { THEME_MAP } from '@/constants/themes';
 
@@ -76,6 +78,12 @@ const TeamView: React.FC = () => {
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
   const [showEventModal, setShowEventModal] = useState<boolean>(false);
 
+  // --- SEARCH, FILTER, AND SORT STATE ---
+  const [searchTerm, setSearchTerm] = useState<string>('');
+  const [filterSkills, setFilterSkills] = useState<string[]>([]);
+  const [sortBy, setSortBy] = useState<string>('name');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+
   // --- UPGRADE SUCCESS HANDLING ---
   const searchParams = useSearchParams();
   const [showUpgradeSuccess, setShowUpgradeSuccess] = useState<boolean>(false);
@@ -97,11 +105,26 @@ const TeamView: React.FC = () => {
     updateEvent(id, { title, date, type, boatSize, comment });
   };
 
+  // --- SEARCH, FILTER, AND SORT HANDLERS ---
+  const handleSearchChange = (term: string) => {
+    setSearchTerm(term);
+  };
+
+  const handleFilterChange = (skills: string[]) => {
+    setFilterSkills(skills);
+  };
+
+  const handleSortChange = (field: string, order: 'asc' | 'desc') => {
+    setSortBy(field);
+    setSortOrder(order);
+  };
+
 
   // --- COMPUTED ---
-  const sortedPaddlers = useMemo(() =>
-    [...paddlers].filter((p) => !p.isCanister && !p.isGuest).sort((a, b) => a.name.localeCompare(b.name)),
-    [paddlers]);
+  const sortedPaddlers = useMemo(() => 
+    filterAndSortPaddlers(paddlers, searchTerm, filterSkills, sortBy, sortOrder),
+    [paddlers, searchTerm, filterSkills, sortBy, sortOrder]
+  );
 
   const paddlerToEdit = useMemo(() =>
     editingPaddlerId ? paddlers.find(p => p.id === editingPaddlerId) || null : null,
@@ -494,6 +517,15 @@ const TeamView: React.FC = () => {
 
               {/* Paddler Grid (Mobile) / List (Desktop) */}
               <div className="lg:col-span-2 flex flex-col">
+                <TeamToolbar
+                  searchTerm={searchTerm}
+                  onSearchChange={handleSearchChange}
+                  filterSkills={filterSkills}
+                  onFilterChange={handleFilterChange}
+                  sortBy={sortBy}
+                  sortOrder={sortOrder}
+                  onSortChange={handleSortChange}
+                />
                 <div className="block lg:hidden">
                   <PaddlerGrid
                     paddlers={sortedPaddlers}
@@ -502,6 +534,13 @@ const TeamView: React.FC = () => {
                     onDelete={handleDeletePaddler}
                     t={t}
                     headerAction={paddlerGridHeaderAction}
+                    leftAction={
+                      (searchTerm || filterSkills.length > 0) && (
+                        <span className="text-xs text-slate-500 dark:text-slate-400">
+                          ({sortedPaddlers.length} / {paddlers.filter(p => !p.isCanister && !p.isGuest).length})
+                        </span>
+                      )
+                    }
                   />
                   {hasMorePaddlers && (
                     <div className="mt-4 flex justify-center">
@@ -525,6 +564,13 @@ const TeamView: React.FC = () => {
                     onDelete={handleDeletePaddler}
                     t={t}
                     headerAction={paddlerGridHeaderAction}
+                    leftAction={
+                      (searchTerm || filterSkills.length > 0) && (
+                        <span className="text-xs text-slate-500 dark:text-slate-400">
+                          ({sortedPaddlers.length} / {paddlers.filter(p => !p.isCanister && !p.isGuest).length})
+                        </span>
+                      )
+                    }
                   />
                   {hasMorePaddlers && (
                     <div className="mt-4 flex justify-center">
@@ -552,6 +598,15 @@ const TeamView: React.FC = () => {
 
               {/* Paddler Grid (Mobile) / List (Desktop) */}
               <div className="lg:col-span-2 flex flex-col">
+                <TeamToolbar
+                  searchTerm={searchTerm}
+                  onSearchChange={handleSearchChange}
+                  filterSkills={filterSkills}
+                  onFilterChange={handleFilterChange}
+                  sortBy={sortBy}
+                  sortOrder={sortOrder}
+                  onSortChange={handleSortChange}
+                />
                 <div className="block lg:hidden">
                   <PaddlerGrid
                     paddlers={sortedPaddlers}
@@ -559,6 +614,13 @@ const TeamView: React.FC = () => {
                     onEdit={handleEditPaddler}
                     onDelete={handleDeletePaddler}
                     t={t}
+                    leftAction={
+                      (searchTerm || filterSkills.length > 0) && (
+                        <span className="text-xs text-slate-500 dark:text-slate-400">
+                          ({sortedPaddlers.length} / {paddlers.filter(p => !p.isCanister && !p.isGuest).length})
+                        </span>
+                      )
+                    }
                   />
                 </div>
                 <div className="hidden lg:block">
@@ -568,6 +630,13 @@ const TeamView: React.FC = () => {
                     onEdit={handleEditPaddler}
                     onDelete={handleDeletePaddler}
                     t={t}
+                    leftAction={
+                      (searchTerm || filterSkills.length > 0) && (
+                        <span className="text-xs text-slate-500 dark:text-slate-400">
+                          ({sortedPaddlers.length} / {paddlers.filter(p => !p.isCanister && !p.isGuest).length})
+                        </span>
+                      )
+                    }
                   />
                 </div>
               </div>

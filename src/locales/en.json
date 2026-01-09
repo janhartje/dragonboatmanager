@@ -80,6 +80,15 @@
     "changelog": "Changelog",
     "changelogData": [
         {
+            "version": "3.7.3",
+            "date": "January 2026",
+            "features": [
+                "Team List: Added search, filter by skills, and sort functionality to better manage large squads."
+            ],
+            "technical": [],
+            "bugfixes": []
+        },
+        {
             "version": "3.7.2",
             "date": "January 2026",
             "features": [
@@ -627,6 +636,8 @@
     "clFeatures": "New Features",
     "clTechnical": "Technical Changes",
     "clearBoat": "Clear Boat",
+    "clear": "Clear",
+    "clearFilters": "Clear filters",
     "close": "Close",
     "comment": "Comment",
     "commentPlaceholder": "Info about the session...",
@@ -741,6 +752,8 @@
     "eventTemplateColumns": "Title | Date | Time | Type | BoatSize | Comment",
     "events": "Events",
     "exportImage": "Save Image",
+    "filter": "Filter",
+    "filterBySkills": "Filter by skills",
     "faqCreateTeamAnswer": "Click on the team name in the main menu (top left), select 'Switch Team', and then click the '+' symbol.",
     "faqCreateTeamTitle": "How do I create a new team?",
     "faqLeaveTeamAnswer": "You can leave a team anytime via your user profile:",
@@ -1228,6 +1241,7 @@
     "saveProfile": "Save Profile",
     "saved": "Saved",
     "saving": "Saving...",
+    "searchPlaceholder": "Search by name...",
     "selectTeam": "Select Team",
     "sending": "Sending...",
     "sent": "Sent!",
@@ -1240,6 +1254,10 @@
     "skillsDisclaimer": "Select your paddling skills",
     "skillsReason": "Your preferred position (left/right/drum/steer) helps with creating the seating plan.",
     "smallBoat": "Small (10)",
+    "sortNameAsc": "Name (A-Z)",
+    "sortNameDesc": "Name (Z-A)",
+    "sortWeightAsc": "Weight (Lightest)",
+    "sortWeightDesc": "Weight (Heaviest)",
     "specialRoles": "Special Roles",
     "squad": "Squad",
     "standardBoat": "Standard (20)",

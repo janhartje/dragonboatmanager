@@ -80,6 +80,15 @@
     "changelog": "Versionshistorie",
     "changelogData": [
         {
+            "version": "3.7.3",
+            "date": "Januar 2026",
+            "features": [
+                "Kader-Liste: Suche, Filter nach Fähigkeiten und Sortierung hinzugefügt für bessere Verwaltung großer Teams."
+            ],
+            "technical": [],
+            "bugfixes": []
+        },
+        {
             "version": "3.7.2",
             "date": "Januar 2026",
             "features": [
@@ -628,6 +637,8 @@
     "clFeatures": "Neue Funktionen",
     "clTechnical": "Technische Änderungen",
     "clearBoat": "Boot leeren",
+    "clear": "Zurücksetzen",
+    "clearFilters": "Filter zurücksetzen",
     "close": "Schließen",
     "comment": "Kommentar",
     "commentPlaceholder": "Infos zum Training...",
@@ -742,6 +753,8 @@
     "eventTemplateColumns": "Titel | Datum | Zeit | Typ | Bootsgröße | Kommentar",
     "events": "Termine",
     "exportImage": "Bild speichern",
+    "filter": "Filtern",
+    "filterBySkills": "Nach Fähigkeiten filtern",
     "faqCreateTeamAnswer": "Klicke im Hauptmenü (oben links auf den Team-Namen) auf 'Team wechseln' und dann auf das '+' Symbol.",
     "faqCreateTeamTitle": "Wie erstelle ich ein neues Team?",
     "faqLeaveTeamAnswer": "Du kannst ein Team jederzeit über dein Benutzer-Profil verlassen:",
@@ -1229,6 +1242,7 @@
     "saveProfile": "Profil speichern",
     "saved": "Gespeichert",
     "saving": "Speichere...",
+    "searchPlaceholder": "Nach Name suchen...",
     "selectTeam": "Team wählen",
     "sending": "Wird gesendet...",
     "sent": "Gesendet!",
@@ -1241,6 +1255,10 @@
     "skillsDisclaimer": "Wähle deine Paddel-Skills aus",
     "skillsReason": "Deine Position (links/rechts/Trommel/Steuer) hilft beim Erstellen der Sitzordnung.",
     "smallBoat": "Klein (10)",
+    "sortNameAsc": "Name (A-Z)",
+    "sortNameDesc": "Name (Z-A)",
+    "sortWeightAsc": "Gewicht (Leichteste)",
+    "sortWeightDesc": "Gewicht (Schwerste)",
     "specialRoles": "Spezial-Rollen",
     "squad": "Kader",
     "standardBoat": "Standard (20)",
