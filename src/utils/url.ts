@@ -15,13 +15,18 @@ export function getBaseUrl(): string {
     return process.env.NEXT_PUBLIC_SERVER_URL;
   }
 
+  // In production, use the custom domain
+  if (process.env.VERCEL_ENV === 'production' && process.env.VERCEL_PROJECT_PRODUCTION_URL) {
+    return `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`;
+  }
+
   // Vercel deployment URL (unique per deployment, good for preview envs)
   // This comes BEFORE production URL so previews get their own URL
   if (process.env.VERCEL_URL) {
     return `https://${process.env.VERCEL_URL}`;
   }
 
-  // Vercel production URL (fallback for production)
+  // Vercel production URL (fallback)
   if (process.env.VERCEL_PROJECT_PRODUCTION_URL) {
     return `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`;
   }
