@@ -83,6 +83,7 @@
             "version": "3.7.3",
             "date": "Januar 2026",
             "features": [
+                "Kader-Liste: Suche, Filter nach Fähigkeiten und Sortierung hinzugefügt für bessere Verwaltung großer Teams.",
                 "Team-Sichtbarkeit: Neue Einstellung 'Auf Webseite anzeigen' ermöglicht Teams, auf der öffentlichen Startseite als Referenz angezeigt zu werden."
             ],
             "technical": [
