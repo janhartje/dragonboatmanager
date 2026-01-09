@@ -24,7 +24,7 @@ export async function getPublicTeams(): Promise<PublicTeam[]> {
         website: true,
       },
       orderBy: [
-        // Sort teams with logos first (icon IS NOT NULL)
+        // Sort teams with icons first (teams with icon values come before nulls in descending order)
         { icon: 'desc' },
         // Then by name alphabetically
         { name: 'asc' },

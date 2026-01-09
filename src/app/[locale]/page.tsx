@@ -20,9 +20,6 @@ export default function LandingPage() {
     const isDark = document.documentElement.classList.contains('dark');
     setIsDarkMode(isDark); // eslint-disable-line react-hooks/set-state-in-effect
 
-  }, []);
-
-  useEffect(() => {
     // Fetch public teams
     fetch('/api/public/teams')
       .then(res => res.json())
