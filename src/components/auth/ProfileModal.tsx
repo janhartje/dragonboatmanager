@@ -57,7 +57,7 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
       const currentImage = session.user.customImage || session.user.image || null
       setImagePreview(currentImage)
     }
-  }, [session?.user])
+  }, [session])
 
   useEffect(() => {
     if (success) {
@@ -128,9 +128,8 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
           
           // Upload to server
           await uploadProfileImage(resizedBase64)
-          setImagePreview(resizedBase64)
           
-          // Update session
+          // Update session - this will trigger useEffect to update preview
           await update()
           setIsUploadingImage(false)
         }
