@@ -17,6 +17,8 @@
             "cta": "Jetzt einloggen",
             "errorBody": "Der Login-Link ist ungültig oder abgelaufen. Bitte fordere einen neuen Link an.",
             "errorTitle": "Ungültiger Link",
+            "linkValidated": "Link validiert",
+            "redirectError": "Der Redirect konnte nicht sicher ausgeführt werden. Bitte versuche es erneut oder kopiere den Link manuell.",
             "title": "Verifiziere deinen Login"
         },
         "welcomeBack": "Willkommen zurück"

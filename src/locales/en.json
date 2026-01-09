@@ -17,6 +17,8 @@
             "cta": "Sign in now",
             "errorBody": "The login link is invalid or has expired. Please request a new link.",
             "errorTitle": "Invalid Link",
+            "linkValidated": "Link validated",
+            "redirectError": "The redirect could not be executed safely. Please try again or copy the link manually.",
             "title": "Verify your login"
         },
         "welcomeBack": "Welcome back"

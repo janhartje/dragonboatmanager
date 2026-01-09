@@ -12,6 +12,8 @@ export default function VerifyView() {
     const t = useTranslations('Login.verify');
     const searchParams = useSearchParams();
     const url = searchParams.get('url');
+    const [isLoading, setIsLoading] = React.useState(false);
+    const [isRedirectError, setIsRedirectError] = React.useState(false);
 
     if (!url) {
         return (
@@ -43,9 +45,18 @@ export default function VerifyView() {
     }
 
     const handleVerify = () => {
-        if (!url) return;
+        if (!url || isLoading) return;
+
+        setIsLoading(true);
+        setIsRedirectError(false);
 
         try {
+            // Check if it's a relative URL (starts with /)
+            if (url.startsWith('/')) {
+                window.location.href = url;
+                return;
+            }
+
             const baseUrl = new URL(window.location.origin);
             const targetUrl = new URL(url, window.location.origin);
 
@@ -59,6 +70,8 @@ export default function VerifyView() {
         }
 
         console.error('Blocked suspicious redirect to:', url);
+        setIsRedirectError(true);
+        setIsLoading(false);
     };
 
     return (
@@ -73,10 +86,17 @@ export default function VerifyView() {
                             <h1 className="text-2xl font-bold text-slate-800 dark:text-white mb-2">
                                 {t('title')}
                             </h1>
-                            <div className="flex items-center justify-center gap-2 text-green-600 dark:text-green-400 mb-4">
-                                <CheckCircle2 size={18} />
-                                <span className="text-sm font-medium">Link validiert</span>
-                            </div>
+                            {!isRedirectError ? (
+                                <div className="flex items-center justify-center gap-2 text-green-600 dark:text-green-400 mb-4 transition-all">
+                                    <CheckCircle2 size={18} />
+                                    <span className="text-sm font-medium">{t('linkValidated')}</span>
+                                </div>
+                            ) : (
+                                <div className="flex items-center justify-center gap-2 text-red-600 dark:text-red-400 mb-4 animate-in fade-in slide-in-from-top-1 duration-300">
+                                    <AlertCircle size={18} />
+                                    <span className="text-sm font-medium">{t('redirectError')}</span>
+                                </div>
+                            )}
                             <p className="text-slate-600 dark:text-slate-400">
                                 {t('body')}
                             </p>
@@ -84,9 +104,21 @@ export default function VerifyView() {
 
                         <button
                             onClick={handleVerify}
-                            className="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-lg shadow-lg shadow-blue-500/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
+                            disabled={isLoading}
+                            className={`w-full py-4 rounded-xl font-bold text-lg shadow-lg transition-all flex items-center justify-center gap-2 ${isLoading
+                                    ? 'bg-slate-400 cursor-not-allowed text-white'
+                                    : 'bg-blue-600 hover:bg-blue-700 text-white shadow-blue-500/20 hover:scale-[1.02] active:scale-[0.98]'
+                                }`}
                         >
-                            {t('cta')}
+                            {isLoading ? (
+                                <span className="flex items-center gap-2">
+                                    <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    ...
+                                </span>
+                            ) : t('cta')}
                         </button>
                     </div>
                 </div>
