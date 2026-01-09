@@ -11,6 +11,16 @@
         "signInEmail": "Mit E-Mail anmelden",
         "signInGithub": "Anmelden mit GitHub",
         "signInGoogle": "Anmelden mit Google",
+        "verify": {
+            "backToLogin": "Zurück zum Login",
+            "body": "Bitte klicke auf den Button unten, um den Login-Vorgang abzuschließen. Dies stellt sicher, dass du ein echter Nutzer bist.",
+            "cta": "Jetzt einloggen",
+            "errorBody": "Der Login-Link ist ungültig oder abgelaufen. Bitte fordere einen neuen Link an.",
+            "errorTitle": "Ungültiger Link",
+            "linkValidated": "Link validiert",
+            "redirectError": "Der Redirect konnte nicht sicher ausgeführt werden. Bitte versuche es erneut oder kopiere den Link manuell.",
+            "title": "Verifiziere deinen Login"
+        },
         "welcomeBack": "Willkommen zurück"
     },
     "accessDenied": "Zutritt verweigert",
@@ -69,6 +79,18 @@
     "changeBoatSizeConfirm": "Möchtest du wirklich die Bootsgröße ändern? Die aktuelle Besetzung wird dabei gelöscht.",
     "changelog": "Versionshistorie",
     "changelogData": [
+        {
+            "version": "3.7.2",
+            "date": "Januar 2026",
+            "features": [
+                "Login-Verifizierung: Schutz vor E-Mail-Scannern durch Zwischenseite."
+            ],
+            "technical": [
+                "Sicherheit: Open-Redirect-Schutz in VerifyView implementiert.",
+                "i18n: Synchronisation der Sprachdateien."
+            ],
+            "bugfixes": []
+        },
         {
             "version": "3.7.1",
             "date": "Januar 2026",
@@ -1008,6 +1030,7 @@
     "logout": "Abmelden",
     "madeWithLove": "Made with ❤️ in Hannover.",
     "magicAI": "Magic KI: Automatische Besetzung",
+    "magicLink": "Magic Link",
     "manageTeams": "Teams verwalten",
     "managedByOther": "Das Abonnement wird von einem anderen Teammitglied verwaltet.",
     "members": "Mitglieder",

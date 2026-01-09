@@ -11,6 +11,16 @@
         "signInEmail": "Sign in with Email",
         "signInGithub": "Sign in with GitHub",
         "signInGoogle": "Sign in with Google",
+        "verify": {
+            "backToLogin": "Back to login",
+            "body": "Please click the button below to complete the login process. This ensures that you are a real user.",
+            "cta": "Sign in now",
+            "errorBody": "The login link is invalid or has expired. Please request a new link.",
+            "errorTitle": "Invalid Link",
+            "linkValidated": "Link validated",
+            "redirectError": "The redirect could not be executed safely. Please try again or copy the link manually.",
+            "title": "Verify your login"
+        },
         "welcomeBack": "Welcome back"
     },
     "accessDenied": "Access Denied",
@@ -69,6 +79,18 @@
     "changeBoatSizeConfirm": "Are you sure you want to change the boat size? The current lineup will be cleared.",
     "changelog": "Changelog",
     "changelogData": [
+        {
+            "version": "3.7.2",
+            "date": "January 2026",
+            "features": [
+                "Login Verification: Protection against email scanners via landing page."
+            ],
+            "technical": [
+                "Security: Implemented Open Redirect protection in VerifyView.",
+                "i18n: Synchronized language files."
+            ],
+            "bugfixes": []
+        },
         {
             "version": "3.7.1",
             "date": "January 2026",
@@ -1007,6 +1029,7 @@
     "logout": "Log out",
     "madeWithLove": "Made with ❤️ in Hannover.",
     "magicAI": "Magic AI: Auto Fill",
+    "magicLink": "Magic Link",
     "manageTeams": "Manage Teams",
     "managedByOther": "The subscription is managed by another team member.",
     "members": "Members",

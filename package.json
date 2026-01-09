@@ -8,7 +8,7 @@
     "db:reset": "docker compose down -v && docker compose up -d && sleep 2 && npx prisma migrate dev",
     "db:studio": "npx prisma studio",
     "dev": "next dev --webpack",
-    "build": "NODE_ENV=production prisma migrate deploy && next build --webpack",
+    "build": "NODE_ENV=production prisma migrate deploy && NODE_ENV=production next build --webpack",
     "start": "NODE_ENV=production next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
