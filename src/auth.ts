@@ -1,5 +1,4 @@
 import NextAuth from "next-auth"
-import React from 'react';
 import { PrismaAdapter } from "@auth/prisma-adapter"
 import prisma from "@/lib/prisma"
 import Google from "next-auth/providers/google"
@@ -265,10 +264,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   events: {
     async signIn({ user }) {
       if (user.email && user.id) {
+        // Fetch full user to get weight
         const fullUser = await prisma.user.findUnique({
           where: { id: user.id },
         });
 
+        // Check if there are any paddlers with this email in inviteEmail field (case-insensitive)
         const invitedPaddlers = await prisma.paddler.findMany({
           where: {
             inviteEmail: {
@@ -278,14 +279,15 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           },
         });
 
+        // Link all invited paddlers to this user
         for (const paddler of invitedPaddlers) {
           await prisma.paddler.update({
             where: { id: paddler.id },
             data: {
               userId: user.id,
-              inviteEmail: null,
-              name: fullUser?.name || user.name || paddler.name,
-              weight: fullUser?.weight || paddler.weight,
+              inviteEmail: null, // Clear the invite email
+              name: fullUser?.name || user.name || paddler.name, // Use user's name if available
+              weight: fullUser?.weight || paddler.weight, // Sync weight
             },
           });
         }
@@ -293,10 +295,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     },
     async createUser({ user }) {
       if (user.email && user.id) {
+        // Fetch full user to get weight
         const fullUser = await prisma.user.findUnique({
           where: { id: user.id },
         });
 
+        // Check if there are any paddlers with this email in inviteEmail field (case-insensitive)
         const invitedPaddlers = await prisma.paddler.findMany({
           where: {
             inviteEmail: {
@@ -306,14 +310,15 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           },
         });
 
+        // Link all invited paddlers to this user
         for (const paddler of invitedPaddlers) {
           await prisma.paddler.update({
             where: { id: paddler.id },
             data: {
               userId: user.id,
-              inviteEmail: null,
-              name: fullUser?.name || user.name || paddler.name,
-              weight: fullUser?.weight || paddler.weight,
+              inviteEmail: null, // Clear the invite email
+              name: fullUser?.name || user.name || paddler.name, // Use user's name if available
+              weight: fullUser?.weight || paddler.weight, // Sync weight
             },
           });
         }

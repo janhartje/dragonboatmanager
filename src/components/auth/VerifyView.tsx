@@ -43,9 +43,22 @@ export default function VerifyView() {
     }
 
     const handleVerify = () => {
-        if (url) {
-            window.location.href = url;
+        if (!url) return;
+
+        try {
+            const baseUrl = new URL(window.location.origin);
+            const targetUrl = new URL(url, window.location.origin);
+
+            // Only allow redirects to the same origin
+            if (targetUrl.origin === baseUrl.origin) {
+                window.location.href = url;
+                return;
+            }
+        } catch (e) {
+            console.error('Invalid URL during verification:', e);
         }
+
+        console.error('Blocked suspicious redirect to:', url);
     };
 
     return (
