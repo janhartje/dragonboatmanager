@@ -32,6 +32,7 @@ import { ImportModal } from './team/ImportModal';
 import { ProBadge } from './pro/ProBadge';
 import PaddlerList from './team/PaddlerList';
 import TeamToolbar from './team/TeamToolbar';
+import { filterAndSortPaddlers } from '@/utils/paddlerFilters';
 
 import { THEME_MAP } from '@/constants/themes';
 
@@ -120,39 +121,10 @@ const TeamView: React.FC = () => {
 
 
   // --- COMPUTED ---
-  const sortedPaddlers = useMemo(() => {
-    let filtered = [...paddlers].filter((p) => !p.isCanister && !p.isGuest);
-
-    // Apply search filter
-    if (searchTerm.trim()) {
-      const search = searchTerm.toLowerCase();
-      filtered = filtered.filter((p) => 
-        p.name.toLowerCase().includes(search)
-      );
-    }
-
-    // Apply skill filter (OR logic - paddler must have at least one of the selected skills)
-    if (filterSkills.length > 0) {
-      filtered = filtered.filter((p) =>
-        filterSkills.some((skill) => p.skills.includes(skill))
-      );
-    }
-
-    // Apply sorting
-    filtered.sort((a, b) => {
-      let comparison = 0;
-      
-      if (sortBy === 'name') {
-        comparison = a.name.localeCompare(b.name);
-      } else if (sortBy === 'weight') {
-        comparison = a.weight - b.weight;
-      }
-
-      return sortOrder === 'asc' ? comparison : -comparison;
-    });
-
-    return filtered;
-  }, [paddlers, searchTerm, filterSkills, sortBy, sortOrder]);
+  const sortedPaddlers = useMemo(() => 
+    filterAndSortPaddlers(paddlers, searchTerm, filterSkills, sortBy, sortOrder),
+    [paddlers, searchTerm, filterSkills, sortBy, sortOrder]
+  );
 
   const paddlerToEdit = useMemo(() =>
     editingPaddlerId ? paddlers.find(p => p.id === editingPaddlerId) || null : null,
