@@ -13,6 +13,7 @@ import { WeightInput } from "@/components/ui/WeightInput"
 import { SkillSelector, SkillsState } from "@/components/ui/SkillSelector"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { ConfirmModal, AlertModal } from "@/components/ui/Modals"
+import { triggerProfileRefresh } from "@/hooks/useUserProfile"
 
 interface ProfileModalProps {
   isOpen: boolean
@@ -145,6 +146,10 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
           if (userProfile) {
             setImagePreview(userProfile.customImage || userProfile.image || null)
           }
+          
+          // Trigger refresh in all useUserProfile hooks (e.g., UserMenu)
+          triggerProfileRefresh()
+          
           setIsUploadingImage(false)
         }
         img.src = base64String
@@ -168,6 +173,9 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
       if (userProfile) {
         setImagePreview(userProfile.image || null)
       }
+      
+      // Trigger refresh in all useUserProfile hooks (e.g., UserMenu)
+      triggerProfileRefresh()
     } catch (error) {
       console.error('Failed to delete image', error)
       setErrorMessage(t('imageDeleteFailed') || 'Failed to delete image')
