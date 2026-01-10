@@ -21,7 +21,7 @@ interface ProfileModalProps {
 }
 
 export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
-  const { data: session, update } = useSession()
+  const { data: session } = useSession()
   const t = useTranslations()
   const { currentTeam } = useTeam();
   const { paddlers, refetchPaddlers } = useDrachenboot()

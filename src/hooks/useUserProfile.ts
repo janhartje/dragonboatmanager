@@ -2,24 +2,48 @@ import { useEffect, useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { getUserProfile } from '@/app/actions/user'
 
-let profileRefreshCallbacks: (() => void)[] = []
+/**
+ * Custom event name for profile refresh events
+ * Using browser-native CustomEvent API instead of module-level state
+ * to avoid memory leaks and SSR issues
+ */
+const PROFILE_REFRESH_EVENT = 'userProfileRefresh'
 
+/**
+ * Trigger a refresh of all active useUserProfile hooks
+ * Uses CustomEvent API which is:
+ * - Memory-safe (no manual cleanup needed)
+ * - SSR-compatible (only fires in browser)
+ * - Standard browser API (no external dependencies)
+ */
 export function triggerProfileRefresh() {
-  profileRefreshCallbacks.forEach(cb => cb())
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent(PROFILE_REFRESH_EVENT))
+  }
 }
 
+/**
+ * Hook to load and cache user profile data (including custom images)
+ * Automatically refreshes when triggerProfileRefresh() is called
+ * 
+ * This approach avoids storing images in JWT tokens which would cause
+ * REQUEST_HEADER_TOO_LARGE errors with base64 data
+ */
 export function useUserProfile() {
   const { data: session } = useSession()
   const [profileImage, setProfileImage] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [refreshKey, setRefreshKey] = useState(0)
 
-  // Register refresh callback
+  // Listen for profile refresh events using browser-native API
   useEffect(() => {
-    const refresh = () => setRefreshKey(k => k + 1)
-    profileRefreshCallbacks.push(refresh)
-    return () => {
-      profileRefreshCallbacks = profileRefreshCallbacks.filter(cb => cb !== refresh)
+    const handleRefresh = () => setRefreshKey(k => k + 1)
+    
+    if (typeof window !== 'undefined') {
+      window.addEventListener(PROFILE_REFRESH_EVENT, handleRefresh)
+      return () => {
+        window.removeEventListener(PROFILE_REFRESH_EVENT, handleRefresh)
+      }
     }
   }, [])
 
