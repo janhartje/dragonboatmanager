@@ -30,10 +30,12 @@ export async function GET(request: Request) {
         }
 
         // Fetch all paddlers for this team
+        // NOTE: customImage removed from select to reduce payload size
+        // Images are now served via dedicated /api/users/[userId]/avatar endpoint
         paddlers = await prisma.paddler.findMany({
             where: { teamId },
             orderBy: { name: 'asc' },
-            include: { user: { select: { email: true, name: true, image: true, customImage: true } } },
+            include: { user: { select: { id: true, email: true, name: true, image: true } } },
             skip: !isNaN(Number(skip)) ? skip : undefined,
             take: !isNaN(Number(take)) ? take : undefined,
         });
@@ -58,7 +60,7 @@ export async function GET(request: Request) {
                 where: { teamId },
                 orderBy: { name: 'asc' },
                 include: {
-                    user: { select: { email: true, name: true, image: true, customImage: true } }
+                    user: { select: { id: true, email: true, name: true, image: true } }
                 },
                 skip: !isNaN(Number(skip)) ? skip : undefined,
                 take: !isNaN(Number(take)) ? take : undefined,
@@ -93,7 +95,7 @@ export async function GET(request: Request) {
                 where: { teamId: { in: teamIds } },
                 orderBy: { name: 'asc' },
                 include: {
-                    user: { select: { email: true, name: true, image: true, customImage: true } }
+                    user: { select: { id: true, email: true, name: true, image: true } }
                 },
                 skip: !isNaN(Number(skip)) ? skip : undefined,
                 take: !isNaN(Number(take)) ? take : undefined,
