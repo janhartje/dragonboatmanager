@@ -8,7 +8,7 @@ export async function GET() {
     const indexNowKey = process.env.INDEXNOW_KEY;
 
     if (!indexNowKey) {
-        return new NextResponse('IndexNow key not configured', { status: 404 });
+        return new NextResponse('Not found', { status: 404 });
     }
 
     // Return the key as plain text
