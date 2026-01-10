@@ -44,6 +44,7 @@ Der **Drachenboot Manager** ist eine Progressive Web App (PWA) zur Verwaltung vo
 *   **AI Integration**: [MCP SDK](https://github.com/modelcontextprotocol/sdk) (Model Context Protocol)
 *   **Payments**: [Stripe](https://stripe.com/)
 *   **Email**: [Resend](https://resend.com/) & [React Email](https://react.email/)
+*   **SEO**: [IndexNow](https://www.indexnow.org/) (Search Engine Notification Protocol)
 
 ## 🏗 Gesamtarchitektur
 
@@ -395,6 +396,24 @@ STRIPE_WEBHOOK_SECRET=whsec_...         # Webhook Secret (siehe unten)
 **SEPA-Lastschrift (Test):** `DE89 3704 0044 0532 0130 00`
 
 👉 Vollständige Liste: [Stripe Testing Docs](https://docs.stripe.com/testing)
+
+### IndexNow Integration (SEO)
+
+Die App nutzt **IndexNow** um Suchmaschinen (Bing, Yandex, etc.) automatisch über Inhaltsänderungen zu benachrichtigen.
+
+*   **Funktion**: `submitToIndexNow()` in `src/lib/indexnow.ts`
+*   **API Endpoint**: `/api/indexnow/key` - Dient den IndexNow Key (nur in Production)
+*   **Automatische Benachrichtigung**: Wird ausgelöst, wenn ein Team auf "Öffentlich sichtbar" gesetzt wird
+*   **Konfiguration**: Setze `INDEXNOW_KEY` in `.env` (siehe `.env.example`)
+*   **Verhalten**: Nur aktiv in Production (`NODE_ENV=production`)
+
+#### Umgebungsvariable
+
+```bash
+INDEXNOW_KEY="your_indexnow_key_here"
+```
+
+**Hinweis**: Der IndexNow Key kann kostenlos generiert werden und wird von mehreren Suchmaschinen unterstützt (Microsoft Bing, Yandex, Seznam.cz, Naver). Google unterstützt IndexNow nicht, crawlt aber URLs basierend auf herkömmlichen Sitemaps.
 
 ### InfoCards System
 
