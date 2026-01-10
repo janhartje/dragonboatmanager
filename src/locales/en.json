@@ -80,20 +80,7 @@
     "changelog": "Changelog",
     "changelogData": [
         {
-            "version": "3.7.4",
-            "date": "January 2026",
-            "features": [],
-            "technical": [
-                "SEO: Converted landing page to Server Component for better search engine indexing.",
-                "Performance: Implemented Next.js Image Component for automatic image optimization.",
-                "Security: Improved production logging and added URL validation for team websites."
-            ],
-            "bugfixes": [
-                "Build: Fixed next-intl API import (setRequestLocale instead of unstable_setRequestLocale)."
-            ]
-        },
-        {
-            "version": "3.7.3",
+            "version": "3.7.5",
             "date": "January 2026",
             "features": [
                 "Team List: Added search, filter by skills, and sort functionality to better manage large squads.",
@@ -101,9 +88,17 @@
             ],
             "technical": [
                 "Database: Added 'showOnWebsite' field to Team model.",
-                "API: New public function to retrieve visible teams."
+                "API: New public function to retrieve visible teams.",
+                "SEO: Converted landing page to Server Component for better search engine indexing.",
+                "Performance: Implemented Next.js Image Component for automatic image optimization.",
+                "Security: Implemented DoS protection (50-team limit), production logging, and URL validation for team websites.",
+                "Architecture: Eliminated code duplication by consolidating public teams query logic."
             ],
-            "bugfixes": []
+            "bugfixes": [
+                "Build: Fixed next-intl API import (setRequestLocale instead of unstable_setRequestLocale).",
+                "Fix: Resolved React key collisions by using team.id instead of team.name.",
+                "Fix: Corrected TypeScript null-safety for team.website attribute."
+            ]
         },
         {
             "version": "3.7.2",

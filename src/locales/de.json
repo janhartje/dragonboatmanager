@@ -80,20 +80,7 @@
     "changelog": "Versionshistorie",
     "changelogData": [
         {
-            "version": "3.7.4",
-            "date": "Januar 2026",
-            "features": [],
-            "technical": [
-                "SEO: Landing Page zu Server Component konvertiert für bessere Suchmaschinen-Indexierung.",
-                "Performance: Next.js Image Component für automatische Bildoptimierung implementiert.",
-                "Sicherheit: Produktions-Logging verbessert und URL-Validierung für Team-Webseiten hinzugefügt."
-            ],
-            "bugfixes": [
-                "Build: next-intl API-Import korrigiert (setRequestLocale statt unstable_setRequestLocale)."
-            ]
-        },
-        {
-            "version": "3.7.3",
+            "version": "3.7.5",
             "date": "Januar 2026",
             "features": [
                 "Kader-Liste: Suche, Filter nach Fähigkeiten und Sortierung hinzugefügt für bessere Verwaltung großer Teams.",
@@ -101,9 +88,17 @@
             ],
             "technical": [
                 "Datenbank: 'showOnWebsite' Feld zum Team-Modell hinzugefügt.",
-                "API: Neue öffentliche Funktion zum Abrufen von sichtbaren Teams."
+                "API: Neue öffentliche Funktion zum Abrufen von sichtbaren Teams.",
+                "SEO: Landing Page zu Server Component konvertiert für bessere Suchmaschinen-Indexierung.",
+                "Performance: Next.js Image Component für automatische Bildoptimierung implementiert.",
+                "Sicherheit: DoS-Schutz (50-Team-Limit), Produktions-Logging und URL-Validierung für Team-Webseiten implementiert.",
+                "Architektur: Code-Duplikation eliminiert durch Konsolidierung der Public-Teams-Logik."
             ],
-            "bugfixes": []
+            "bugfixes": [
+                "Build: next-intl API-Import korrigiert (setRequestLocale statt unstable_setRequestLocale).",
+                "Fix: React Key-Kollisionen behoben durch Verwendung von team.id statt team.name.",
+                "Fix: TypeScript Null-Safety für team.website Attribut korrigiert."
+            ]
         },
         {
             "version": "3.7.2",
