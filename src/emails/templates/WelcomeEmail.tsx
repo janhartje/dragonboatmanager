@@ -9,13 +9,13 @@ interface WelcomeEmailProps {
   lang?: Language;
 }
 
-export const WelcomeEmail = ({ 
+export const WelcomeEmail = ({
   username = "Drachenboot Fan",
-  loginUrl = "https://drachenboot-manager.vercel.app/login",
+  loginUrl = "https://dragonboatmanager.com/login",
   lang = 'de'
 }: WelcomeEmailProps) => {
   return (
-    <EmailLayout 
+    <EmailLayout
       previewText={t(lang, 'emailWelcomeSubject')}
       headerTitle={t(lang, 'appTitle')}
       lang={lang}
@@ -23,24 +23,21 @@ export const WelcomeEmail = ({
       <Heading className="text-xl font-bold text-slate-900 dark:text-white mb-4">
         {t(lang, 'emailWelcomeGreeting')} {username},
       </Heading>
-      
+
       <Text className="text-slate-700 dark:text-slate-300 mb-4">
         {t(lang, 'emailWelcomeIntro')}
       </Text>
-      
+
       <Text className="text-slate-700 dark:text-slate-300 mb-6">
         {t(lang, 'emailWelcomeBody')}
       </Text>
 
       <Section className="text-center my-8">
-        <Button 
-          className="bg-blue-600 text-white font-bold px-6 py-3 rounded-lg text-center no-underline"
-          href={loginUrl}
-        >
+        <Button href={loginUrl} className="bg-blue-600 text-white font-bold px-6 py-3 rounded-lg text-center no-underline">
           {t(lang, 'emailWelcomeCTA')}
         </Button>
       </Section>
-      
+
       <Text className="text-slate-600 dark:text-slate-400 text-sm">
         {t(lang, 'emailWelcomeLinkHint')}
         <br />

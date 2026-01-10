@@ -49,7 +49,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     Google,
     GitHub,
     Resend({
-      from: "Drachenboot Manager <no-reply@drachenbootmanager.de>",
+      from: "Drachenboot Manager <no-reply@dragonboatmanager.com>",
       maxAge: 7 * 24 * 60 * 60, // 7 days
       sendVerificationRequest: async ({ identifier: email, url }) => {
         // Normalize email to lowercase for consistent lookup
@@ -225,7 +225,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           return null;
         }
 
-        const testEmail = 'test@drachenbootmanager.de';
+        const testEmail = 'test@dragonboatmanager.com';
         const testPassword = process.env.TEST_USER_PASSWORD || 'testuser123';
 
         if (credentials.email !== testEmail || credentials.password !== testPassword) {

@@ -10,16 +10,16 @@ interface TrialEndingEmailProps {
   baseUrl?: string;
 }
 
-export const TrialEndingEmail = ({ 
+export const TrialEndingEmail = ({
   teamName = "Dein Team",
   teamId = "demo-team",
   lang = 'de',
-  baseUrl = "https://drachenboot-manager.vercel.app"
+  baseUrl = "https://dragonboatmanager.com"
 }: TrialEndingEmailProps) => {
   const actionUrl = `${baseUrl}/app/teams/${teamId}/settings/billing`;
 
   return (
-    <EmailLayout 
+    <EmailLayout
       previewText={t(lang, 'emailTrialEndingSubject')}
       headerTitle={t(lang, 'appTitle')}
       lang={lang}
@@ -27,24 +27,24 @@ export const TrialEndingEmail = ({
       <Heading className="text-xl font-bold text-amber-600 dark:text-amber-400 mb-4">
         {t(lang, 'emailTrialEndingTitle')}
       </Heading>
-      
+
       <Text className="text-slate-700 dark:text-slate-300 mb-4">
         {t(lang, 'emailWelcomeGreeting')} {teamName},
       </Text>
-      
+
       <Text className="text-slate-700 dark:text-slate-300 mb-6">
         {t(lang, 'emailTrialEndingBody')}
       </Text>
 
       <Section className="text-center my-8">
-        <Button 
+        <Button
           className="bg-amber-600 text-white font-bold px-6 py-3 rounded-lg text-center no-underline"
           href={actionUrl}
         >
           {t(lang, 'emailTrialEndingAction')}
         </Button>
       </Section>
-      
+
       <Text className="text-slate-600 dark:text-slate-400 text-sm">
         {t(lang, 'emailWelcomeLinkHint')}
         <br />

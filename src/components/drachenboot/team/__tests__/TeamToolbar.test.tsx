@@ -6,6 +6,7 @@ import TeamToolbar from '../TeamToolbar';
 jest.mock('lucide-react', () => {
   return new Proxy({}, {
     get: (target, prop) => {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
       const React = require('react');
       return () => React.createElement('div', { 'data-testid': `icon-${String(prop).toLowerCase()}` });
     }
@@ -56,9 +57,9 @@ describe('TeamToolbar', () => {
   it('calls onSearchChange when typing in search input', () => {
     render(<TeamToolbar {...defaultProps} />);
     const searchInput = screen.getByPlaceholderText('searchPlaceholder');
-    
+
     fireEvent.change(searchInput, { target: { value: 'John' } });
-    
+
     expect(mockOnSearchChange).toHaveBeenCalledWith('John');
   });
 
@@ -76,14 +77,14 @@ describe('TeamToolbar', () => {
   it('toggles filter visibility when filter button is clicked', () => {
     render(<TeamToolbar {...defaultProps} />);
     const filterButton = screen.getByText('filter');
-    
+
     // Initially, skill filters should not be visible
     expect(screen.queryByText(/filterBySkills/)).not.toBeInTheDocument();
-    
+
     // Click to show filters
     fireEvent.click(filterButton);
     expect(screen.getByText(/filterBySkills/)).toBeInTheDocument();
-    
+
     // Click again to hide filters
     fireEvent.click(filterButton);
     expect(screen.queryByText(/filterBySkills/)).not.toBeInTheDocument();
@@ -98,9 +99,9 @@ describe('TeamToolbar', () => {
   it('calls onSortChange when sort option is selected', () => {
     render(<TeamToolbar {...defaultProps} />);
     const sortSelect = screen.getByDisplayValue('sortNameAsc');
-    
+
     fireEvent.change(sortSelect, { target: { value: 'weight-desc' } });
-    
+
     expect(mockOnSortChange).toHaveBeenCalledWith('weight', 'desc');
   });
 
@@ -117,9 +118,9 @@ describe('TeamToolbar', () => {
   it('calls clear handlers when clear button is clicked', () => {
     render(<TeamToolbar {...defaultProps} searchTerm="John" filterSkills={['left']} />);
     const clearButton = screen.getByTitle('clearFilters');
-    
+
     fireEvent.click(clearButton);
-    
+
     expect(mockOnSearchChange).toHaveBeenCalledWith('');
     expect(mockOnFilterChange).toHaveBeenCalledWith([]);
   });
@@ -127,26 +128,26 @@ describe('TeamToolbar', () => {
   it('toggles skill filter when skill button is clicked', () => {
     render(<TeamToolbar {...defaultProps} />);
     const filterButton = screen.getByText('filter');
-    
+
     // Show filters
     fireEvent.click(filterButton);
-    
+
     const leftButton = screen.getByText('left');
     fireEvent.click(leftButton);
-    
+
     expect(mockOnFilterChange).toHaveBeenCalledWith(['left']);
   });
 
   it('removes skill from filter when already selected skill is clicked', () => {
     render(<TeamToolbar {...defaultProps} filterSkills={['left', 'drum']} />);
     const filterButton = screen.getByText('filter');
-    
+
     // Show filters
     fireEvent.click(filterButton);
-    
+
     const leftButton = screen.getByText('left');
     fireEvent.click(leftButton);
-    
+
     expect(mockOnFilterChange).toHaveBeenCalledWith(['drum']);
   });
 });

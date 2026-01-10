@@ -667,8 +667,8 @@
     "clBugfixes": "Fehlerbehebungen",
     "clFeatures": "Neue Funktionen",
     "clTechnical": "Technische Änderungen",
-    "clearBoat": "Boot leeren",
     "clear": "Zurücksetzen",
+    "clearBoat": "Boot leeren",
     "clearFilters": "Filter zurücksetzen",
     "close": "Schließen",
     "comment": "Kommentar",
@@ -787,8 +787,6 @@
     "eventTemplateColumns": "Titel | Datum | Zeit | Typ | Bootsgröße | Kommentar",
     "events": "Termine",
     "exportImage": "Bild speichern",
-    "filter": "Filtern",
-    "filterBySkills": "Nach Fähigkeiten filtern",
     "faqCreateTeamAnswer": "Klicke im Hauptmenü (oben links auf den Team-Namen) auf 'Team wechseln' und dann auf das '+' Symbol.",
     "faqCreateTeamTitle": "Wie erstelle ich ein neues Team?",
     "faqLeaveTeamAnswer": "Du kannst ein Team jederzeit über dein Benutzer-Profil verlassen:",
@@ -817,6 +815,8 @@
         "title": "Drachenboot Sitzordnung"
     },
     "fileTooLarge": "Bild muss kleiner als 2MB sein",
+    "filter": "Filtern",
+    "filterBySkills": "Nach Fähigkeiten filtern",
     "forTeam": "für",
     "general": "Allgemein",
     "generalSettings": "Allgemeine Einstellungen",
@@ -1001,7 +1001,7 @@
             "contact": "Kontakt",
             "copyright": "Urheberrecht",
             "copyright_text": "Die durch die Seitenbetreiber erstellten Inhalte und Werke auf diesen Seiten unterliegen dem deutschen Urheberrecht. Die Vervielfältigung, Bearbeitung, Verbreitung und jede Art der Verwertung außerhalb der Grenzen des Urheberrechtes bedürfen der schriftlichen Zustimmung des jeweiligen Autors bzw. Erstellers. Downloads und Kopien dieser Seite sind nur für den privaten, nicht kommerziellen Gebrauch gestattet. Soweit die Inhalte auf dieser Seite nicht vom Betreiber erstellt wurden, werden die Urheberrechte Dritter beachtet. Insbesondere werden Inhalte Dritter als solche gekennzeichnet. Sollten Sie trotzdem auf eine Urheberrechtsverletzung aufmerksam werden, bitten wir um einen entsprechenden Hinweis. Bei Bekanntwerden von Rechtsverletzungen werden wir derartige Inhalte umgehend entfernen.",
-            "email": "support@janhartje.com",
+            "email": "support@dragonboatmanager.com",
             "legal": "Angaben gemäß § 5 TMG",
             "liability_content": "Haftung für Inhalte",
             "liability_content_text": "Als Diensteanbieter sind wir gemäß § 7 Abs.1 TMG für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich. Nach §§ 8 bis 10 TMG sind wir als Diensteanbieter jedoch nicht verpflichtet, übermittelte oder gespeicherte fremde Informationen zu überwachen oder nach Umständen zu forschen, die auf eine rechtswidrige Tätigkeit hinweisen. Verpflichtungen zur Entfernung oder Sperrung der Nutzung von Informationen nach den allgemeinen Gesetzen bleiben hiervon unberührt. Eine diesbezügliche Haftung ist jedoch erst ab dem Zeitpunkt der Kenntnis einer konkreten Rechtsverletzung möglich. Bei Bekanntwerden von entsprechenden Rechtsverletzungen werden wir diese Inhalte umgehend entfernen.",
@@ -1070,7 +1070,7 @@
             "withdrawal_expiry": "Besonderer Hinweis zum Erlöschen des Widerrufsrechts:",
             "withdrawal_expiry_text": "Das Widerrufsrecht erlischt bei einem Vertrag über die Lieferung von nicht auf einem körperlichen Datenträger befindlichen digitalen Inhalten, wenn wir mit der Ausführung des Vertrags begonnen haben, nachdem Sie ausdrücklich zugestimmt haben, dass wir mit der Ausführung des Vertrags vor Ablauf der Widerrufsfrist beginnen, und Sie Ihre Kenntnis davon bestätigt haben, dass Sie durch Ihre Zustimmung mit Beginn der Ausführung des Vertrags Ihr Widerrufsrecht verlieren.",
             "withdrawal_policy": "Widerrufsbelehrung",
-            "withdrawal_text": "Sie haben das Recht, binnen vierzehn Tagen ohne Angabe von Gründen diesen Vertrag zu widerrufen. Die Widerrufsfrist beträgt vierzehn Tage ab dem Tag des Vertragsabschlusses. Um Ihr Widerrufsrecht auszuüben, müssen Sie uns (Jan Hartje, Hamburger Allee 6, 30161 Hannover, support@janhartje.com) mittels einer eindeutigen Erklärung über Ihren Entschluss informieren."
+            "withdrawal_text": "Sie haben das Recht, binnen vierzehn Tagen ohne Angabe von Gründen diesen Vertrag zu widerrufen. Die Widerrufsfrist beträgt vierzehn Tage ab dem Tag des Vertragsabschlusses. Um Ihr Widerrufsrecht auszuüben, müssen Sie uns (Jan Hartje, Hamburger Allee 6, 30161 Hannover, support@dragonboatmanager.com) mittels einer eindeutigen Erklärung über Ihren Entschluss informieren."
         }
     },
     "link": "Verknüpfen",

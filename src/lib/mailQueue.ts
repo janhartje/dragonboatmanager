@@ -54,7 +54,7 @@ export async function processMailQueue(): Promise<ProcessQueueResult> {
   // 2. Process each email
   for (const email of pendingEmails) {
     let markedAsProcessing = false;
-    
+
     try {
       // Mark as processing
       await prisma.emailQueue.update({
@@ -65,7 +65,7 @@ export async function processMailQueue(): Promise<ProcessQueueResult> {
 
       // Send via Resend
       const { error } = await resend.emails.send({
-        from: email.from || 'Drachenboot Manager <no-reply@drachenbootmanager.de>',
+        from: email.from || 'Drachenboot Manager <no-reply@dragonboatmanager.com>',
         to: email.to,
         replyTo: email.replyTo || undefined,
         subject: email.subject,
@@ -79,25 +79,25 @@ export async function processMailQueue(): Promise<ProcessQueueResult> {
       // Success
       await prisma.emailQueue.update({
         where: { id: email.id },
-        data: { 
-          status: 'sent', 
+        data: {
+          status: 'sent',
           attempts: { increment: 1 },
         },
       });
-      
+
       results.push({ id: email.id, status: 'sent' });
 
     } catch (err) {
       console.error(`Failed to send email ${email.id}:`, err);
       const isRetryable = (email.attempts + 1) < MAX_RETRIES;
       const newStatus = isRetryable ? 'pending' : 'failed';
-      
+
       // Only update if we managed to mark it as processing
       try {
         await prisma.emailQueue.update({
           where: { id: email.id },
-          data: { 
-            status: newStatus, 
+          data: {
+            status: newStatus,
             attempts: { increment: 1 },
             lastError: err instanceof Error ? err.message : String(err)
           },
@@ -106,11 +106,11 @@ export async function processMailQueue(): Promise<ProcessQueueResult> {
         console.error(`Failed to update email ${email.id} status:`, updateErr);
         // If we marked it as processing but can't update, it will be reset by stuck handler
       }
-      
-      results.push({ 
-        id: email.id, 
-        status: markedAsProcessing ? newStatus : 'unknown', 
-        error: err instanceof Error ? err.message : String(err) 
+
+      results.push({
+        id: email.id,
+        status: markedAsProcessing ? newStatus : 'unknown',
+        error: err instanceof Error ? err.message : String(err)
       });
     }
   }

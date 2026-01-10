@@ -11,8 +11,13 @@ interface EmailLayoutProps {
 
 export const EmailLayout = ({ children, previewText, headerTitle = "Drachenboot Manager", lang = 'de' }: EmailLayoutProps) => {
   // Use static fallback for emails - they should always point to production
-  const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'https://drachenboot-manager.vercel.app';
+  const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'https://dragonboatmanager.com';
   const logoUrl = `${baseUrl}/icons/logo-192.png`;
+
+  const link = {
+    color: '#2563eb',
+    textDecoration: 'underline',
+  };
 
   return (
     <Html lang={lang}>
@@ -52,7 +57,12 @@ export const EmailLayout = ({ children, previewText, headerTitle = "Drachenboot 
                 className="mx-auto rounded-xl"
               />
             </Section>
-            
+
+            <Section className="mb-4 text-center">
+              <Link href="https://dragonboatmanager.com" style={link}>
+                Drachenboot Manager
+              </Link>
+            </Section>
             <Section className="p-4">
               {children}
             </Section>
