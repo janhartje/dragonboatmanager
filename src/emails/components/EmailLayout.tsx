@@ -58,9 +58,11 @@ export const EmailLayout = ({ children, previewText, headerTitle = "Drachenboot 
               />
             </Section>
 
-            <Link href="https://dragonboatmanager.com" style={link}>
-              Drachenboot Manager
-            </Link>
+            <Section className="mb-4 text-center">
+              <Link href="https://dragonboatmanager.com" style={link}>
+                Drachenboot Manager
+              </Link>
+            </Section>
             <Section className="p-4">
               {children}
             </Section>
