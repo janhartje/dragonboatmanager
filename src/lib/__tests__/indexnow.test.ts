@@ -87,4 +87,11 @@ describe('submitToIndexNow', () => {
         expect(result).toBe(false);
         expect(mockFetch).not.toHaveBeenCalled();
     });
+
+    it('should return true without making API call if URLs array is empty', async () => {
+        const result = await submitToIndexNow([]);
+
+        expect(result).toBe(true);
+        expect(mockFetch).not.toHaveBeenCalled();
+    });
 });
