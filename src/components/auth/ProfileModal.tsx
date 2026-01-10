@@ -59,10 +59,15 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
   useEffect(() => {
     const loadImage = async () => {
       if (session?.user?.id && isOpen) {
-        const userProfile = await getUserProfile()
-        if (userProfile) {
-          const currentImage = userProfile.customImage || userProfile.image || null
-          setImagePreview(currentImage)
+        try {
+          const userProfile = await getUserProfile()
+          if (userProfile) {
+            const currentImage = userProfile.customImage || userProfile.image || null
+            setImagePreview(currentImage)
+          }
+        } catch {
+          // Silently fall back to session image if fetch fails
+          setImagePreview(null)
         }
       }
     }
@@ -91,6 +96,7 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
     if (!file.type.startsWith('image/')) {
       setErrorMessage(t('invalidFileType') || 'Please select an image file')
       setShowErrorAlert(true)
+      if (fileInputRef.current) fileInputRef.current.value = ''
       return
     }
 
@@ -98,6 +104,7 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
     if (file.size > 2 * 1024 * 1024) {
       setErrorMessage(t('fileTooLarge') || 'Image must be less than 2MB')
       setShowErrorAlert(true)
+      if (fileInputRef.current) fileInputRef.current.value = ''
       return
     }
 

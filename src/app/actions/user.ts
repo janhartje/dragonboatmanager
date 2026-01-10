@@ -98,11 +98,6 @@ export async function updateProfile(data: { name: string; weight: number; skills
  * Security: This function validates file signatures (magic bytes) and re-processes
  * images server-side using Sharp to ensure they are valid images and prevent
  * malicious payloads (polyglot files, etc.)
- * 
- * TODO: Migrate to object storage (S3/R2/Blob Storage) for better scalability.
- * Storing base64 images in PostgreSQL causes database bloat and performance issues
- * at scale. Current implementation is acceptable for MVP but should be refactored
- * before reaching production scale.
  */
 export async function uploadProfileImage(base64Image: string) {
   const session = await auth()
