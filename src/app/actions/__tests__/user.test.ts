@@ -1,6 +1,8 @@
 import { uploadProfileImage, deleteProfileImage, getUserProfile } from '../user'
 import { auth } from '@/auth'
 import prisma from '@/lib/prisma'
+import { fileTypeFromBuffer } from 'file-type'
+import sharp from 'sharp'
 
 // Mock modules
 jest.mock('@/auth')
@@ -14,7 +16,7 @@ jest.mock('@/lib/prisma', () => ({
   },
 }))
 
-// Mock Sharp and file-type (ESM modules)
+// Mock Sharp
 jest.mock('sharp', () => {
   return jest.fn(() => ({
     resize: jest.fn().mockReturnThis(),
@@ -23,9 +25,8 @@ jest.mock('sharp', () => {
   }))
 })
 
-jest.mock('file-type', () => ({
-  fileTypeFromBuffer: jest.fn(),
-}))
+// file-type is automatically mocked from __mocks__/file-type.ts
+jest.mock('file-type')
 
 describe('uploadProfileImage', () => {
   const mockSession = {
@@ -65,8 +66,6 @@ describe('uploadProfileImage', () => {
   })
 
   it('validates file signature using magic bytes (rejects invalid)', async () => {
-    const { fileTypeFromBuffer } = await import('file-type')
-    
     // Mock invalid file type detection
     ;(fileTypeFromBuffer as jest.Mock).mockResolvedValue(undefined)
 
@@ -78,8 +77,6 @@ describe('uploadProfileImage', () => {
   })
 
   it('validates file signature using magic bytes (rejects disallowed types)', async () => {
-    const { fileTypeFromBuffer } = await import('file-type')
-    
     // Mock PDF file type detection (not allowed)
     ;(fileTypeFromBuffer as jest.Mock).mockResolvedValue({
       ext: 'pdf',
@@ -94,9 +91,6 @@ describe('uploadProfileImage', () => {
   })
 
   it('processes valid PNG image with Sharp', async () => {
-    const { fileTypeFromBuffer } = await import('file-type')
-    const sharp = (await import('sharp')).default
-    
     // Mock valid PNG file type
     ;(fileTypeFromBuffer as jest.Mock).mockResolvedValue({
       ext: 'png',
@@ -121,8 +115,6 @@ describe('uploadProfileImage', () => {
   })
 
   it('processes valid JPEG image', async () => {
-    const { fileTypeFromBuffer } = await import('file-type')
-    
     ;(fileTypeFromBuffer as jest.Mock).mockResolvedValue({
       ext: 'jpg',
       mime: 'image/jpeg',
@@ -139,8 +131,6 @@ describe('uploadProfileImage', () => {
   })
 
   it('processes valid WebP image', async () => {
-    const { fileTypeFromBuffer } = await import('file-type')
-    
     ;(fileTypeFromBuffer as jest.Mock).mockResolvedValue({
       ext: 'webp',
       mime: 'image/webp',
@@ -157,8 +147,6 @@ describe('uploadProfileImage', () => {
 
   it('calls Sharp with correct parameters (resize to 400x400, WebP quality 85)', async () => {
     const { fileTypeFromBuffer } = await import('file-type')
-    const sharp = (await import('sharp')).default
-    
     ;(fileTypeFromBuffer as jest.Mock).mockResolvedValue({
       ext: 'png',
       mime: 'image/png',
@@ -179,9 +167,6 @@ describe('uploadProfileImage', () => {
   })
 
   it('throws error when Sharp processing fails', async () => {
-    const { fileTypeFromBuffer } = await import('file-type')
-    const sharp = (await import('sharp')).default
-    
     ;(fileTypeFromBuffer as jest.Mock).mockResolvedValue({
       ext: 'png',
       mime: 'image/png',
@@ -203,8 +188,6 @@ describe('uploadProfileImage', () => {
   })
 
   it('stores processed image as WebP base64 in database', async () => {
-    const { fileTypeFromBuffer } = await import('file-type')
-    
     ;(fileTypeFromBuffer as jest.Mock).mockResolvedValue({
       ext: 'png',
       mime: 'image/png',
