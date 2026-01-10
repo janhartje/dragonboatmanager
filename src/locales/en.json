@@ -82,7 +82,9 @@
         {
             "version": "3.9.0",
             "date": "January 2026",
-            "features": [],
+            "features": [
+                "New: Custom profile pictures can now be uploaded and are displayed in the team list, events, and header."
+            ],
             "technical": [],
             "bugfixes": [
                 "Fix: Profile pictures are now displayed in the event participant list (e.g., Google profile picture)."

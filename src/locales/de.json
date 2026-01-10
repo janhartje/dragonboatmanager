@@ -82,7 +82,9 @@
         {
             "version": "3.9.0",
             "date": "Januar 2026",
-            "features": [],
+            "features": [
+                "Neu: Eigene Profilbilder können jetzt hochgeladen werden und werden in der Teamliste, Events und im Header angezeigt."
+            ],
             "technical": [],
             "bugfixes": [
                 "Fix: Profilbilder werden jetzt in der Teilnehmerliste von Events angezeigt (z.B. Google-Profilbild)."
