@@ -117,10 +117,15 @@ export async function PUT(
       return NextResponse.json({ error: 'Payload too large (max 5MB)' }, { status: 413 });
     }
 
-    // Fetch current team state to check if showOnWebsite is changing
+    // Fetch current team state to check if showOnWebsite or relevant public fields are changing
     const currentTeam = await prisma.team.findUnique({
       where: { id },
-      select: { showOnWebsite: true },
+      select: { 
+        showOnWebsite: true,
+        name: true,
+        icon: true,
+        website: true,
+      },
     });
 
     if (!currentTeam) {
@@ -132,8 +137,18 @@ export async function PUT(
       data: { name, website, icon, instagram, facebook, twitter, email, primaryColor, showProRing, showProBadge, showWatermark, showOnWebsite, icalUrl },
     });
 
-    // Notify IndexNow only if showOnWebsite is transitioning from false to true
-    if (showOnWebsite !== undefined && !currentTeam.showOnWebsite && team.showOnWebsite) {
+    // Determine if IndexNow notification is needed
+    const isBecomingVisible = showOnWebsite !== undefined && !currentTeam.showOnWebsite && team.showOnWebsite;
+    
+    // Check if any publicly visible fields changed while team is visible
+    const isVisible = team.showOnWebsite;
+    const publicFieldsChanged = 
+      (name !== undefined && name !== currentTeam.name) ||
+      (icon !== undefined && icon !== currentTeam.icon) ||
+      (website !== undefined && website !== currentTeam.website);
+
+    // Notify IndexNow if the team is becoming visible OR if public fields changed while already visible
+    if (isBecomingVisible || (isVisible && publicFieldsChanged)) {
       const baseUrl = getProductionUrl();
       // Submit root URL and locale variants where the team listing appears
       submitToIndexNow([
