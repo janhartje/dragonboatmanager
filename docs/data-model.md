@@ -79,6 +79,7 @@ erDiagram
         string email
         datetime emailVerified
         string image
+        string customImage
         float weight
         datetime createdAt
         datetime updatedAt
@@ -177,7 +178,8 @@ Ein registrierter Benutzer der Anwendung (für Login/Authentifizierung).
 | `name` | string? | Name des Benutzers |
 | `email` | string? | E-Mail-Adresse (Unique) |
 | `emailVerified` | datetime? | Zeitpunkt der E-Mail-Verifizierung |
-| `image` | string? | URL zum Profilbild |
+| `image` | string? | URL zum Profilbild (OAuth Provider) |
+| `customImage` | string? | Base64-kodiertes benutzerdefiniertes Profilbild |
 | `weight` | float? | Gewicht des Benutzers (für Sync mit Paddler) |
 | `createdAt` | datetime | Erstellungszeitpunkt |
 | `updatedAt` | datetime | Letztes Update |

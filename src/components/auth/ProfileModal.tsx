@@ -106,60 +106,107 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
     try {
       // Convert to base64
       const reader = new FileReader()
+      
+      reader.onerror = () => {
+        setErrorMessage(t('imageUploadFailed') || 'Failed to upload image')
+        setShowErrorAlert(true)
+        setIsUploadingImage(false)
+        if (fileInputRef.current) {
+          fileInputRef.current.value = ''
+        }
+      }
+      
       reader.onloadend = async () => {
         const base64String = reader.result as string
         
         // Create a temporary image to resize
         const img = new Image()
-        img.onload = async () => {
-          // Resize to max 400x400
-          const canvas = document.createElement('canvas')
-          let width = img.width
-          let height = img.height
-          const maxSize = 400
-
-          if (width > height) {
-            if (width > maxSize) {
-              height *= maxSize / width
-              width = maxSize
-            }
-          } else {
-            if (height > maxSize) {
-              width *= maxSize / height
-              height = maxSize
-            }
-          }
-
-          canvas.width = width
-          canvas.height = height
-          const ctx = canvas.getContext('2d')
-          ctx?.drawImage(img, 0, 0, width, height)
-
-          // Convert to base64
-          const resizedBase64 = canvas.toDataURL(file.type, 0.9)
-          
-          // Upload to server
-          await uploadProfileImage(resizedBase64)
-          
-          // Reload profile to get updated image
-          const userProfile = await getUserProfile()
-          if (userProfile) {
-            setImagePreview(userProfile.customImage || userProfile.image || null)
-          }
-          
-          // Trigger refresh in all useUserProfile hooks (e.g., UserMenu)
-          triggerProfileRefresh()
-          
+        
+        img.onerror = () => {
+          setErrorMessage(t('imageUploadFailed') || 'Failed to upload image')
+          setShowErrorAlert(true)
           setIsUploadingImage(false)
+          if (fileInputRef.current) {
+            fileInputRef.current.value = ''
+          }
+        }
+        
+        img.onload = async () => {
+          try {
+            // Resize to max 400x400
+            const canvas = document.createElement('canvas')
+            let width = img.width
+            let height = img.height
+            const maxSize = 400
+
+            if (width > height) {
+              if (width > maxSize) {
+                height *= maxSize / width
+                width = maxSize
+              }
+            } else {
+              if (height > maxSize) {
+                width *= maxSize / height
+                height = maxSize
+              }
+            }
+
+            canvas.width = width
+            canvas.height = height
+            const ctx = canvas.getContext('2d')
+            
+            if (!ctx) {
+              setErrorMessage(t('imageUploadFailed') || 'Failed to upload image')
+              setShowErrorAlert(true)
+              setIsUploadingImage(false)
+              if (fileInputRef.current) {
+                fileInputRef.current.value = ''
+              }
+              return
+            }
+            
+            ctx.drawImage(img, 0, 0, width, height)
+
+            // Convert to base64
+            const resizedBase64 = canvas.toDataURL(file.type, 0.9)
+            
+            // Upload to server
+            await uploadProfileImage(resizedBase64)
+            
+            // Reload profile to get updated image
+            const userProfile = await getUserProfile()
+            if (userProfile) {
+              setImagePreview(userProfile.customImage || userProfile.image || null)
+            }
+            
+            // Trigger refresh in all useUserProfile hooks (e.g., UserMenu)
+            triggerProfileRefresh()
+            
+            setIsUploadingImage(false)
+            
+            // Reset file input
+            if (fileInputRef.current) {
+              fileInputRef.current.value = ''
+            }
+          } catch (uploadError) {
+            setErrorMessage(t('imageUploadFailed') || 'Failed to upload image')
+            setShowErrorAlert(true)
+            setIsUploadingImage(false)
+            if (fileInputRef.current) {
+              fileInputRef.current.value = ''
+            }
+          }
         }
         img.src = base64String
       }
       reader.readAsDataURL(file)
     } catch (error) {
-      console.error('Failed to upload image', error)
       setErrorMessage(t('imageUploadFailed') || 'Failed to upload image')
       setShowErrorAlert(true)
       setIsUploadingImage(false)
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ''
+      }
     }
   }
 
@@ -181,8 +228,7 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
       
       // Trigger refresh in all useUserProfile hooks (e.g., UserMenu)
       triggerProfileRefresh()
-    } catch (error) {
-      console.error('Failed to delete image', error)
+    } catch (_error) {
       setErrorMessage(t('imageDeleteFailed') || 'Failed to delete image')
       setShowErrorAlert(true)
     } finally {

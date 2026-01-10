@@ -281,8 +281,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         }
       }
       if (trigger === "update") {
-        // Refresh weight from database
-        if (token.id) {
+        // Refresh weight from session if provided, otherwise from database
+        if (session?.user?.weight !== undefined) {
+          token.weight = session.user.weight;
+        } else if (token.id) {
           const freshUser = await prisma.user.findUnique({
             where: { id: token.id as string },
             select: { weight: true }
@@ -290,9 +292,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           if (freshUser) {
             token.weight = freshUser.weight
           }
-        }
-        if (session?.user) {
-          token.weight = session.user.weight;
         }
       }
       return token

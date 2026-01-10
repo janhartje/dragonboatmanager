@@ -56,8 +56,7 @@ export function useUserProfile() {
           if (profile) {
             setProfileImage(profile.customImage || profile.image || null)
           }
-        } catch (error) {
-          console.error('Failed to load profile', error)
+        } catch (_error) {
           // Fallback to session image
           setProfileImage(session.user.image || null)
         } finally {
