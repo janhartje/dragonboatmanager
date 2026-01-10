@@ -12,8 +12,8 @@ export default function StructuredData() {
     '@graph': [
       {
         '@type': 'WebSite',
-        '@id': 'https://www.drachenbootmanager.de/#website',
-        'url': `https://www.drachenbootmanager.de/${locale}`,
+        '@id': 'https://dragonboatmanager.com/#website',
+        'url': `https://dragonboatmanager.com/${locale}`,
         'name': t('title.default'),
         'description': t('description'),
         'publisher': {

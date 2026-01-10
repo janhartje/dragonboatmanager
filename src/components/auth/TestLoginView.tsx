@@ -8,8 +8,8 @@ import { ArrowLeft, Loader2, Key } from 'lucide-react';
 
 const TestLoginView: React.FC = () => {
   const router = useRouter();
-  
-  const [email, setEmail] = useState('test@drachenbootmanager.de');
+
+  const [email, setEmail] = useState('test@dragonboatmanager.com');
   const [password, setPassword] = useState('testuser123');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -17,13 +17,13 @@ const TestLoginView: React.FC = () => {
   const handleCredentialsSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email.trim() || !password.trim()) return;
-    
+
     setIsLoading(true);
     setError('');
 
     try {
-      const result = await signIn('credentials', { 
-        email, 
+      const result = await signIn('credentials', {
+        email,
         password,
         redirect: false,
       });
@@ -47,8 +47,8 @@ const TestLoginView: React.FC = () => {
       <div className="flex-1 flex items-center justify-center p-4">
         <div className="w-full max-w-md">
           <div className="mb-6">
-            <Link 
-              href="/" 
+            <Link
+              href="/"
               className="inline-flex items-center gap-2 text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 transition-colors"
             >
               <ArrowLeft size={20} />
@@ -76,13 +76,13 @@ const TestLoginView: React.FC = () => {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="test@drachenbootmanager.de"
+                  placeholder="test@dragonboatmanager.com"
                   className="w-full px-4 py-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500"
                   required
                   disabled={isLoading}
                 />
               </div>
-              
+
               <div className="text-left">
                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Password</label>
                 <input

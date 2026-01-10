@@ -26,18 +26,18 @@ interface BoatVisualizerProps {
   showWatermark?: boolean;
 }
 
-const BoatVisualizer = React.forwardRef<HTMLDivElement, BoatVisualizerProps>(({ 
-  boatConfig, 
-  paddlers, 
-  assignments, 
-  activeEvent, 
+const BoatVisualizer = React.forwardRef<HTMLDivElement, BoatVisualizerProps>(({
+  boatConfig,
+  paddlers,
+  assignments,
+  activeEvent,
   activePaddlerPool,
-  lockedSeats, 
-  selectedPaddlerId, 
-  cgStats, 
-  isExporting, 
-  handleSeatClick, 
-  handleUnassign, 
+  lockedSeats,
+  selectedPaddlerId,
+  cgStats,
+  isExporting,
+  handleSeatClick,
+  handleUnassign,
   toggleLock,
   rows,
   isReadOnly,
@@ -51,10 +51,10 @@ const BoatVisualizer = React.forwardRef<HTMLDivElement, BoatVisualizerProps>(({
     <div id="tour-planner-boat" className="lg:col-span-2 h-full flex flex-col">
       <div className={`${theme ? theme.buttonGhost.split(' ')[0].replace('hover:', '') : 'bg-blue-50/50 dark:bg-blue-900/10'} p-4 md:p-8 rounded-3xl flex justify-center items-start overflow-y-auto relative flex-1 min-h-[600px]`}>
         {!isExporting && <div className="absolute inset-0 opacity-10 pointer-events-none" style={{ backgroundImage: `radial-gradient(circle at 10px 10px, ${theme ? (primaryColor === 'slate' ? '#334155' : THEME_MAP[primaryColor as ThemeKey]?.button.split(' ')[0].replace('bg-', '#')) : '#3b82f6'} 1px, transparent 0)`, backgroundSize: '30px 30px' }}></div>}
-        
+
         {/* Main Capture Element */}
-        <div 
-          ref={ref} 
+        <div
+          ref={ref}
           className={`flex items-center justify-center ${isExporting ? 'bg-white p-20' : 'w-full'}`}
           style={isExporting ? { width: '580px', minHeight: '800px', backgroundColor: '#ffffff' } : {}}
         >
@@ -69,9 +69,9 @@ const BoatVisualizer = React.forwardRef<HTMLDivElement, BoatVisualizerProps>(({
                 <DragonLogo className={`w-24 h-24 ${theme?.text || 'text-amber-600 dark:text-amber-500'}`} />
               )}
             </div>
-            
+
             <div className="relative bg-amber-50 dark:bg-amber-900 border-4 border-amber-800 dark:border-amber-950 shadow-xl w-full px-4 py-12 z-10" style={{ clipPath: 'polygon(50% 0%, 80% 2%, 95% 10%, 100% 45%, 100% 55%, 95% 90%, 80% 98%, 50% 100%, 20% 98%, 5% 90%, 0% 55%, 0% 45%, 5% 10%, 20% 2%)', borderRadius: '40px' }}>
-              
+
               {/* CG Dot */}
               {!isExporting && (
                 <div className="absolute pointer-events-none z-0 transition-all duration-500 ease-out" style={{ left: `${cgStats.x}%`, top: `${cgStats.y}%`, transform: 'translate(-50%, -50%)' }}>
@@ -122,7 +122,7 @@ const BoatVisualizer = React.forwardRef<HTMLDivElement, BoatVisualizerProps>(({
                 </div>
               </div>
             </div>
-            
+
             {icon ? (
               <div className={`z-20 mt-[-25px] flex items-center justify-center opacity-60 filter drop-shadow-sm ${theme?.text || 'text-amber-800/40 dark:text-amber-100/30'}`} style={{ zIndex: 30 }}>
                 <DragonLogo className="w-16 h-16 transform -scale-y-100" />
@@ -138,7 +138,7 @@ const BoatVisualizer = React.forwardRef<HTMLDivElement, BoatVisualizerProps>(({
               <DragonLogo className="w-12 h-12 text-slate-900 font-bold" />
               <div className="flex flex-col items-center gap-4 [writing-mode:vertical-rl] rotate-180">
                 <span className="text-[18px] font-black uppercase tracking-[0.2em] text-slate-900 font-mono leading-none">
-                  drachenbootmanager.de
+                  dragonboatmanager.com
                 </span>
               </div>
             </div>

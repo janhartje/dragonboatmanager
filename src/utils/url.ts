@@ -53,5 +53,5 @@ export function getProductionUrl(): string {
     return `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`;
   }
 
-  return 'https://drachenboot-manager.vercel.app';
+  return 'https://dragonboatmanager.com';
 }

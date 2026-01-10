@@ -14,23 +14,23 @@ interface SendEmailParams {
   props?: Record<string, unknown>; // Props passed to the template for debugging
 }
 
-export const sendEmail = async ({ 
-  to, 
-  subject, 
-  react, 
-  from = 'Drachenboot Manager <no-reply@drachenbootmanager.de>',
+export const sendEmail = async ({
+  to,
+  subject,
+  react,
+  from = 'Drachenboot Manager <no-reply@dragonboatmanager.com>',
   replyTo,
   template = 'unknown',
   props = {}
 }: SendEmailParams) => {
   const recipients = Array.isArray(to) ? to : [to];
-  
+
   try {
     // Pre-render the React component to HTML
     const html = await render(react);
-    
+
     console.log(`[INFO] Email rendered successfully. Template: ${template}, HTML Length: ${html?.length || 0}`);
-    
+
     // Add to queue
     await prisma.emailQueue.create({
       data: {

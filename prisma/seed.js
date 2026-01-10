@@ -12,7 +12,7 @@ const prisma = new PrismaClient({ adapter });
 async function main() {
     console.log('Seeding database...');
 
-    const seedEmailsRaw = process.env.SEED_EMAILS || 'jan@janhartje.com,reg@janhartje.com';
+    const seedEmailsRaw = process.env.SEED_EMAILS || 'test1@dragonboatmanager.com,test2@dragonboatmanager.com';
     const emails = seedEmailsRaw.split(',').map(e => e.trim()).filter(Boolean);
 
     const users = emails.map(email => ({

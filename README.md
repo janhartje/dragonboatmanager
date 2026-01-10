@@ -206,7 +206,7 @@ Um die Datenbank mit initialen Testdaten (Nutzern, PRO-Teams, Paddlern) zu füll
 1.  **SEED_EMAILS konfigurieren:**
     Füge in deiner `.env` die E-Mail-Adressen hinzu, für die Testdaten generiert werden sollen:
     ```bash
-    SEED_EMAILS="jan@janhartje.com,reg@janhartje.com"
+    SEED_EMAILS="test1@dragonboatmanager.com,test2@dragonboatmanager.com"
     ```
 2.  **Seed ausführen:**
     ```bash
@@ -478,7 +478,7 @@ Der **Model Context Protocol (MCP) Server** ermöglicht es AI-Assistenten wie Cl
          "args": [
            "-y",
            "@mcpwizard/sse-bridge",
-           "https://drachenbootmanager.app/api/mcp",
+           "https://dragonboatmanager.com/api/mcp",
            "--header",
            "X-API-KEY:dbm_live_xxx..."
          ]
