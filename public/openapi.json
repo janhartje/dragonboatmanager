@@ -184,6 +184,38 @@
                 }
             }
         },
+        "/api/indexnow/key": {
+            "get": {
+                "summary": "Get IndexNow Key",
+                "description": "Returns the IndexNow API key as plain text for search engine verification. Only available in production when INDEXNOW_KEY environment variable is configured.",
+                "tags": [
+                    "SEO"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "IndexNow key returned successfully",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "type": "string",
+                                    "description": "The IndexNow API key"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found - Either not in production mode or IndexNow key not configured",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/mcp": {
             "post": {
                 "summary": "Execute MCP Tool",
@@ -3530,6 +3562,10 @@
         {
             "name": "Billing",
             "description": "Subscription and payment management via Stripe"
+        },
+        {
+            "name": "SEO",
+            "description": "Search engine optimization and indexing operations"
         }
     ]
 }
