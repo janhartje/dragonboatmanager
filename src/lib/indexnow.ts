@@ -20,6 +20,11 @@ export async function submitToIndexNow(urls: string[]): Promise<boolean> {
         return false;
     }
 
+    // Validate that URLs array is not empty
+    if (!urls || urls.length === 0) {
+        return true; // Return true as there's nothing to submit (not an error condition)
+    }
+
     // Determine host and key location
     // We use the production URL as the host.
     // Note: getProductionUrl() returns something like "https://dragonboatmanager.com"
