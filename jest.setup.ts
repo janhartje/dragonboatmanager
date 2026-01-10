@@ -4,6 +4,38 @@ import { TextEncoder, TextDecoder } from 'util';
 
 Object.assign(global, { TextDecoder, TextEncoder });
 
+// Mock NextAuth
+jest.mock('next-auth', () => ({
+  __esModule: true,
+  default: jest.fn(() => ({
+    handlers: { GET: jest.fn(), POST: jest.fn() },
+    auth: jest.fn(),
+    signIn: jest.fn(),
+    signOut: jest.fn(),
+  })),
+}));
+
+jest.mock('next-auth/providers/google', () => ({
+  __esModule: true,
+  default: jest.fn(() => ({ id: 'google', name: 'Google' })),
+}));
+
+jest.mock('next-auth/providers/github', () => ({
+  __esModule: true,
+  default: jest.fn(() => ({ id: 'github', name: 'GitHub' })),
+}));
+
+jest.mock('next-auth/providers/resend', () => ({
+  __esModule: true,
+  default: jest.fn(() => ({ id: 'resend', name: 'Resend' })),
+}));
+
+jest.mock('next-auth/providers/credentials', () => ({
+  __esModule: true,
+  default: jest.fn(() => ({ id: 'credentials', name: 'Credentials' })),
+}));
+
+// Mock next-auth/react (client-side)
 jest.mock('next-auth/react', () => {
   const mockSession = {
     expires: new Date(Date.now() + 2 * 86400).toISOString(),
@@ -17,6 +49,15 @@ jest.mock('next-auth/react', () => {
     signOut: jest.fn(),
   };
 });
+
+// Mock @auth/prisma-adapter
+jest.mock('@auth/prisma-adapter', () => ({
+  PrismaAdapter: jest.fn(() => ({
+    createUser: jest.fn(),
+    getUserByEmail: jest.fn(),
+    // Add other methods if needed
+  })),
+}));
 
 global.fetch = jest.fn(() =>
   Promise.resolve({

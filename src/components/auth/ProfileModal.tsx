@@ -113,7 +113,7 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
     try {
       // Convert to base64
       const reader = new FileReader()
-      
+
       reader.onerror = () => {
         setErrorMessage(t('imageUploadFailed') || 'Failed to upload image')
         setShowErrorAlert(true)
@@ -122,13 +122,13 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
           fileInputRef.current.value = ''
         }
       }
-      
+
       reader.onloadend = async () => {
         const base64String = reader.result as string
-        
+
         // Create a temporary image to resize
         const img = new Image()
-        
+
         img.onerror = () => {
           setErrorMessage(t('imageUploadFailed') || 'Failed to upload image')
           setShowErrorAlert(true)
@@ -137,7 +137,7 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
             fileInputRef.current.value = ''
           }
         }
-        
+
         img.onload = async () => {
           try {
             // Resize to max 400x400
@@ -161,7 +161,7 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
             canvas.width = width
             canvas.height = height
             const ctx = canvas.getContext('2d')
-            
+
             if (!ctx) {
               setErrorMessage(t('imageUploadFailed') || 'Failed to upload image')
               setShowErrorAlert(true)
@@ -171,31 +171,31 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
               }
               return
             }
-            
+
             ctx.drawImage(img, 0, 0, width, height)
 
             // Convert to base64
             const resizedBase64 = canvas.toDataURL(file.type, 0.9)
-            
+
             // Upload to server
             await uploadProfileImage(resizedBase64)
-            
+
             // Reload profile to get updated image
             const userProfile = await getUserProfile()
             if (userProfile) {
               setImagePreview(userProfile.customImage || userProfile.image || null)
             }
-            
+
             // Trigger refresh in all useUserProfile hooks (e.g., UserMenu)
             triggerProfileRefresh()
-            
+
             setIsUploadingImage(false)
-            
+
             // Reset file input
             if (fileInputRef.current) {
               fileInputRef.current.value = ''
             }
-          } catch (uploadError) {
+          } catch {
             setErrorMessage(t('imageUploadFailed') || 'Failed to upload image')
             setShowErrorAlert(true)
             setIsUploadingImage(false)
@@ -207,7 +207,7 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
         img.src = base64String
       }
       reader.readAsDataURL(file)
-    } catch (error) {
+    } catch {
       setErrorMessage(t('imageUploadFailed') || 'Failed to upload image')
       setShowErrorAlert(true)
       setIsUploadingImage(false)
@@ -222,7 +222,7 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
     setIsUploadingImage(true)
     try {
       await deleteProfileImage()
-      
+
       // Reload profile to get updated image (should be null or OAuth image)
       const userProfile = await getUserProfile()
       if (userProfile) {
@@ -232,10 +232,10 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
         // If no profile, clear the image preview
         setImagePreview(null)
       }
-      
+
       // Trigger refresh in all useUserProfile hooks (e.g., UserMenu)
       triggerProfileRefresh()
-    } catch (_error) {
+    } catch {
       setErrorMessage(t('imageDeleteFailed') || 'Failed to delete image')
       setShowErrorAlert(true)
     } finally {

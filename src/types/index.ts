@@ -34,6 +34,7 @@ export interface Paddler {
   role?: 'CAPTAIN' | 'PADDLER';
   priority?: number; // 1=Fixed, 2=Maybe, 3=Guest, 4=Canister
   user?: {
+    id?: string;
     email?: string | null;
     name?: string | null;
     image?: string | null;
