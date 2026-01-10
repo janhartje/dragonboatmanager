@@ -39,7 +39,7 @@ export const TrialEndingEmail = ({
       <Section className="text-center my-8">
         <Button
           className="bg-amber-600 text-white font-bold px-6 py-3 rounded-lg text-center no-underline"
-          href="https://dragonboatmanager.com/app/teams" // Button itself can take href
+          href={actionUrl}
         >
           {t(lang, 'emailTrialEndingAction')}
         </Button>
