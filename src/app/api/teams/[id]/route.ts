@@ -136,16 +136,20 @@ export async function PUT(
     if (showOnWebsite !== undefined && !currentTeam.showOnWebsite && team.showOnWebsite) {
       const baseUrl = getProductionUrl();
       // Submit root URL and locale variants where the team listing appears
-      const success = await submitToIndexNow([
+      submitToIndexNow([
         baseUrl,
         `${baseUrl}/de`,
         `${baseUrl}/en`
-      ]);
-      
-      if (!success) {
-        // Log for monitoring, but don't fail the request
-        console.warn('IndexNow notification failed for team update, but team was updated successfully');
-      }
+      ])
+        .then((success) => {
+          if (!success) {
+            // Log for monitoring, but don't fail the request
+            console.warn('IndexNow notification failed for team update, but team was updated successfully');
+          }
+        })
+        .catch((error) => {
+          console.error('IndexNow notification threw an error for team update:', error);
+        });
     }
 
     return NextResponse.json(team);
