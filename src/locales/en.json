@@ -89,6 +89,7 @@
                 "Database: Added 'showOnWebsite' field to Team model.",
                 "API: New public function to retrieve visible teams.",
                 "SEO: Converted landing page to Server Component for better search engine indexing.",
+                "SEO: IndexNow integration - Automatic notification to search engines (Bing, Yandex) when teams become publicly visible.",
                 "Performance: Implemented Next.js Image Component for automatic image optimization.",
                 "Security: Implemented DoS protection (50-team limit), production logging, and URL validation for team websites.",
                 "Architecture: Eliminated code duplication by consolidating public teams query logic."
