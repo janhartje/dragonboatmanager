@@ -146,7 +146,6 @@ export async function uploadProfileImage(base64Image: string) {
       .toBuffer()
     
     // Convert processed image back to base64 for storage
-    // TODO: Replace with S3/R2 upload here for production scalability
     const processedBase64 = `data:image/webp;base64,${processedBuffer.toString('base64')}`
     
     // Update user's custom image with sanitized, processed version
