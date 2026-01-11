@@ -3,7 +3,7 @@
     "info": {
         "title": "Drachenboot Manager API",
         "version": "2.7.0",
-        "description": "API documentation for the Drachenboot Manager application with multi-team support.\n\n## Custom Profile Pictures\n\nThe application supports custom profile picture uploads through Next.js Server Actions (not REST endpoints):\n\n### Upload Profile Image\n- **Action**: `uploadProfileImage(base64Image: string)`\n- **Description**: Upload a custom profile picture stored as base64 in the database\n- **Authentication**: Required (JWT session)\n- **Validation**: \n  - Max file size: 2MB\n  - Allowed formats: JPEG, PNG, WebP, GIF\n  - Server-side validation: Magic bytes check using file-type library\n  - Server-side processing: Re-processed with Sharp (400x400, WebP, metadata stripped)\n- **Priority**: Custom images take priority over OAuth provider images\n\n### Delete Profile Image\n- **Action**: `deleteProfileImage()`\n- **Description**: Remove custom profile picture (falls back to OAuth provider image)\n- **Authentication**: Required (JWT session)\n\n### Avatar Image Endpoint\nThe `/api/users/[userId]/avatar` endpoint serves profile images efficiently:\n- **Endpoint**: `GET /api/users/{userId}/avatar`\n- **Description**: Dedicated endpoint for serving user avatars (custom or OAuth)\n- **Priority**: Returns custom image if available, otherwise OAuth image\n- **Response**: Binary image data or redirect to OAuth provider URL\n- **Caching**: Includes cache headers for optimal performance\n- **Note**: This endpoint reduces payload size in list APIs by serving images separately"
+        "description": "API documentation for the Drachenboot Manager application with multi-team support.\n\nFor details on Custom Profile Pictures (upload/delete via Server Actions), please refer to the documentation in `docs/custom-profile-pictures.md`."
     },
     "servers": [
         {
@@ -320,7 +320,10 @@
                                                 "description": "Team website URL"
                                             }
                                         },
-                                        "required": ["id", "name"]
+                                        "required": [
+                                            "id",
+                                            "name"
+                                        ]
                                     }
                                 }
                             }

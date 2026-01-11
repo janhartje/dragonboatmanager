@@ -28,7 +28,7 @@ const PaddlerList: React.FC<PaddlerListProps> = ({ paddlers, editingId, onEdit, 
   const { data: session } = useSession();
   const [deleteConfirmId, setDeleteConfirmId] = useState<number | string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [avatarCacheBuster, setAvatarCacheBuster] = useState(Date.now());
+  const [avatarCacheBuster, setAvatarCacheBuster] = useState(() => Date.now());
   const itemsPerPage = 15;
 
   const totalPages = Math.ceil(paddlers.length / itemsPerPage);
@@ -116,9 +116,9 @@ const PaddlerList: React.FC<PaddlerListProps> = ({ paddlers, editingId, onEdit, 
                       <div className="flex items-center gap-3">
                         <Avatar className="w-8 h-8 border border-slate-200 dark:border-slate-700">
                           {p.user?.id && (
-                            <AvatarImage 
-                              src={getAvatarUrl(p.user.id, p.user.image, avatarCacheBuster) || ''} 
-                              alt={p.name} 
+                            <AvatarImage
+                              src={getAvatarUrl(p.user.id, p.user.image, avatarCacheBuster) || ''}
+                              alt={p.name}
                             />
                           )}
                           <AvatarFallback className="bg-slate-200 dark:bg-slate-800 text-slate-500 dark:text-slate-400 text-xs">

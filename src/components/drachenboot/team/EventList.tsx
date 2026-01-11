@@ -43,7 +43,7 @@ const EventCard: React.FC<EventCardProps> = memo(({
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
-  const [avatarCacheBuster, setAvatarCacheBuster] = useState(Date.now());
+  const [avatarCacheBuster, setAvatarCacheBuster] = useState(() => Date.now());
 
   // Listen for avatar refresh events to update cache buster
   useEffect(() => {
@@ -84,8 +84,8 @@ const EventCard: React.FC<EventCardProps> = memo(({
               <button
                 onClick={triggerDelete}
                 className={`h-9 w-9 flex items-center justify-center rounded-lg border transition-colors ${isConfirming
-                    ? 'bg-red-100 dark:bg-red-900/50 border-red-400 dark:border-red-700 text-red-600 dark:text-red-400'
-                    : 'border-slate-300 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-slate-800'
+                  ? 'bg-red-100 dark:bg-red-900/50 border-red-400 dark:border-red-700 text-red-600 dark:text-red-400'
+                  : 'border-slate-300 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-slate-800'
                   }`}
                 title={isConfirming ? "Bestätigen" : "Löschen"}
               >
@@ -133,8 +133,8 @@ const EventCard: React.FC<EventCardProps> = memo(({
             <button
               onClick={(e) => { e.stopPropagation(); onUpdateAttendance(evt.id, currentPaddler.id, 'yes'); }}
               className={`flex-1 flex items-center justify-center gap-2 h-9 rounded-lg border font-medium text-sm transition-all min-w-0 ${evt.attendance[currentPaddler.id] === 'yes'
-                  ? 'bg-green-100 dark:bg-green-900/40 border-green-500 dark:border-green-700 text-green-700 dark:text-green-400'
-                  : 'bg-transparent border-slate-300 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:border-green-500 dark:hover:border-green-800 hover:bg-green-50 dark:hover:bg-green-900/10'
+                ? 'bg-green-100 dark:bg-green-900/40 border-green-500 dark:border-green-700 text-green-700 dark:text-green-400'
+                : 'bg-transparent border-slate-300 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:border-green-500 dark:hover:border-green-800 hover:bg-green-50 dark:hover:bg-green-900/10'
                 }`}
             >
               <div className={`flex-shrink-0 p-0.5 rounded-full ${evt.attendance[currentPaddler.id] === 'yes' ? 'bg-green-500 text-white dark:text-black' : 'border border-current'}`}>
@@ -146,8 +146,8 @@ const EventCard: React.FC<EventCardProps> = memo(({
             <button
               onClick={(e) => { e.stopPropagation(); onUpdateAttendance(evt.id, currentPaddler.id, 'maybe'); }}
               className={`flex-1 flex items-center justify-center gap-2 h-9 rounded-lg border font-medium text-sm transition-all min-w-0 ${evt.attendance[currentPaddler.id] === 'maybe'
-                  ? 'bg-yellow-100 dark:bg-yellow-900/40 border-yellow-500 dark:border-yellow-700 text-yellow-700 dark:text-yellow-400'
-                  : 'bg-transparent border-slate-300 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:border-yellow-500 dark:hover:border-yellow-800 hover:bg-yellow-50 dark:hover:bg-yellow-900/10'
+                ? 'bg-yellow-100 dark:bg-yellow-900/40 border-yellow-500 dark:border-yellow-700 text-yellow-700 dark:text-yellow-400'
+                : 'bg-transparent border-slate-300 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:border-yellow-500 dark:hover:border-yellow-800 hover:bg-yellow-50 dark:hover:bg-yellow-900/10'
                 }`}
             >
               <div className={`flex-shrink-0 p-0.5 rounded-full ${evt.attendance[currentPaddler.id] === 'maybe' ? 'bg-yellow-500 text-white dark:text-black' : 'border border-current'}`}>
@@ -159,8 +159,8 @@ const EventCard: React.FC<EventCardProps> = memo(({
             <button
               onClick={(e) => { e.stopPropagation(); onUpdateAttendance(evt.id, currentPaddler.id, 'no'); }}
               className={`flex-1 flex items-center justify-center gap-2 h-9 rounded-lg border font-medium text-sm transition-all min-w-0 ${evt.attendance[currentPaddler.id] === 'no'
-                  ? 'bg-red-100 dark:bg-red-900/40 border-red-500 dark:border-red-700 text-red-700 dark:text-red-400'
-                  : 'bg-transparent border-slate-300 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:border-red-500 dark:hover:border-red-800 hover:bg-red-50 dark:hover:bg-red-900/10'
+                ? 'bg-red-100 dark:bg-red-900/40 border-red-500 dark:border-red-700 text-red-700 dark:text-red-400'
+                : 'bg-transparent border-slate-300 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:border-red-500 dark:hover:border-red-800 hover:bg-red-50 dark:hover:bg-red-900/10'
                 }`}
             >
               <div className={`flex-shrink-0 p-0.5 rounded-full ${evt.attendance[currentPaddler.id] === 'no' ? 'bg-red-500 text-white dark:text-black' : 'border border-current'}`}>
