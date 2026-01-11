@@ -3123,11 +3123,6 @@
                                 "type": "string",
                                 "nullable": true,
                                 "description": "OAuth provider profile image URL (Google/GitHub)"
-                            },
-                            "customImage": {
-                                "type": "string",
-                                "nullable": true,
-                                "description": "Custom uploaded profile picture (base64 encoded). Takes priority over OAuth image."
                             }
                         },
                         "nullable": true
