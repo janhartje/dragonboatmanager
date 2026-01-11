@@ -38,7 +38,6 @@ export interface Paddler {
     email?: string | null;
     name?: string | null;
     image?: string | null;
-    customImage?: string | null;
   };
 }
 
