@@ -43,6 +43,10 @@ export function filterAndSortPaddlers(
   return filtered;
 }
 
+/**
+ * Sorts paddlers for event views without applying search or skill filters.
+ * This ensures attendance lists remain complete even when the team list is filtered.
+ */
 export function sortPaddlersForEvents(
   paddlers: Paddler[],
   sortBy: string,
