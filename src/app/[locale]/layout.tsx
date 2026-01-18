@@ -5,7 +5,7 @@ import { DrachenbootProvider } from "@/context/DrachenbootContext";
 import { ThemeProvider } from "@/context/ThemeContext";
 import { TeamProvider } from "@/context/TeamContext";
 import { SessionProvider } from "next-auth/react";
-import { getBaseUrl } from "@/utils/url";
+import { getProductionUrl } from "@/utils/url";
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, getTranslations } from 'next-intl/server';
 import { notFound } from 'next/navigation';
@@ -20,7 +20,7 @@ const inter = Inter({ subsets: ["latin"] });
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'metadata' });
-  const baseUrl = getBaseUrl();
+  const baseUrl = getProductionUrl();
 
   return {
     title: {
@@ -34,6 +34,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
       languages: {
         'de': '/de',
         'en': '/en',
+        'x-default': '/de'
       },
     },
     openGraph: {
@@ -52,17 +53,19 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
         },
       ],
     },
+    manifest: '/manifest.json',
     icons: {
       icon: [
         { url: '/favicon.svg', type: 'image/svg+xml' },
         { url: '/favicon-32.png', type: 'image/png', sizes: '32x32' },
         { url: '/favicon-16.png', type: 'image/png', sizes: '16x16' },
+        { url: '/icons/logo-192.png', type: 'image/png', sizes: '192x192' },
+        { url: '/icons/logo-512.png', type: 'image/png', sizes: '512x512' },
       ],
       apple: [
-        { url: '/favicon-32.png' },
+        { url: '/icons/logo-192.png' },
       ],
     },
-    manifest: '/manifest.json',
   };
 }
 
@@ -97,7 +100,7 @@ export default async function RootLayout({
       <head>
         <script
           dangerouslySetInnerHTML={{
-             __html: `
+            __html: `
               (function() {
                 try {
                   var storedTheme = localStorage.getItem('drachenboot_theme');
