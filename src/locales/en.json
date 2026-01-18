@@ -80,6 +80,16 @@
     "changelog": "Changelog",
     "changelogData": [
         {
+            "version": "3.9.1",
+            "date": "January 2026",
+            "features": [],
+            "technical": [],
+            "bugfixes": [
+                "Fix: Added missing Google Search icons (192px/512px).",
+                "Fix: Corrected Apple Touch Icon."
+            ]
+        },
+        {
             "version": "3.9.0",
             "date": "January 2026",
             "features": [
