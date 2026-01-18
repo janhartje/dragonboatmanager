@@ -11,6 +11,7 @@ import TeamInviteEmail from "@/emails/templates/TeamInviteEmail"
 import { t, Language } from "@/emails/utils/i18n"
 import type { Adapter, AdapterUser } from "@auth/core/adapters"
 import { getBaseUrl } from "@/utils/url"
+import { authConfig } from "./auth.config"
 
 // Create a custom adapter that normalizes emails to lowercase
 function CaseInsensitivePrismaAdapter(prismaClient: typeof prisma): Adapter {
@@ -44,6 +45,7 @@ function CaseInsensitivePrismaAdapter(prismaClient: typeof prisma): Adapter {
 }
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
+  ...authConfig,
   adapter: CaseInsensitivePrismaAdapter(prisma),
   providers: [
     Google,
@@ -256,14 +258,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       }
     }),
   ],
-  pages: {
-    signIn: "/login",
-    verifyRequest: "/login?verify=1",
-  },
-  session: {
-    strategy: "jwt",
-  },
   callbacks: {
+    ...authConfig.callbacks,
     async jwt({ token, user, trigger, session }) {
       if (user) {
         token.id = user.id
