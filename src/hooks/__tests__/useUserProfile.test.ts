@@ -1,4 +1,4 @@
-import { renderHook, waitFor } from '@testing-library/react'
+import { renderHook, waitFor, act } from '@testing-library/react'
 import { useSession } from 'next-auth/react'
 import { useUserProfile, triggerProfileRefresh } from '../useUserProfile'
 import { getUserProfile } from '@/app/actions/user'
@@ -22,7 +22,7 @@ describe('useUserProfile', () => {
     }
   })
 
-  it('should return loading state initially', () => {
+  it('should return loading state initially', async () => {
     mockUseSession.mockReturnValue({
       data: { user: { id: 'user-1', email: 'test@example.com' } }
     })
@@ -31,6 +31,14 @@ describe('useUserProfile', () => {
     const { result } = renderHook(() => useUserProfile())
 
     expect(result.current.isLoading).toBe(true)
+    // Wait for the hook to finish to avoid act warnings (state updates after test ends)
+    // The hook will eventually settle when expectations are met or promises resolve
+    // Since we only care about initial state, we can leave it, OR better: wait for it to settle even if we don't check result
+    // But since we want to check INITIAL state, we check it immediately. 
+    // To suppress the warning, we need to ensure the async part resolves inside the test.
+    await waitFor(() => {
+      expect(result.current.isLoading).toBe(false)
+    })
   })
 
   it('should load custom profile image when available', async () => {
@@ -38,9 +46,9 @@ describe('useUserProfile', () => {
     mockUseSession.mockReturnValue({
       data: { user: { id: 'user-1', email: 'test@example.com', image: 'oauth-image.jpg' } }
     })
-    mockGetUserProfile.mockResolvedValue({ 
-      customImage, 
-      image: 'oauth-image.jpg' 
+    mockGetUserProfile.mockResolvedValue({
+      customImage,
+      image: 'oauth-image.jpg'
     })
 
     const { result } = renderHook(() => useUserProfile())
@@ -58,9 +66,9 @@ describe('useUserProfile', () => {
     mockUseSession.mockReturnValue({
       data: { user: { id: 'user-1', email: 'test@example.com', image: oauthImage } }
     })
-    mockGetUserProfile.mockResolvedValue({ 
-      customImage: null, 
-      image: oauthImage 
+    mockGetUserProfile.mockResolvedValue({
+      customImage: null,
+      image: oauthImage
     })
 
     const { result } = renderHook(() => useUserProfile())
@@ -76,9 +84,9 @@ describe('useUserProfile', () => {
     mockUseSession.mockReturnValue({
       data: { user: { id: 'user-1', email: 'test@example.com' } }
     })
-    mockGetUserProfile.mockResolvedValue({ 
-      customImage: null, 
-      image: null 
+    mockGetUserProfile.mockResolvedValue({
+      customImage: null,
+      image: null
     })
 
     const { result } = renderHook(() => useUserProfile())
@@ -109,7 +117,7 @@ describe('useUserProfile', () => {
   it('should refresh profile when triggerProfileRefresh is called', async () => {
     const initialImage = 'data:image/webp;base64,initial'
     const updatedImage = 'data:image/webp;base64,updated'
-    
+
     mockUseSession.mockReturnValue({
       data: { user: { id: 'user-1', email: 'test@example.com' } }
     })
@@ -126,7 +134,10 @@ describe('useUserProfile', () => {
     expect(result.current.profileImage).toBe(initialImage)
 
     // Trigger refresh
-    triggerProfileRefresh()
+    // Trigger refresh
+    act(() => {
+      triggerProfileRefresh()
+    })
 
     // Wait for refresh to complete
     await waitFor(() => {
@@ -154,7 +165,7 @@ describe('useUserProfile', () => {
     mockGetUserProfile.mockResolvedValue({ customImage: null, image: null })
 
     const removeEventListenerSpy = jest.spyOn(window, 'removeEventListener')
-    
+
     const { unmount } = renderHook(() => useUserProfile())
 
     unmount()
@@ -208,7 +219,9 @@ describe('triggerProfileRefresh', () => {
   it('should dispatch custom event in browser environment', () => {
     const dispatchEventSpy = jest.spyOn(window, 'dispatchEvent')
 
-    triggerProfileRefresh()
+    act(() => {
+      triggerProfileRefresh()
+    })
 
     expect(dispatchEventSpy).toHaveBeenCalledWith(
       expect.objectContaining({

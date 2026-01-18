@@ -48,11 +48,14 @@ describe('submitToIndexNow', () => {
 
     it('should return false if key is missing', async () => {
         delete process.env.INDEXNOW_KEY;
+        const consoleSpy = jest.spyOn(console, 'warn').mockImplementation(() => { });
 
         const result = await submitToIndexNow(['https://example.com']);
 
         expect(result).toBe(false);
         expect(mockFetch).not.toHaveBeenCalled();
+        expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('IndexNow: specific key not configured'));
+        consoleSpy.mockRestore();
     });
 
     it('should return false if fetch fails', async () => {
@@ -63,6 +66,7 @@ describe('submitToIndexNow', () => {
         const result = await submitToIndexNow(['https://example.com']);
 
         expect(result).toBe(false);
+        expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('IndexNow submission failed')); // Not passing status text in mock above, but let's check basic
 
         consoleSpy.mockRestore();
     });
@@ -74,6 +78,7 @@ describe('submitToIndexNow', () => {
         const result = await submitToIndexNow(['https://example.com']);
 
         expect(result).toBe(false);
+        expect(consoleSpy).toHaveBeenCalledWith('IndexNow submission error:', expect.any(Error));
 
         consoleSpy.mockRestore();
     });

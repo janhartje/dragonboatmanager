@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function AppLayout({ children, params }: { children: React.ReactNode; params: Promise<{ locale: string }> }) {
+export default async function AppLayout({ children }: { children: React.ReactNode }) {
   // Middleware handles authentication
 
   return (

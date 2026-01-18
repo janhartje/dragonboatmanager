@@ -12,7 +12,7 @@ export const authConfig = {
     callbacks: {
         authorized({ auth, request: { nextUrl } }) {
             const isLoggedIn = !!auth?.user;
-            const onApp = nextUrl.pathname.includes('/app');
+            const onApp = /^\/(?:[a-z]{2}\/)?app(?:\/|$)/.test(nextUrl.pathname);
 
             if (onApp) {
                 if (isLoggedIn) return true;
