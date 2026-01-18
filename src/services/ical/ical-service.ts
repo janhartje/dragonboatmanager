@@ -1,8 +1,9 @@
 import prisma from '@/lib/prisma';
 import { Prisma } from '@prisma/client';
-import type * as Ical from 'node-ical';
+import * as ical from 'node-ical';
 import pLimit from 'p-limit'; /* // turbo */
 import { validateUrl } from '@/utils/url-validation';
+import { safeFetch } from '@/utils/safe-fetch';
 
 const MAX_ICAL_SIZE_BYTES = 5 * 1024 * 1024;
 
@@ -40,9 +41,7 @@ export async function syncTeamEvents(teamId: string, icalUrl?: string): Promise<
 
         // Fetch and parse iCal with timeout SAFE FETCH
         // We rely on safeFetch's internal timeout and IP validation
-        let events: Ical.CalendarResponse;
-        const { safeFetch } = await import('@/utils/safe-fetch');
-        const ical = await import('node-ical');
+        let events: ical.CalendarResponse;
 
         try {
             const response = await safeFetch(urlToUse, {
@@ -60,13 +59,7 @@ export async function syncTeamEvents(teamId: string, icalUrl?: string): Promise<
                 throw new Error('iCal file too large (max 5MB)');
             }
 
-            // Handle both default export and named export to be safe with dynamic imports
-            const imported = ical as unknown as { default?: { parseICS?: (input: string) => Ical.CalendarResponse }, parseICS?: (input: string) => Ical.CalendarResponse };
-            const parseICS = imported.parseICS || imported.default?.parseICS;
-            if (!parseICS) {
-                throw new Error('Failed to load iCal parser');
-            }
-            events = parseICS(text);
+            events = ical.parseICS(text);
         } catch (error: unknown) {
             if (error instanceof Error && error.name === 'AbortError') {
                 throw new Error('iCal fetch timed out after 10s');
@@ -81,7 +74,7 @@ export async function syncTeamEvents(teamId: string, icalUrl?: string): Promise<
 
         for (const event of Object.values(events)) {
             if (event.type === 'VEVENT') {
-                const vevent = event as Ical.VEvent;
+                const vevent = event as ical.VEvent;
 
                 const title = vevent.summary?.replace(/<[^>]*>?/g, '').trim();
                 const date = vevent.start; // node-ical returns Date object
