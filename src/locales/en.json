@@ -80,6 +80,16 @@
     "changelog": "Changelog",
     "changelogData": [
         {
+            "version": "3.9.2",
+            "date": "January 2026",
+            "features": [],
+            "technical": [
+                "Refactored authentication to Edge Middleware for faster FCP.",
+                "Performance: Removed blocking App Layout checks."
+            ],
+            "bugfixes": []
+        },
+        {
             "version": "3.9.1",
             "date": "January 2026",
             "features": [],

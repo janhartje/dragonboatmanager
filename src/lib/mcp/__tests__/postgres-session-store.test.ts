@@ -27,6 +27,10 @@ describe('PostgresSessionStore', () => {
         };
     });
 
+    afterEach(() => {
+        jest.restoreAllMocks();
+    });
+
     it('should create a session in the database', async () => {
         const sessionId = 'test-session-id';
         const apiKey = 'test-api-key';
@@ -110,6 +114,8 @@ describe('PostgresSessionStore', () => {
 
         // We probably want strict delete or loose delete. 
         // Let's assume the store should ignore if it's already gone to be idempotent.
+        const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => { });
         await expect(store.removeSession('missing-id')).resolves.not.toThrow();
+        expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('[PostgresSessionStore] Operation failed'), expect.any(String));
     });
 });

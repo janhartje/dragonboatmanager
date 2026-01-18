@@ -22,6 +22,7 @@ const __dirname = path.dirname(__filename);
 const nextConfig = {
   images: { unoptimized: true },
   outputFileTracingRoot: __dirname,
+  serverExternalPackages: ['node-ical'],
 };
 
 export default withPWA(withNextIntl(nextConfig));

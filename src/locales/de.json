@@ -80,6 +80,16 @@
     "changelog": "Versionshistorie",
     "changelogData": [
         {
+            "version": "3.9.2",
+            "date": "Januar 2026",
+            "features": [],
+            "technical": [
+                "Authentifizierung auf Edge Middleware umgestellt für schnelleren FCP.",
+                "Performance: App Layout Blocking entfernt."
+            ],
+            "bugfixes": []
+        },
+        {
             "version": "3.9.1",
             "date": "Januar 2026",
             "features": [],

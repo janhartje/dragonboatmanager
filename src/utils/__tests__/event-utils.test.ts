@@ -4,7 +4,7 @@ import { Event } from '../../types';
 describe('event-utils', () => {
   describe('filterFutureEvents', () => {
     const fixedNow = new Date('2024-06-15T12:00:00Z');
-    
+
     // Relative times from fixedNow
     const twoDaysAgo = new Date(fixedNow.getTime() - 86400000 * 2).toISOString();
     const twoDaysFuture = new Date(fixedNow.getTime() + 86400000 * 2).toISOString();
@@ -52,28 +52,37 @@ describe('event-utils', () => {
     });
 
     it('should return empty array if all events are in the past', () => {
-        const pastEvents = [mockEvents[0]];
-        const result = filterFutureEvents(pastEvents, fixedNow);
-        expect(result).toHaveLength(0);
+      const pastEvents = [mockEvents[0]];
+      const result = filterFutureEvents(pastEvents, fixedNow);
+      expect(result).toHaveLength(0);
     });
 
     it('should return all events if all are in future', () => {
-        const futureEvents = [mockEvents[1]];
-        const result = filterFutureEvents(futureEvents, fixedNow);
-        expect(result).toHaveLength(1);
+      const futureEvents = [mockEvents[1]];
+      const result = filterFutureEvents(futureEvents, fixedNow);
+      expect(result).toHaveLength(1);
     });
-    
+
     it('should handle invalid input securely', () => {
+      const consoleSpy = jest.spyOn(console, 'warn').mockImplementation(() => { });
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       expect(filterFutureEvents(null as any)).toEqual([]);
+      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Invalid input'), null);
+
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       expect(filterFutureEvents(undefined as any)).toEqual([]);
+      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Invalid input'), undefined);
+
+      consoleSpy.mockRestore();
     });
 
     it('should filter out events with invalid dates', () => {
+      const consoleSpy = jest.spyOn(console, 'warn').mockImplementation(() => { });
       const invalidEvent = { ...mockEvents[0], id: 'bad', date: 'invalid-date' };
       const result = filterFutureEvents([invalidEvent], fixedNow);
       expect(result).toHaveLength(0);
+      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Invalid date'), 'invalid-date');
+      consoleSpy.mockRestore();
     });
   });
 });
